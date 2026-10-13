@@ -1,0 +1,21 @@
+{
+ "name": "portrait_krea2",
+ "engine": "krea2",
+ "model": "Krea 2 Turbo",
+ "file": "krea2_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen3vl_4b_heretic_int8",
+ "sampler": "euler",
+ "scheduler": "simple",
+ "steps": 8,
+ "cfg": 1,
+ "seed": 20261013,
+ "width": 1664,
+ "height": 2080,
+ "prompt": "一位三十岁左右的中国女性站在午后窗边，侧逆光，自然妆，亚麻衬衫，浅景深，85mm 镜头的胶片质感，柔和暖色，真实皮肤纹理，不要过度磨皮",
+ "negative": "",
+ "wall_s": 74.3,
+ "machine": "Mac-Studio.local",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-13 18:57:25"
+}

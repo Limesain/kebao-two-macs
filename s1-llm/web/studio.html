@@ -1,0 +1,30 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><link rel="stylesheet" href="cards16/_base.css"><style>
+.page{padding:56px 110px 46px}
+.top{display:flex;justify-content:space-between;align-items:flex-end}.title{font-family:"Songti SC",serif;font-size:36px;margin:12px 0 2px}
+.body{display:grid;grid-template-columns:1fr 520px;gap:40px;margin-top:22px;flex:1;min-height:0}
+.canvas{border:1px solid var(--rule);background:#111;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}.canvas img{max-width:100%;max-height:100%;object-fit:contain;display:none}
+.canvas .ph{font-family:"Songti SC",serif;font-size:22px;color:var(--dim);letter-spacing:.2em}
+.spec{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--mut);line-height:1.9;white-space:pre-wrap}
+.prompt{font-family:"Songti SC",serif;font-size:18px;line-height:1.75;color:var(--ink);margin:14px 0 18px;border-left:1px solid var(--rule);padding-left:16px;max-height:300px;overflow:hidden}
+.bar{height:2px;background:rgba(255,255,255,.1);margin-top:10px}.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .25s}
+.big{font-family:ui-serif,"New York",serif;font-size:56px;line-height:1.1;margin-top:18px}.big small{font-size:13px;letter-spacing:.3em;color:var(--mut);margin-left:10px}
+.st{font-size:12px;letter-spacing:.32em;color:var(--mut);margin-top:16px}
+</style></head><body><div class="page">
+<div class="top"><div><div class="kicker" id="k">克宝 · 实测 · 出图台</div><div class="title" id="t"></div></div></div>
+<div class="body"><div class="canvas"><div class="ph" id="ph">等待模型加载</div><img id="img"></div>
+<div><div class="spec" id="spec"></div><div class="prompt" id="pr"></div><div class="st">进度</div><div class="bar"><i id="bar"></i></div><div class="big" id="step">0<small>/ 0 步</small></div><div class="st">耗时</div><div class="big" id="el">0.0<small>秒</small></div><div class="st" id="status">—</div></div></div>
+<div class="foot"><span id="f">无头 ComfyUI 0.39.2 · MPS · 数据经 WebSocket 实时读取 · 2026-10-13</span><span class="sig">克宝 = Claude Fable 5.1 · 思考强度最高 · 实测</span></div></div>
+<script>
+const q=new URLSearchParams(location.search); const cid=q.get('client')||'studio'; const server=q.get('server')||'127.0.0.1:8199'; const maxWait=+(q.get('max')||600);
+document.getElementById('t').textContent=q.get('title')||''; document.getElementById('spec').textContent=q.get('spec')||''; document.getElementById('pr').textContent=q.get('prompt')||''; if(q.get('kicker'))document.getElementById('k').textContent=q.get('kicker');
+window.__log={events:[]}; let t0=null, done=false, maxStep=0; const el=id=>document.getElementById(id);
+const tick=()=>{ if(t0&&!done) el('el').innerHTML=((Date.now()-t0)/1000).toFixed(1)+'<small>秒</small>'; if(!done) requestAnimationFrame(tick); }; requestAnimationFrame(tick);
+const ws=new WebSocket(`ws://${server}/ws?clientId=${cid}`);
+ws.onmessage=async ev=>{ if(typeof ev.data!=='string') return; const m=JSON.parse(ev.data); const d=m.data||{};
+  if(m.type==='execution_start'){t0=Date.now(); el('status').textContent='开始'; el('ph').textContent='模型加载中';}
+  if(m.type==='progress'){ if(!t0)t0=Date.now(); maxStep=d.max; el('bar').style.width=(100*d.value/d.max)+'%'; el('step').innerHTML=d.value+'<small>/ '+d.max+' 步</small>'; el('status').textContent='采样中 · '+(d.node||''); el('ph').textContent='正在出图'; }
+  if(m.type==='executed'&&d.output&&d.output.images){ const im=d.output.images[0]; const u=`http://${server}/view?filename=${encodeURIComponent(im.filename)}&subfolder=${encodeURIComponent(im.subfolder||'')}&type=${im.type||'output'}`; const img=el('img'); img.src=u; img.onload=()=>{el('ph').style.display='none'; img.style.display='block';}; }
+  if(m.type==='execution_success'){ done=true; el('status').textContent='完成'; window.__log.final={wall:(Date.now()-t0)/1000, steps:maxStep}; setTimeout(()=>{document.title='DONE';}, 3500); }
+  if(m.type==='execution_error'){ done=true; el('status').textContent='出错'; setTimeout(()=>{document.title='DONE';}, 1500); } };
+setTimeout(()=>{ if(!done) document.title='DONE'; }, maxWait*1000);
+</script></body></html>

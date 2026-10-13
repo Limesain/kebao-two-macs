@@ -1,0 +1,22 @@
+{
+ "name": "ink_qwen",
+ "engine": "qwen",
+ "model": "Qwen-Image 2.1",
+ "file": "qwen_image_2.1_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen3vl_8b_int8",
+ "prompt_enhancer": false,
+ "sampler": "euler",
+ "scheduler": "simple",
+ "steps": 25,
+ "cfg": 1,
+ "seed": 20261013,
+ "width": 2048,
+ "height": 1152,
+ "prompt": "水墨山水长卷局部：远山淡墨、近松浓墨，江面一叶扁舟，薄雾，留白，题款与印章点缀，宣纸纹理，宋画气息",
+ "negative": "",
+ "wall_s": 89.5,
+ "machine": "Mac-Studio.local",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-13 18:59:55"
+}

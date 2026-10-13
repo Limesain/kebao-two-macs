@@ -1,0 +1,12 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><link rel="stylesheet" href="cards16/_base.css"><style>
+.page{padding:40px 60px 30px}.g{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:14px;flex:1;min-height:0;margin-top:14px}
+.it{display:flex;flex-direction:column;min-height:0}.it .im{flex:1;min-height:0;background:#111;border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;overflow:hidden}.it img{max-width:100%;max-height:100%;object-fit:contain}
+.it .c{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--mut);margin-top:6px;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.it .c b{font-family:ui-serif,"New York",serif;font-weight:400;font-size:15px;color:var(--ink);margin-right:8px}
+</style></head><body><div class="page"><div class="kicker" id="k"></div><div class="g" id="g"></div><div class="foot"><span id="f"></span><span class="sig">克宝 · S2 样张</span></div></div>
+<script>
+const q=new URLSearchParams(location.search); const items=JSON.parse(decodeURIComponent(q.get('items')||'[]')); document.getElementById('k').textContent=q.get('title')||''; document.getElementById('f').textContent=q.get('foot')||'';
+const g=document.getElementById('g'); g.style.setProperty('--n', q.get('cols')||items.length);
+(async()=>{for(const it of items){let meta='';try{const j=await (await fetch(it.json)).json(); meta=[j.model||j.engine||'',j.steps?`${j.steps} 步`:'',j.width?`${j.width}×${j.height}`:'',j.wall_s?`${j.wall_s} s`:'',j.cost_usd!=null?`$${(+j.cost_usd).toFixed(3)}`:''].filter(Boolean).join(' · ');}catch(e){}
+ const d=document.createElement('div'); d.className='it'; d.innerHTML=`<div class="im"><img src="${it.img}"></div><div class="c"><b>${it.label}</b>${meta}</div>`; g.appendChild(d);}
+ await new Promise(r=>setTimeout(r,1500)); document.title='DONE';})();
+</script></body></html>

@@ -1,0 +1,22 @@
+{
+ "name": "poster_qwen",
+ "engine": "qwen",
+ "model": "Qwen-Image 2.1",
+ "file": "qwen_image_2.1_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen3vl_8b_int8",
+ "prompt_enhancer": false,
+ "sampler": "euler",
+ "scheduler": "simple",
+ "steps": 25,
+ "cfg": 1,
+ "seed": 20261013,
+ "width": 1536,
+ "height": 2048,
+ "prompt": "一张竖版电影海报：深蓝夜色里的雷雳线连接两台电脑，顶部大标题「两台 Mac 一个模型」，副标题「本地大模型实测 · 第一集」，底部小字「克宝 出品」，字体端正、排版克制、留白讲究，电影海报质感",
+ "negative": "",
+ "wall_s": 134.4,
+ "machine": "Mac-Studio.local",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-13 19:04:45"
+}

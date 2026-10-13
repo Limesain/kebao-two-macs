@@ -1,0 +1,22 @@
+{
+ "name": "storyboard_grid_qwen",
+ "engine": "qwen",
+ "model": "Qwen-Image 2.1",
+ "file": "qwen_image_2.1_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen3vl_8b_int8",
+ "prompt_enhancer": false,
+ "sampler": "euler",
+ "scheduler": "simple",
+ "steps": 25,
+ "cfg": 1,
+ "seed": 20261013,
+ "width": 2304,
+ "height": 1536,
+ "prompt": "一张 2×3 分镜格电影故事板，同一位角色贯穿六格：一位穿深绿雨衣、背着帆布包的年轻女性，短发，背景是雨夜的东京街头，霓虹倒映在湿漉漉的路面。六格依次为：第1格 建立镜头：远景，她撑伞站在十字路口；第2格 中景：她走进便利店门口，回头看；第3格 特写：她的脸，雨水顺着伞沿滴下；第4格 过肩镜头：她看向橱窗里的猫；第5格 收尾：她在路灯下走远的背影。每格用细白边分隔，统一色调与打光，电影感，角色外貌在每格保持完全一致",
+ "negative": "",
+ "wall_s": 162.6,
+ "machine": "Mac-Studio.local",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-13 19:07:28"
+}

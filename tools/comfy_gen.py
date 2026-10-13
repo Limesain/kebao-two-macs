@@ -5,7 +5,7 @@ import argparse, json, time, uuid, urllib.request, urllib.parse, pathlib, shutil
 R = pathlib.Path(__file__).resolve().parent.parent
 ap = argparse.ArgumentParser(); ap.add_argument("--engine", required=True); ap.add_argument("--prompt", required=True); ap.add_argument("--name", required=True)
 ap.add_argument("--w", type=int, default=1024); ap.add_argument("--h", type=int, default=1024); ap.add_argument("--seed", type=int, default=None); ap.add_argument("--steps", type=int, default=None)
-ap.add_argument("--enhance", action="store_true"); ap.add_argument("--outdir", default="s2/images"); ap.add_argument("--server", default="http://127.0.0.1:8199"); ap.add_argument("--negative", default="")
+ap.add_argument("--enhance", action="store_true"); ap.add_argument("--client-id", default=None); ap.add_argument("--outdir", default="s2/images"); ap.add_argument("--server", default="http://127.0.0.1:8199"); ap.add_argument("--negative", default="")
 a = ap.parse_args(); seed = a.seed if a.seed is not None else random.randrange(1, 2**48)
 def load(name): return json.load(open(R / "s2/workflows" / name, encoding="utf-8"))
 def find(g, cls): return [k for k, v in g.items() if v["class_type"] == cls]
@@ -21,7 +21,7 @@ elif a.engine in ("qwen", "qwen_turbo"):
     if a.enhance:
         g[sw]["inputs"]["switch"] = True; g[tg]["inputs"]["prompt"] = a.prompt; g[sw]["inputs"]["on_false"] = a.prompt
     else:
-        for n in (tg, pa): g.pop(n)
+        g.pop(tg)
         pe = [k for k in find(g, "CLIPLoader") if "pe_" in g[k]["inputs"]["clip_name"]]; [g.pop(k) for k in pe]
         g[sw]["inputs"].update(switch=False, on_false=a.prompt, on_true=a.prompt)
     rs = find(g, "ResolutionSelector")[0]; g.pop(rs); lat = find(g, "EmptyLatentImage")[0]; g[lat]["inputs"].update(width=a.w, height=a.h)
@@ -41,11 +41,28 @@ elif a.engine == "krea2":
     lat = find(g, "EmptyLatentImage")[0]; g[lat]["inputs"].update(width=a.w, height=a.h); g[ks]["inputs"].update(seed=seed, steps=a.steps or 8)
     meta = {"model": "Krea 2 Turbo", "file": "krea2_turbo_bf16.safetensors", "quant": "bf16", "text_encoder": "qwen3vl_4b_heretic_int8"}
 else: raise SystemExit("unknown engine")
+# 大于 2.5 MP 时改用 VAEDecodeTiled（输入项按服务端 object_info 的默认值填）
+if a.w * a.h > 2_500_000:
+    info = json.load(urllib.request.urlopen(f"{a.server}/object_info/VAEDecodeTiled", timeout=30))["VAEDecodeTiled"]["input"]
+    for k in find(g, "VAEDecode"):
+        node = g[k]; node["class_type"] = "VAEDecodeTiled"
+        for name, spec in info.get("required", {}).items():
+            if name in ("samples", "vae"): continue
+            node["inputs"][name] = (spec[1].get("default") if len(spec) > 1 and isinstance(spec[1], dict) else None)
+        node["inputs"]["tile_size"] = 1024; node["inputs"]["overlap"] = 96
 # 统一保存节点前缀
 for k in find(g, "SaveImage") + find(g, "SaveImageAdvanced"): g[k]["inputs"]["filename_prefix"] = f"s2/{a.name}"
 ks = find(g, "KSampler")[0]; ksi = g[ks]["inputs"]
-cid = uuid.uuid4().hex; t0 = time.time()
-r = json.load(urllib.request.urlopen(urllib.request.Request(f"{a.server}/prompt", data=json.dumps({"prompt": g, "client_id": cid}).encode(), headers={"Content-Type": "application/json"}), timeout=60))
+cid = a.client_id or uuid.uuid4().hex; t0 = time.time()
+try:
+    r = json.load(urllib.request.urlopen(urllib.request.Request(f"{a.server}/prompt", data=json.dumps({"prompt": g, "client_id": cid}).encode(), headers={"Content-Type": "application/json"}), timeout=60))
+except urllib.error.HTTPError as e:
+    body = e.read().decode(errors="replace")
+    try:
+        d = json.loads(body); msg = d.get("error", {}).get("message"); errs = {k: [(x.get("message"), x.get("details")) for x in v.get("errors", [])] for k, v in (d.get("node_errors") or {}).items()}
+        raise SystemExit(f"submit {e.code}: {msg} | node_errors: {json.dumps(errs, ensure_ascii=False)[:1500]}")
+    except SystemExit: raise
+    except Exception: raise SystemExit(f"submit {e.code}: {body[:800]}")
 if "prompt_id" not in r: raise SystemExit("submit failed: " + json.dumps(r)[:800])
 pid = r["prompt_id"]
 while True:
