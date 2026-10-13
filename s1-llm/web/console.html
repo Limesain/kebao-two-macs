@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><title>克宝 · 实测</title>
+<style>
+:root{--bg:#0d0e11;--ink:#ece7df;--mut:#8d8f95;--dim:#5c5f66;--gold:#c8a96e;--slate:#8fa3b8;--rule:rgba(255,255,255,.14)}
+*{box-sizing:border-box}
+html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:var(--bg);color:var(--ink);font-family:"PingFang SC","Hiragino Sans GB",-apple-system,sans-serif;font-weight:300}
+body::before{content:"";position:fixed;inset:0;background:radial-gradient(1200px 700px at 18% 0%,#1b1d23 0%,rgba(27,29,35,0) 60%),radial-gradient(900px 600px at 100% 100%,#15161b 0%,rgba(21,22,27,0) 60%);pointer-events:none}
+body::after{content:"";position:fixed;inset:0;opacity:.06;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='.9'/></svg>");pointer-events:none;mix-blend-mode:overlay}
+.page{position:relative;height:100%;display:flex;flex-direction:column;padding:56px 84px 44px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid var(--rule);padding-bottom:18px}
+.kicker{font-size:13px;letter-spacing:.42em;color:var(--gold);text-transform:uppercase}
+.prompt{font-family:"Songti SC","STSong",serif;font-size:30px;line-height:1.35;margin-top:10px;max-width:1500px;color:var(--ink)}
+.clock{font-family:ui-monospace,Menlo,monospace;font-size:14px;color:var(--dim);letter-spacing:.08em;text-align:right}
+main{flex:1;display:grid;gap:0;min-height:0;margin-top:26px}
+main.dual{grid-template-columns:1fr 1px 1fr}main.single{grid-template-columns:1fr}
+.vrule{background:var(--rule)}
+.col{display:flex;flex-direction:column;min-height:0;padding:0 36px}.col:first-child{padding-left:0}.col:last-child{padding-right:0}
+.name{font-family:ui-serif,"New York","Songti SC",serif;font-size:34px;font-weight:400;letter-spacing:.01em;margin:0}
+.name small{font-family:"PingFang SC",sans-serif;font-size:15px;color:var(--mut);letter-spacing:.2em;margin-left:14px;vertical-align:middle}
+.spec{font-family:ui-monospace,Menlo,monospace;font-size:14px;color:var(--mut);margin:8px 0 22px;letter-spacing:.02em;line-height:1.7}
+.spec b{color:var(--slate);font-weight:500}
+.bar{height:1px;background:rgba(255,255,255,.08);position:relative;margin:4px 0 18px;display:none}.bar i{position:absolute;left:0;top:-1px;height:3px;width:0;background:var(--gold);transition:width .2s}
+.barlabel{font-size:14px;color:var(--mut);letter-spacing:.1em;margin-bottom:8px;display:none;font-variant-numeric:tabular-nums}
+.out{flex:1;font-size:23px;line-height:1.75;color:var(--ink);white-space:pre-wrap;word-break:break-word;overflow:hidden;font-weight:300}
+.out .turn{display:block;margin:16px 0 6px;font-size:13px;letter-spacing:.3em;color:var(--gold)}
+.out .user{display:block;color:var(--slate);font-family:"Songti SC",serif;font-size:22px;margin-bottom:6px}
+.out .think{color:var(--dim);font-size:19px}
+.cursor::after{content:"";display:inline-block;width:2px;height:1.1em;background:var(--gold);vertical-align:-.15em;margin-left:3px;animation:b 1s steps(2) infinite}@keyframes b{to{opacity:0}}
+.stats{display:flex;gap:56px;border-top:1px solid var(--rule);padding-top:16px;margin-top:14px}
+.stat b{display:block;font-family:ui-serif,"New York","Songti SC",serif;font-weight:400;font-size:54px;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink)}
+.stat b.gold{color:var(--gold)}.stat span{display:block;font-size:12px;letter-spacing:.3em;color:var(--mut);margin-top:10px;text-transform:uppercase}
+.foot{display:flex;justify-content:space-between;align-items:center;margin-top:26px;font-family:ui-monospace,Menlo,monospace;font-size:13px;color:var(--dim);letter-spacing:.06em}
+.foot .sig{font-family:"Songti SC",serif;font-size:15px;color:var(--mut);letter-spacing:.3em}
+</style></head><body><div class="page">
+<div class="top"><div><div class="kicker" id="kicker">克宝 · 实测</div><div class="prompt" id="prompt"></div></div><div class="clock" id="clock"></div></div>
+<main id="main" class="dual">
+ <section class="col" id="L"><h2 class="name"><span id="ln"></span><small id="lsub"></small></h2><div class="spec" id="lm"></div><div class="barlabel" id="lbl"></div><div class="bar" id="lb"><i></i></div><div class="out" id="lo"></div>
+  <div class="stats"><div class="stat"><b id="lt">0</b><span>tokens</span></div><div class="stat"><b id="le">0.0</b><span>秒</span></div><div class="stat"><b class="gold" id="ls">—</b><span>tokens / 秒</span></div><div class="stat"><b id="lf">—</b><span>首字 · 秒</span></div></div></section>
+ <div class="vrule" id="vr"></div>
+ <section class="col" id="R"><h2 class="name"><span id="rn"></span><small id="rsub"></small></h2><div class="spec" id="rm"></div><div class="barlabel" id="rbl"></div><div class="bar" id="rb"><i></i></div><div class="out" id="ro"></div>
+  <div class="stats"><div class="stat"><b id="rt">0</b><span>tokens</span></div><div class="stat"><b id="re">0.0</b><span>秒</span></div><div class="stat"><b class="gold" id="rs">—</b><span>tokens / 秒</span></div><div class="stat"><b id="rf">—</b><span>首字 · 秒</span></div></div></section>
+</main>
+<div class="foot"><span id="env"></span><span class="sig">克宝 · 实测</span></div>
+</div>
+<script>
+const q=new URLSearchParams(location.search), g=(k,d='')=>q.get(k)??d;
+const P=g('p','用三句话解释：为什么统一内存让 Mac 适合在本地跑大语言模型？'), TITLE=g('title',''), DOC=g('doc',''), TURNS=g('turns','').split('||').filter(Boolean);
+const cfg={L:{host:g('left','127.0.0.1:1234'),model:g('lm','qwen3.8-27b'),name:g('ln','Mac Studio'),sub:g('lsub','M5 Ultra · 96 GB'),spec:g('lspec','')},
+           R:{host:g('right',''),model:g('rm','qwen3.8-27b'),name:g('rn','MacBook Pro'),sub:g('rsub','M5 Max · 48 GB'),spec:g('rspec','')}};
+const reasoning=g('reasoning','off'), maxOut=+g('max',320), ctx=+g('ctx',65536), delay=+g('delay',2500), temp=+g('temp',0.7);
+document.getElementById('kicker').textContent=g('kicker','克宝 · 实测');
+document.getElementById('prompt').textContent=TITLE||P; document.getElementById('env').textContent=g('env','');
+if(!cfg.R.host){document.getElementById('main').className='single';document.getElementById('R').style.display='none';document.getElementById('vr').style.display='none';}
+for(const s of ['L','R']){const i=s.toLowerCase();document.getElementById(i+'n').textContent=cfg[s].name;document.getElementById(i+'sub').textContent=cfg[s].sub;document.getElementById(i+'m').innerHTML=cfg[s].spec.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');}
+const t00=Date.now(); setInterval(()=>{document.getElementById('clock').textContent=new Date().toLocaleString('zh-CN',{hour12:false})+'  ·  '+((Date.now()-t00)/1000).toFixed(1)+' s';},100);
+let FULL=P; async function prep(){ if(DOC){ const t=await (await fetch(DOC)).text(); FULL=P+'\n\n'+t; } }
+window.__done={L:!!cfg.L.host?false:true, R:cfg.R.host?false:true};
+async function stream(side, input, history, els, t0){ // returns {text, stats}
+  const c=cfg[side]; const body={model:c.model,input,context_length:ctx,max_output_tokens:maxOut,temperature:temp,store:TURNS.length>0,stream:true}; if(reasoning!=='none') body.reasoning=reasoning;
+  if(history) body.previous_response_id=history;
+  const r=await fetch('http://'+c.host+'/api/v1/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const rd=r.body.getReader(), dec=new TextDecoder(); let buf='', n=0, tf=null, stats=null, rid=null, text='';
+  while(true){const {value,done}=await rd.read(); if(done)break; buf+=dec.decode(value,{stream:true}); let i;
+    while((i=buf.indexOf('\n\n'))>=0){const chunk=buf.slice(0,i); buf=buf.slice(i+2); const line=chunk.split('\n').find(l=>l.startsWith('data:')); if(!line)continue; let d; try{d=JSON.parse(line.slice(5));}catch{continue;}
+      if(d.type==='prompt_processing.progress'&&els.bar){els.bar.style.display='block';els.bl.style.display='block';els.bar.firstChild.style.width=Math.round(d.progress*100)+'%';els.bl.textContent='读入全文 '+Math.round(d.progress*100)+'%  ·  '+((performance.now()-t0)/1000).toFixed(1)+' s';}
+      else if(d.type==='message.delta'){ if(tf===null){tf=performance.now(); els.f.textContent=((tf-t0)/1000).toFixed(2); if(els.bl.style.display==='block') els.bl.textContent='读完 · '+((tf-t0)/1000).toFixed(1)+' s · 开始作答';} n++; els.t.textContent=n; text+=d.content; els.out.append(d.content); els.out.scrollTop=1e9; }
+      else if(d.type==='reasoning.delta'){ const s=document.createElement('span'); s.className='think'; s.textContent=d.content||''; els.out.append(s); }
+      else if(d.type==='chat.end'){ stats=(d.result&&d.result.stats)||null; rid=(d.result&&(d.result.response_id||d.result.id))||null; }
+    }}
+  return {text,stats,rid,n,tf};
+}
+async function run(side){
+  const c=cfg[side]; if(!c.host) return; const id=side.toLowerCase();
+  const els={out:document.getElementById(id+'o'),t:document.getElementById(id+'t'),e:document.getElementById(id+'e'),s:document.getElementById(id+'s'),f:document.getElementById(id+'f'),bar:document.getElementById(id+'b'),bl:document.getElementById(id+'bl')};
+  const log=[]; const prompts=TURNS.length?TURNS:[FULL]; let hist=null;
+  for(let k=0;k<prompts.length;k++){
+    const t0=performance.now(); let n=0, tf=null; els.out.classList.add('cursor');
+    if(TURNS.length){ const tt=document.createElement('span'); tt.className='turn'; tt.textContent='第 '+(k+1)+' 轮'; els.out.append(tt); const u=document.createElement('span'); u.className='user'; u.textContent='问：'+prompts[k]; els.out.append(u); }
+    const timer=setInterval(()=>{els.e.textContent=((performance.now()-t0)/1000).toFixed(1);},100);
+    let res; try{ res=await stream(side, prompts[k], hist, els, t0); }catch(err){ els.out.append('\n[错误] '+err); break; }
+    clearInterval(timer); els.e.textContent=((performance.now()-t0)/1000).toFixed(1);
+    if(res.stats&&res.stats.tokens_per_second){ els.s.textContent=res.stats.tokens_per_second.toFixed(1); if(res.stats.time_to_first_token_seconds!=null) els.f.textContent=res.stats.time_to_first_token_seconds.toFixed(2); }
+    log.push({turn:k+1,prompt:prompts[k].slice(0,80),wall:(performance.now()-t0)/1000,stats:res.stats,tokens:res.n}); hist=res.rid; els.out.append('\n');
+  }
+  els.out.classList.remove('cursor'); window.__log=window.__log||{}; window.__log[side]=log; window.__done[side]=true;
+  if(window.__done.L&&window.__done.R) document.title='DONE';
+}
+setTimeout(async()=>{ await prep(); run('L'); run('R'); }, delay);
+</script></body></html>

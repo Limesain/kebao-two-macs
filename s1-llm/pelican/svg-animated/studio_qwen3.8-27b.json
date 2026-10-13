@@ -1,0 +1,14 @@
+{
+ "name": "studio_qwen3.8-27b",
+ "model": "bench",
+ "reasoning": "off",
+ "temp": 0.7,
+ "wall_s": 73.8,
+ "tps": 31.08204350321686,
+ "ttft_s": 0.178,
+ "out_tok": 2286,
+ "reason_tok": 0,
+ "svg_ok": true,
+ "svg_bytes": 5026,
+ "prompt": "Generate an animated SVG of a pelican riding a bicycle. Use SMIL animation (<animateTransform>/<animate>) so the wheels spin, the pedals turn and the pelican bobs gently as it rides. Output only the SVG code, nothing else."
+}

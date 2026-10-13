@@ -1,0 +1,141 @@
+{
+ "9": {
+  "inputs": {
+   "filename_prefix": "s2/storyboard_grid_zimage",
+   "images": [
+    "57:8",
+    0
+   ]
+  },
+  "class_type": "SaveImage",
+  "_meta": {
+   "title": "Save Image"
+  }
+ },
+ "57:30": {
+  "inputs": {
+   "clip_name": "qwen_3_4b.safetensors",
+   "type": "lumina2",
+   "device": "default"
+  },
+  "class_type": "CLIPLoader",
+  "_meta": {
+   "title": "Load CLIP"
+  }
+ },
+ "57:29": {
+  "inputs": {
+   "vae_name": "ae.safetensors"
+  },
+  "class_type": "VAELoader",
+  "_meta": {
+   "title": "Load VAE"
+  }
+ },
+ "57:33": {
+  "inputs": {
+   "conditioning": [
+    "57:27",
+    0
+   ]
+  },
+  "class_type": "ConditioningZeroOut",
+  "_meta": {
+   "title": "Conditioning Zero Out"
+  }
+ },
+ "57:8": {
+  "inputs": {
+   "samples": [
+    "57:3",
+    0
+   ],
+   "vae": [
+    "57:29",
+    0
+   ]
+  },
+  "class_type": "VAEDecode",
+  "_meta": {
+   "title": "VAE Decode"
+  }
+ },
+ "57:28": {
+  "inputs": {
+   "unet_name": "z_image_turbo_bf16.safetensors",
+   "weight_dtype": "default"
+  },
+  "class_type": "UNETLoader",
+  "_meta": {
+   "title": "Load Diffusion Model"
+  }
+ },
+ "57:27": {
+  "inputs": {
+   "text": "一张 2×3 分镜格电影故事板，同一位角色贯穿六格：一位穿深绿雨衣、背着帆布包的年轻女性，短发，背景是雨夜的东京街头，霓虹倒映在湿漉漉的路面。六格依次为：第1格 建立镜头：远景，她撑伞站在十字路口；第2格 中景：她走进便利店门口，回头看；第3格 特写：她的脸，雨水顺着伞沿滴下；第4格 过肩镜头：她看向橱窗里的猫；第5格 收尾：她在路灯下走远的背影。每格用细白边分隔，统一色调与打光，电影感，角色外貌在每格保持完全一致",
+   "clip": [
+    "57:30",
+    0
+   ]
+  },
+  "class_type": "CLIPTextEncode",
+  "_meta": {
+   "title": "CLIP Text Encode (Prompt)"
+  }
+ },
+ "57:13": {
+  "inputs": {
+   "width": 2048,
+   "height": 1365,
+   "batch_size": 1
+  },
+  "class_type": "EmptySD3LatentImage",
+  "_meta": {
+   "title": "EmptySD3LatentImage"
+  }
+ },
+ "57:11": {
+  "inputs": {
+   "shift": 3,
+   "sampling": "flow",
+   "model": [
+    "57:28",
+    0
+   ]
+  },
+  "class_type": "ModelSamplingAuraFlow",
+  "_meta": {
+   "title": "ModelSamplingAuraFlow"
+  }
+ },
+ "57:3": {
+  "inputs": {
+   "seed": 20261013,
+   "steps": 9,
+   "cfg": 1,
+   "sampler_name": "res_multistep",
+   "scheduler": "simple",
+   "denoise": 1,
+   "model": [
+    "57:11",
+    0
+   ],
+   "positive": [
+    "57:27",
+    0
+   ],
+   "negative": [
+    "57:33",
+    0
+   ],
+   "latent_image": [
+    "57:13",
+    0
+   ]
+  },
+  "class_type": "KSampler",
+  "_meta": {
+   "title": "KSampler"
+  }
+ }
+}

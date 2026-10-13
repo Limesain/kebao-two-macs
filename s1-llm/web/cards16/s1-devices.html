@@ -1,0 +1,17 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"><style>
+.cols{grid-template-columns:1fr 120px 1fr}
+.link{text-align:center;font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--mut);letter-spacing:.14em;line-height:1.9;align-self:center}
+.link .wire{height:1px;background:linear-gradient(90deg,var(--gold),var(--slate));margin:12px 0}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:7px 18px;font-size:17px;line-height:1.6;margin-top:18px}
+.kv span{color:var(--mut);font-size:12.5px;letter-spacing:.28em;align-self:center}.kv b{font-weight:300;color:var(--ink)}
+.kv b em{font-style:normal;font-family:ui-serif,"New York",serif;font-size:26px;color:var(--gold)}.r .kv b em{color:var(--slate)}
+</style></head><body><div class="page">
+<div class="kicker">克宝 · 实测 · 两位选手</div><h1>两位选手：96 GB 与 48 GB</h1><p class="lead">同一个房间，同一批模型，同一套推理引擎 · 数据与画面全部由克宝通过接口直接读取</p><div class="rule"></div>
+<div class="cols">
+ <div class="col l"><h2 class="name">Mac Studio<small>2026 · 新机</small></h2>
+  <div class="kv"><span>芯片</span><b><em>M5 Ultra</em></b><span>内存</span><b><em>96</em> GB 统一内存</b><span>CPU / GPU</span><b><em>36</em> 核 / <em>80</em> 核</b><span>内存带宽</span><b><em>1,050</em> GB/s 实测</b><span>硬盘 读 / 写</span><b><em>6.8</em> / <em>13.9</em> GB/s</b><span>系统</span><b>macOS 27.0.1</b><span>推理引擎</span><b>LM Studio 0.4.26 · MLX 1.13.1 · mlx 0.32.3</b><span>状态</span><b>常亮，接显示器</b></div></div>
+ <div class="link" style="color:var(--dim)"><div class="wire" style="opacity:.5"></div><div style="font-size:10.5px">雷雳 5 直连</div></div>
+ <div class="col r"><h2 class="name">MacBook Pro<small>16 英寸 · 2026-06</small></h2>
+  <div class="kv"><span>芯片</span><b><em>M5 Max</em></b><span>内存</span><b><em>48</em> GB 统一内存</b><span>CPU / GPU</span><b><em>18</em> 核 / <em>40</em> 核</b><span>内存带宽</span><b><em>550</em> GB/s 实测</b><span>硬盘 读 / 写</span><b><em>4.6</em> / <em>7.2</em> GB/s</b><span>系统</span><b>macOS 27.0.1</b><span>推理引擎</span><b>LM Studio 0.4.26 · MLX 1.13.1 · mlx 0.32.3</b><span>状态</span><b>合盖，接电源，不睡眠</b></div></div>
+</div>
+<div class="foot"><span>核数与内存来自 system_profiler · 内存带宽 = MLX 在 GPU 上复制 2 GiB 数组的吞吐 · 硬盘 = 8 GiB 顺序读写、绕过系统缓存 · 2026-10-13 空载实测</span><span class="sig">克宝 = Claude Fable 5.1 · 思考强度最高 · 实测</span></div></div><script src="_anim.js"></script></body></html>

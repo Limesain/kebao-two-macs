@@ -1,0 +1,33 @@
+{
+ "name": "poster_gptimage",
+ "model": "openai/gpt-image-2.5-flare",
+ "provider": "openrouter",
+ "prompt": "A vertical movie poster: a Thunderbolt cable linking two computers in deep blue night, big Chinese title 「两台 Mac 一个模型」 at the top, subtitle 「本地大模型实测 · 第一集」, small footer text 「克宝 出品」, clean typography, restrained layout, generous whitespace, cinematic poster finish",
+ "aspect_ratio": "3:4",
+ "resolution": null,
+ "size": null,
+ "refs": [],
+ "wall_s": 22.4,
+ "cost_usd": 0.04923,
+ "usage": {
+  "prompt_tokens": 72,
+  "completion_tokens": 1629,
+  "total_tokens": 1701,
+  "cost": 0.04923,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.04923,
+   "upstream_inference_prompt_cost": 0.00036,
+   "upstream_inference_completions_cost": 0.04887
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 1629
+  }
+ },
+ "file": "s2/cloud/poster_gptimage.png",
+ "when": "2026-10-13 18:47:21"
+}

@@ -1,0 +1,10 @@
+{
+ "host": "IasonMacBook-Pro.local",
+ "when": "2026-10-13 17:11:38",
+ "ssd_write_MBps": 7234.0,
+ "ssd_read_MBps": 4559.0,
+ "ssd_test_GiB": 8,
+ "mem_bw_copy_GBps": 539.0,
+ "mem_bw_read_GBps": 560.0,
+ "chip": "Apple M5 Max"
+}

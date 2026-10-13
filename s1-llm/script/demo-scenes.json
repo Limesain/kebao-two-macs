@@ -1,0 +1,6 @@
+{"gap":0.45,"lead":0.4,"tail":0.7,"xfade":0.6,"scenes":[
+ {"type":"video","src":"assets/captures/v2/t0-title.mp4","segs":["s0a"]},
+ {"type":"image","src":"assets/cards16/s1-devices.png","segs":["s0b","s1a"]},
+ {"type":"video","src":"assets/captures/v2/r10-cluster-gptoss.mp4","segs":["s4a","s4b"],"start":9},
+ {"type":"image","src":"assets/cards16/s1-end.png","segs":["s7c"]}
+]}

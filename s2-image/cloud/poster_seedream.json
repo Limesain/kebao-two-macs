@@ -1,0 +1,33 @@
+{
+ "name": "poster_seedream",
+ "model": "bytedance-seed/seedream-5-0-pro",
+ "provider": "openrouter",
+ "prompt": "一张竖版电影海报：深蓝夜色里的雷雳线连接两台电脑，顶部大标题「两台 Mac 一个模型」，副标题「本地大模型实测 · 第一集」，底部小字「克宝 出品」，字体端正、排版克制、留白讲究，电影海报质感",
+ "aspect_ratio": "3:4",
+ "resolution": "2K",
+ "size": null,
+ "refs": [],
+ "wall_s": 70.4,
+ "cost_usd": 0.09,
+ "usage": {
+  "prompt_tokens": 90,
+  "completion_tokens": 12288,
+  "total_tokens": 12378,
+  "cost": 0.09,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.09,
+   "upstream_inference_prompt_cost": 0,
+   "upstream_inference_completions_cost": 0.09
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 12288
+  }
+ },
+ "file": "s2/cloud/poster_seedream.jpg",
+ "when": "2026-10-13 18:45:48"
+}

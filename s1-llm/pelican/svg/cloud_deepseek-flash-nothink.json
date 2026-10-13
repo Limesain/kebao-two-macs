@@ -1,0 +1,19 @@
+{
+ "name": "cloud_deepseek-flash-nothink",
+ "cloud": "deepseek-nothink",
+ "wall_s": 6.9,
+ "svg_ok": true,
+ "svg_bytes": 4922,
+ "model": "deepseek-flash",
+ "usage": {
+  "prompt_tokens": 24,
+  "completion_tokens": 1881,
+  "total_tokens": 1905,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "prompt_cache_hit_tokens": 0,
+  "prompt_cache_miss_tokens": 24
+ },
+ "prompt": "Generate an SVG of a pelican riding a bicycle. Output only the SVG code, nothing else."
+}

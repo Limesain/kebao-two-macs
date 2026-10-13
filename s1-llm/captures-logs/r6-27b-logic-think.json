@@ -1,0 +1,32 @@
+{
+ "L": [
+  {
+   "turn": 1,
+   "prompt": "一个人是否能够同时拥有二伯和三叔？请先给出结论，再说明理由。",
+   "wall": 24.2735,
+   "stats": {
+    "input_tokens": 27,
+    "total_output_tokens": 746,
+    "reasoning_output_tokens": 405,
+    "tokens_per_second": 31.191356908015127,
+    "time_to_first_token_seconds": 0.339
+   },
+   "tokens": 312
+  }
+ ],
+ "R": [
+  {
+   "turn": 1,
+   "prompt": "一个人是否能够同时拥有二伯和三叔？请先给出结论，再说明理由。",
+   "wall": 61.102,
+   "stats": {
+    "input_tokens": 27,
+    "total_output_tokens": 1037,
+    "reasoning_output_tokens": 617,
+    "tokens_per_second": 17.13184217529799,
+    "time_to_first_token_seconds": 0.543
+   },
+   "tokens": 381
+  }
+ ]
+}

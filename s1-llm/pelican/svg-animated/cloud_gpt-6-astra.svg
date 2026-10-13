@@ -1,0 +1,179 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600" role="img" aria-labelledby="title desc">
+  <title id="title">Pelican on a bicycle</title>
+  <desc id="desc">A cheerful pelican pedals a coral bicycle beside the sea. Its wheels spin, its feet turn the pedals, and its body bobs gently.</desc>
+
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1">
+      <stop stop-color="#d9f0ed"/>
+      <stop offset="1" stop-color="#f8f3dc"/>
+    </linearGradient>
+    <linearGradient id="bill" x2="0" y2="1">
+      <stop stop-color="#ffc95d"/>
+      <stop offset="1" stop-color="#eda13e"/>
+    </linearGradient>
+    <linearGradient id="feathers" x2=".8" y2="1">
+      <stop stop-color="#fffef1"/>
+      <stop offset="1" stop-color="#e0e8d9"/>
+    </linearGradient>
+
+    <g id="wheel">
+      <circle r="83" fill="#fbf6e6" stroke="#263e46" stroke-width="11"/>
+      <circle r="75" fill="none" stroke="#b0c8c2" stroke-width="3"/>
+      <g stroke="#9aafa9" stroke-width="2">
+        <path d="M0-73V73M-73 0H73M-51.62-51.62L51.62 51.62M-51.62 51.62L51.62-51.62"/>
+        <path d="M-27.94-67.44L27.94 67.44M-67.44-27.94L67.44 27.94M-67.44 27.94L67.44-27.94M-27.94 67.44L27.94-67.44"/>
+      </g>
+      <path d="M19-71A73 73 0 0 1 43-59" fill="none" stroke="#fffdf0" stroke-width="5" stroke-linecap="round"/>
+      <rect x="-5" y="-61" width="10" height="19" rx="3" fill="#edb558"/>
+      <circle r="10" fill="#46626a"/>
+      <circle r="4" fill="#e7eee3"/>
+    </g>
+
+    <g id="cloud" fill="#fffdf2">
+      <path d="M0 24C0 12 11 7 22 11C27-6 54-5 62 12C78 6 94 16 94 28H0Z"/>
+    </g>
+  </defs>
+
+  <!-- Quiet seaside backdrop -->
+  <rect width="800" height="600" fill="url(#sky)"/>
+  <circle cx="644" cy="111" r="48" fill="#f8d781"/>
+  <circle cx="644" cy="111" r="61" fill="none" stroke="#f8d781" stroke-width="2" opacity=".35"/>
+
+  <g opacity=".8">
+    <use href="#cloud" x="97" y="102">
+      <animateTransform attributeName="transform" type="translate" values="0 0;-24 0;0 0" dur="18s" repeatCount="indefinite"/>
+    </use>
+    <use href="#cloud" x="567" y="205" transform="scale(.8)"/>
+    <use href="#cloud" x="702" y="64" transform="scale(.7)"/>
+  </g>
+
+  <path d="M0 323Q100 304 196 324T401 321T603 324T800 315V462H0Z" fill="#a8d3cc"/>
+  <path d="M0 350Q119 334 236 351T477 347T800 346" fill="none" stroke="#d5e9dc" stroke-width="3"/>
+  <path d="M37 379H101M646 372H726M117 349H157M580 344H624" stroke="#e1eee0" stroke-width="3" stroke-linecap="round"/>
+  <path d="M0 410Q182 389 363 413T800 404V600H0Z" fill="#eadbb7"/>
+  <path d="M0 474Q390 456 800 475V600H0Z" fill="#d4c9ac"/>
+  <path d="M0 510H800" stroke="#eee6cf" stroke-width="3"/>
+  <path d="M-160 554H960" stroke="#f8f1dc" stroke-width="5" stroke-dasharray="62 70" stroke-linecap="round">
+    <animate attributeName="stroke-dashoffset" from="0" to="132" dur="1.4s" repeatCount="indefinite"/>
+  </path>
+
+  <ellipse cx="405" cy="504" rx="232" ry="16" fill="#64766a" opacity=".16">
+    <animate attributeName="rx" values="232;226;232" dur="1.4s" repeatCount="indefinite"/>
+  </ellipse>
+
+  <!-- Spinning wheels -->
+  <g transform="translate(270 416)">
+    <g>
+      <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="1.4s" repeatCount="indefinite"/>
+      <use href="#wheel"/>
+    </g>
+  </g>
+  <g transform="translate(544 416)">
+    <g>
+      <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="1.4s" repeatCount="indefinite"/>
+      <use href="#wheel"/>
+    </g>
+  </g>
+
+  <!-- Far leg -->
+  <path d="M388 295Q427 342 404 376L368 415" fill="none" stroke="#ba843e" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+    <animate attributeName="d" values="M388 295Q427 342 404 376L368 415;M388 295Q440 333 418 360L396 387;M388 295Q448 347 438 379L424 415;M388 295Q431 354 412 395L396 443;M388 295Q427 342 404 376L368 415" dur="1.4s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- Bicycle frame -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M270 416L354 319L396 415H270L492 319L396 415M354 319H492" stroke="#a65043" stroke-width="12"/>
+    <path d="M270 416L354 319L396 415H270M354 319H492L396 415" stroke="#ed7960" stroke-width="7"/>
+    <path d="M544 416L494 318L484 290" stroke="#ed7960" stroke-width="10"/>
+    <path d="M354 320L346 294" stroke="#526b6b" stroke-width="8"/>
+    <path d="M484 290L478 274L507 261Q523 257 526 269" stroke="#526b6b" stroke-width="7"/>
+    <path d="M508 261Q523 257 526 269" stroke="#263e46" stroke-width="10"/>
+    <path d="M516 276Q551 297 525 353" stroke="#526b6b" stroke-width="2"/>
+    <path d="M205 367A89 89 0 0 1 337 358M478 358A89 89 0 0 1 607 355" stroke="#f2a58b" stroke-width="6"/>
+  </g>
+  <path d="M323 286Q343 280 366 286Q372 290 364 295H326Q317 291 323 286Z" fill="#263e46"/>
+  <path d="M325 286H356" stroke="#617878" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Chain and crank -->
+  <path d="M270 405L394 394A21 21 0 0 1 396 436L270 427A11 11 0 0 1 270 405Z" fill="none" stroke="#687d75" stroke-width="3"/>
+  <circle cx="396" cy="415" r="23" fill="#506b69" stroke="#dce3ce" stroke-width="3"/>
+  <circle cx="396" cy="415" r="15" fill="#87998b"/>
+
+  <!-- Near leg follows the revolving pedal -->
+  <path d="M363 294Q348 344 392 365L424 415" fill="none" stroke="#edae4e" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
+    <animate attributeName="d" values="M363 294Q348 344 392 365L424 415;M363 294Q338 355 372 389L396 443;M363 294Q326 342 351 367L368 415;M363 294Q346 331 376 350L396 387;M363 294Q348 344 392 365L424 415" dur="1.4s" repeatCount="indefinite"/>
+  </path>
+
+  <g transform="translate(396 415)">
+    <g>
+      <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="1.4s" repeatCount="indefinite"/>
+      <path d="M-28 0H28" stroke="#d6dfcf" stroke-width="7" stroke-linecap="round"/>
+      <g transform="translate(-28 0)">
+        <g>
+          <animateTransform attributeName="transform" type="rotate" from="0" to="-360" dur="1.4s" repeatCount="indefinite"/>
+          <rect x="-15" y="2" width="30" height="7" rx="3" fill="#263e46"/>
+          <path d="M-10 0L-8-8L0-7L16 0Z" fill="#ba843e"/>
+        </g>
+      </g>
+      <g transform="translate(28 0)">
+        <g>
+          <animateTransform attributeName="transform" type="rotate" from="0" to="-360" dur="1.4s" repeatCount="indefinite"/>
+          <rect x="-17" y="3" width="34" height="8" rx="3" fill="#263e46"/>
+          <path d="M-13 2L-9-9L0-8L20 2Z" fill="#f6bb55" stroke="#d8963e" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M3-3L10 2" stroke="#d8963e" stroke-width="1.5"/>
+        </g>
+      </g>
+      <circle r="6" fill="#263e46"/>
+      <circle r="2" fill="#eef0df"/>
+    </g>
+  </g>
+
+  <!-- The pelican bobs independently of the bicycle -->
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="0 0;0 -5;0 0" dur="1.4s" repeatCount="indefinite"/>
+
+    <!-- Tail and plump body -->
+    <path d="M323 247L283 228L297 255L279 250Q292 278 330 278" fill="#e5eadd" stroke="#9cac9e" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M325 207Q363 184 409 208Q444 230 429 267Q413 300 362 300Q314 298 305 265Q299 228 325 207Z" fill="url(#feathers)" stroke="#9cac9e" stroke-width="2.5"/>
+    <path d="M340 291Q364 302 387 294" fill="none" stroke="#cad5c5" stroke-width="5" stroke-linecap="round"/>
+
+    <!-- Sweeping neck -->
+    <path d="M390 222Q418 208 423 174Q425 139 449 130Q477 121 489 143Q501 166 478 184Q458 194 458 220Q458 250 428 268" fill="url(#feathers)" stroke="#9cac9e" stroke-width="2.5"/>
+    <path d="M443 176Q435 208 442 225" fill="none" stroke="#fffef5" stroke-width="10" stroke-linecap="round"/>
+
+    <!-- Windblown crest -->
+    <path d="M443 132Q432 121 422 124Q433 111 451 123Q448 112 441 106Q459 108 466 126" fill="#fffef0" stroke="#9cac9e" stroke-width="2" stroke-linejoin="round"/>
+
+    <!-- Throat pouch and long bill -->
+    <path d="M479 160L592 173Q558 209 515 207Q491 204 477 179Z" fill="#efbb63" stroke="#c99143" stroke-width="2.5"/>
+    <path d="M490 176Q519 199 563 183" fill="none" stroke="#f8d58c" stroke-width="4" stroke-linecap="round"/>
+    <path d="M478 151Q530 149 600 174Q539 182 478 171Z" fill="url(#bill)" stroke="#c99143" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M489 168L585 173" fill="none" stroke="#aa7939" stroke-width="2" stroke-linecap="round"/>
+    <ellipse cx="495" cy="158" rx="3" ry="1.8" fill="#bb863d"/>
+
+    <!-- Bright eye -->
+    <circle cx="468" cy="148" r="9" fill="#fffdf1"/>
+    <circle cx="470" cy="148" r="4.5" fill="#263e46"/>
+    <circle cx="471.5" cy="146.5" r="1.5" fill="#fff"/>
+    <path d="M460 135Q467 131 473 135" fill="none" stroke="#758b7b" stroke-width="2.5" stroke-linecap="round"/>
+
+    <!-- Flying neckerchief -->
+    <path d="M430 201Q444 213 458 205L461 217Q443 225 427 212Z" fill="#27918e"/>
+    <path d="M431 209Q404 198 379 205L392 214L378 223Q408 227 434 217Z" fill="#36aaa0">
+      <animate attributeName="d" values="M431 209Q404 198 379 205L392 214L378 223Q408 227 434 217Z;M431 209Q405 214 378 201L390 215L376 219Q405 233 434 217Z;M431 209Q404 198 379 205L392 214L378 223Q408 227 434 217Z" dur="1.4s" repeatCount="indefinite"/>
+    </path>
+    <circle cx="433" cy="212" r="7" fill="#237f7c"/>
+
+    <!-- Wing reaches toward the handlebar -->
+    <path d="M330 221Q354 210 383 233Q417 258 506 261Q504 273 488 276Q414 289 365 268Q342 257 330 240" fill="#f5f5e8" stroke="#9cac9e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M348 233Q375 260 427 267M345 245Q372 270 408 271" fill="none" stroke="#c8d3c3" stroke-width="3" stroke-linecap="round"/>
+    <path d="M485 264L501 265M479 270L496 271" stroke="#b0beac" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <!-- Little breeze marks -->
+  <g fill="none" stroke="#7eaaa3" stroke-width="3" stroke-linecap="round" opacity=".65">
+    <path d="M233 218H266M216 238H257M240 258H261">
+      <animate attributeName="opacity" values=".25;.8;.25" dur="1.4s" repeatCount="indefinite"/>
+    </path>
+  </g>
+</svg>

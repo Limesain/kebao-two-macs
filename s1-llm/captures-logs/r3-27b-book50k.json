@@ -1,0 +1,32 @@
+{
+ "L": [
+  {
+   "turn": 1,
+   "prompt": "下面是一份很长的文档。请用五句话概括它讲了什么，并指出一个你觉得最有意思的细节。\n\n第一回　甄士隱夢幻識通靈　賈雨村風塵怀閨秀\n----------------",
+   "wall": 46.22689999999851,
+   "stats": {
+    "input_tokens": 50240,
+    "total_output_tokens": 281,
+    "reasoning_output_tokens": 0,
+    "tokens_per_second": 27.697511875092598,
+    "time_to_first_token_seconds": 36.001
+   },
+   "tokens": 276
+  }
+ ],
+ "R": [
+  {
+   "turn": 1,
+   "prompt": "下面是一份很长的文档。请用五句话概括它讲了什么，并指出一个你觉得最有意思的细节。\n\n第一回　甄士隱夢幻識通靈　賈雨村風塵怀閨秀\n----------------",
+   "wall": 123.87870000000298,
+   "stats": {
+    "input_tokens": 50240,
+    "total_output_tokens": 319,
+    "reasoning_output_tokens": 0,
+    "tokens_per_second": 13.231465278074182,
+    "time_to_first_token_seconds": 100.359
+   },
+   "tokens": 310
+  }
+ ]
+}

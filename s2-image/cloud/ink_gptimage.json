@@ -1,0 +1,33 @@
+{
+ "name": "ink_gptimage",
+ "model": "openai/gpt-image-2.5-flare",
+ "provider": "openrouter",
+ "prompt": "A section of a Chinese ink landscape scroll: distant mountains in light wash, near pine in dense ink, a lone boat on the river, thin mist, generous blank space, a small inscription with a red seal, xuan paper texture, Song-dynasty painting mood",
+ "aspect_ratio": "16:9",
+ "resolution": null,
+ "size": null,
+ "refs": [],
+ "wall_s": 17.1,
+ "cost_usd": 0.03264,
+ "usage": {
+  "prompt_tokens": 60,
+  "completion_tokens": 1078,
+  "total_tokens": 1138,
+  "cost": 0.03264,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.03264,
+   "upstream_inference_prompt_cost": 0.0003,
+   "upstream_inference_completions_cost": 0.03234
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 1078
+  }
+ },
+ "file": "s2/cloud/ink_gptimage.png",
+ "when": "2026-10-13 18:50:12"
+}

@@ -1,0 +1,10 @@
+{"name": "portrait_seedream", "model": "bytedance-seed/seedream-5-0-pro", "cost_usd": 0.09, "when": "2026-10-13 18:43:14"}
+{"name": "portrait_grok", "model": "x-ai/grok-imagine-image-2.0", "cost_usd": 0.08, "when": "2026-10-13 18:44:17"}
+{"name": "portrait_gptimage", "model": "openai/gpt-image-2.5-flare", "cost_usd": 0.049165, "when": "2026-10-13 18:44:37"}
+{"name": "poster_seedream", "model": "bytedance-seed/seedream-5-0-pro", "cost_usd": 0.09, "when": "2026-10-13 18:45:48"}
+{"name": "poster_grok", "model": "x-ai/grok-imagine-image-2.0", "cost_usd": 0.08, "when": "2026-10-13 18:46:58"}
+{"name": "poster_gptimage", "model": "openai/gpt-image-2.5-flare", "cost_usd": 0.04923, "when": "2026-10-13 18:47:21"}
+{"name": "ink_seedream", "model": "bytedance-seed/seedream-5-0-pro", "cost_usd": 0.045, "when": "2026-10-13 18:48:38"}
+{"name": "ink_grok", "model": "x-ai/grok-imagine-image-2.0", "cost_usd": 0.08, "when": "2026-10-13 18:49:55"}
+{"name": "ink_gptimage", "model": "openai/gpt-image-2.5-flare", "cost_usd": 0.03264, "when": "2026-10-13 18:50:12"}
+{"name": "storyboard_grid_seedream", "model": "bytedance-seed/seedream-5-0-pro", "cost_usd": 0.09, "when": "2026-10-13 18:51:30"}

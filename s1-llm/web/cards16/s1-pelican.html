@@ -1,0 +1,33 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"><style>
+.page{padding:56px 110px 46px}
+.q{font-family:"Songti SC",serif;font-size:34px;margin:14px 0 4px}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px 18px;margin-top:18px;flex:1;align-content:start}
+.it{opacity:1}.it .img{width:100%;aspect-ratio:4/3;background:#f4f1ea;border:1px solid var(--rule);overflow:hidden;display:flex;align-items:center;justify-content:center}.it .img img{width:100%;height:100%;object-fit:contain;display:block}
+.it h3{font-family:ui-serif,"New York",serif;font-weight:400;font-size:16px;margin:8px 0 1px}.it .m{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--mut);letter-spacing:.04em;line-height:1.6}
+.it.anim{opacity:0;transform:translateY(12px);animation:in .9s forwards}@keyframes in{to{opacity:1;transform:none}}
+.it .img.fail{background:#1a1b20;color:var(--dim);font-family:"Songti SC",serif;font-size:18px}
+</style></head><body><div class="page">
+<div class="kicker">克宝 · 实测 · 一道画画题</div><div class="q">「画一只骑自行车的鹈鹕」：同一句英文提示，各家用 SVG 代码作答</div><p class="lead">Generate an SVG of a pelican riding a bicycle · 本地模型 temperature 0.7 · 只看代码画出来的样子，不做任何修图</p>
+<div class="grid" id="grid"></div>
+<div class="foot"><span>本地模型经 LM Studio 0.4.26 · MLX · 云端经官方 API · 2026-10-13 · 克宝那张画于 10 月 12 日</span><span class="sig">克宝 = Claude Fable 5.1 · 思考强度最高 · 实测</span></div></div>
+<script>
+const q=new URLSearchParams(location.search); const anim=q.get('anim')==='1';
+const items=[
+ {f:'studio_qwen3.5-9b',n:'Qwen3.5-9B',m:'本地 · MLX 8bit · 10.5 GB · 主机'},
+ {f:'studio_qwen3.8-27b',n:'Qwen3.8-27B',m:'本地 · MLX 8bit · 29.5 GB · 主机 · 思考关'},
+ {f:'studio_qwen3.8-27b_think',n:'Qwen3.8-27B · 思考',m:'本地 · MLX 8bit · 29.5 GB · 主机 · 思考中档'},
+ {f:'mbp_qwen3.8-27b',n:'Qwen3.8-27B · 笔记本',m:'本地 · MLX 8bit · 29.5 GB · 笔记本 · 思考关'},
+ {f:'studio_gpt-oss-120b',n:'gpt-oss-120b',m:'本地 · MXFP4 · 63.4 GB · 主机'},
+ {f:'cloud_deepseek-flash-nothink',n:'DeepSeek-V4.1-Flash',m:'云端 API · 思考关'},
+ {f:'cloud_gpt-6-astra',n:'GPT-6 Astra',m:'云端 API · 推理中档'},
+ {f:'cloud_grok-4.7',n:'Grok-4.7',m:'云端 API'},
+ {f:'claude_fable-5.1',n:'克宝 · Claude Fable 5.1',m:'思考强度最高 · 10 月 12 日画'},
+];
+(async()=>{ const g=document.getElementById('grid'); let i=0;
+ for(const it of items){ let st={}; try{ st=await (await fetch(`../pelican/${it.f}.json`)).json(); }catch(e){}
+  const secs=st.wall_s?`${st.wall_s} s`:''; const tok=st.out_tok?` · ${st.out_tok} token`:''; const tps=st.tps?` · ${st.tps.toFixed(0)} t/s`:'';
+  const ok=st.svg_ok!==false; const d=document.createElement('div'); d.className='it'+(anim?' anim':''); d.style.animationDelay=(0.3+i*0.35)+'s';
+  d.innerHTML=`<div class="img ${ok?'':'fail'}">${ok?`<img src="../pelican-png/${it.f}.png">`:'没画出来'}</div><h3>${it.n}</h3><div class="m">${it.m}${secs?' · '+secs:''}${tok}${tps}</div>`; g.appendChild(d); i++; }
+ setTimeout(()=>{document.title='DONE';}, anim? 6500: 300);
+})();
+</script><script src="_anim.js"></script></body></html>

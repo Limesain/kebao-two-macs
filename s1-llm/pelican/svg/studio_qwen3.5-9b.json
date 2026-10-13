@@ -1,0 +1,14 @@
+{
+ "name": "studio_qwen3.5-9b",
+ "model": "bench",
+ "reasoning": "off",
+ "temp": 0.7,
+ "wall_s": 9.3,
+ "tps": 100.4595384724805,
+ "ttft_s": 0.058,
+ "out_tok": 930,
+ "reason_tok": 0,
+ "svg_ok": true,
+ "svg_bytes": 1989,
+ "prompt": "Generate an SVG of a pelican riding a bicycle. Output only the SVG code, nothing else."
+}

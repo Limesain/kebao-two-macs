@@ -1,0 +1,33 @@
+{
+ "name": "portrait_grok",
+ "model": "x-ai/grok-imagine-image-2.0",
+ "provider": "openrouter",
+ "prompt": "A Chinese woman in her early thirties standing by a window in late afternoon light, backlit from the side, natural makeup, linen shirt, shallow depth of field, 85mm lens film look, soft warm tones, realistic skin texture, no over-smoothing",
+ "aspect_ratio": "3:4",
+ "resolution": "2K",
+ "size": null,
+ "refs": [],
+ "wall_s": 62.8,
+ "cost_usd": 0.08,
+ "usage": {
+  "prompt_tokens": 60,
+  "completion_tokens": 4175,
+  "total_tokens": 4235,
+  "cost": 0.08,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.08,
+   "upstream_inference_prompt_cost": 0,
+   "upstream_inference_completions_cost": 0.08
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 4175
+  }
+ },
+ "file": "s2/cloud/portrait_grok.png",
+ "when": "2026-10-13 18:44:17"
+}

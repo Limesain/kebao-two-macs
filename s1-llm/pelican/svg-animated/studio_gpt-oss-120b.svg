@@ -1,0 +1,96 @@
+<svg width="400" height="200"
+     viewBox="0 0 400 200"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink">
+
+  <!-- Definitions for reusable elements -->
+  <defs>
+    <!-- Wheel (circle with spokes) -->
+    <g id="wheel">
+      <circle cx="0" cy="0" r="30" fill="#777" stroke="#333" stroke-width="4"/>
+      <!-- Simple spokes -->
+      <g id="spokes">
+        <line x1="-30" y1="0"   x2="30"  y2="0"   stroke="#555" stroke-width="3"/>
+        <line x1="-21.2" y1="-21.2" x2="21.2" y2="21.2" stroke="#555" stroke-width="3"/>
+        <line x1="0" y1="-30"   x2="0"   y2="30"  stroke="#555" stroke-width="3"/>
+        <line x1="-21.2" y1="21.2"  x2="21.2" y2="-21.2" stroke="#555" stroke-width="3"/>
+      </g>
+    </g>
+
+    <!-- Pedal crank -->
+    <g id="crank">
+      <line x1="-15" y1="0" x2="15" y2="0" stroke="#222" stroke-width="4"/>
+      <line x1="0" y1="-15" x2="0" y2="15" stroke="#222" stroke-width="4"/>
+    </g>
+
+    <!-- Simple pelican (body, head, beak) -->
+    <g id="pelican">
+      <!-- Body -->
+      <ellipse cx="0" cy="0" rx="30" ry="20" fill="#ffcc80" stroke="#d48b00" stroke-width="2"/>
+      <!-- Neck -->
+      <path d="M30,0 C50,-20 70,-10 80,0" fill="none" stroke="#ffcc80" stroke-width="12"/>
+      <!-- Head -->
+      <circle cx="85" cy="-5" r="10" fill="#ffcc80" stroke="#d48b00" stroke-width="2"/>
+      <!-- Beak -->
+      <polygon points="95,-5 115,0 95,5" fill="#ffb347"/>
+    </g>
+  </defs>
+
+  <!-- Group for the whole bike + rider -->
+  <g id="bike">
+    <!-- Rear wheel with rotation -->
+    <g transform="translate(100,150)">
+      <use href="#wheel"/>
+      <animateTransform attributeName="transform"
+                        type="rotate"
+                        from="0"
+                        to="360"
+                        dur="2s"
+                        repeatCount="indefinite"/>
+    </g>
+
+    <!-- Front wheel with rotation -->
+    <g transform="translate(250,150)">
+      <use href="#wheel"/>
+      <animateTransform attributeName="transform"
+                        type="rotate"
+                        from="0"
+                        to="360"
+                        dur="2s"
+                        repeatCount="indefinite"/>
+    </g>
+
+    <!-- Frame (simple lines) -->
+    <line x1="100" y1="150" x2="250" y2="150"
+          stroke="#555" stroke-width="4"/>
+    <line x1="100" y1="150" x2="175" y2="110"
+          stroke="#555" stroke-width="4"/>
+    <line x1="250" y1="150" x2="175" y2="110"
+          stroke="#555" stroke-width="4"/>
+    <line x1="175" y1="110" x2="150" y2="80"
+          stroke="#555" stroke-width="4"/>
+
+    <!-- Pedal crank attached near rear wheel -->
+    <g transform="translate(100,150)">
+      <use href="#crank"/>
+      <animateTransform attributeName="transform"
+                        type="rotate"
+                        from="0"
+                        to="360"
+                        dur="2s"
+                        repeatCount="indefinite"/>
+    </g>
+
+    <!-- Pelican rider -->
+    <g id="rider" transform="translate(150,80)">
+      <!-- Bobbing animation -->
+      <animateTransform attributeName="transform"
+                        type="translate"
+                        values="0,0; 0,-5; 0,0"
+                        dur="1s"
+                        repeatCount="indefinite"/>
+      <use href="#pelican"/>
+    </g>
+  </g>
+
+</svg>

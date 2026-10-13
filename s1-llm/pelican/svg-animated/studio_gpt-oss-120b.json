@@ -1,0 +1,14 @@
+{
+ "name": "studio_gpt-oss-120b",
+ "model": "bench",
+ "reasoning": "none",
+ "temp": 0.7,
+ "wall_s": 15.4,
+ "tps": 108.70635144626168,
+ "ttft_s": 3.331,
+ "out_tok": 1287,
+ "reason_tok": 264,
+ "svg_ok": true,
+ "svg_bytes": 3367,
+ "prompt": "Generate an animated SVG of a pelican riding a bicycle. Use SMIL animation (<animateTransform>/<animate>) so the wheels spin, the pedals turn and the pelican bobs gently as it rides. Output only the SVG code, nothing else."
+}

@@ -1,0 +1,19 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><link rel="stylesheet" href="cards16/_base.css"><style>
+.page{padding:56px 110px 46px}
+.q{font-family:"Songti SC",serif;font-size:34px;margin:14px 0 4px}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:18px 26px;margin-top:20px;flex:1;min-height:0}
+.cell{display:flex;flex-direction:column;min-height:0}
+.fr{flex:1;min-height:0;background:#f4f1ea;border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.fr svg{width:100%;height:100%}
+.cap{font-family:ui-serif,"New York",serif;font-size:18px;margin-top:8px}.cap small{font-family:ui-monospace,Menlo,monospace;font-size:11px;color:var(--mut);margin-left:10px;letter-spacing:.04em}
+</style></head><body><div class="page">
+<div class="kicker">克宝 · 实测 · 加试</div><div class="q">再画一版会动的：轮子要转，踏板要动，鹈鹕要一颠一颠</div>
+<div class="g" id="g"></div>
+<div class="foot"><span>SMIL 动画 SVG · 同一句英文提示 · 浏览器原样播放，不做任何修图 · 2026-10-13</span><span class="sig">克宝 = Claude Fable 5.1 · 思考强度最高 · 实测</span></div></div>
+<script>
+const items=[['studio_qwen3.8-27b','Qwen3.8-27B','本地 · 主机 · 74 s'],['studio_gpt-oss-120b','gpt-oss-120b','本地 · 主机 · 15 s'],['cloud_deepseek-flash-nothink','DeepSeek-V4.1-Flash','云端 API · 9 s'],['cloud_gpt-6-astra','GPT-6 Astra','云端 API · 105 s']];
+(async()=>{const g=document.getElementById('g');
+ for(const [f,n,m] of items){const t=await (await fetch(`pelican-anim/${f}.svg`)).text(); const d=document.createElement('div'); d.className='cell'; d.innerHTML=`<div class="fr">${t}</div><div class="cap">${n}<small>${m}</small></div>`; g.appendChild(d);
+  const s=d.querySelector('svg'); if(s){ if(!s.getAttribute('viewBox')){const w=parseFloat(s.getAttribute('width'))||800,h=parseFloat(s.getAttribute('height'))||600; s.setAttribute('viewBox',`0 0 ${w} ${h}`);} s.removeAttribute('width'); s.removeAttribute('height'); s.setAttribute('preserveAspectRatio','xMidYMid meet'); }}
+ setTimeout(()=>{document.title='DONE';}, +(new URLSearchParams(location.search).get('dur')||9000));})();
+</script></body></html>

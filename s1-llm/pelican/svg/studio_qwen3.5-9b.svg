@@ -1,0 +1,45 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="400" fill="#87CEEB"/>
+  
+  <!-- Ground -->
+  <rect y="320" width="400" height="80" fill="#4CAF50"/>
+  
+  <!-- Bicycle Frame -->
+  <path d="M150 280 L150 320 L200 320 L200 280" stroke="#333" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M150 320 L250 320" stroke="#333" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <circle cx="150" cy="320" r="15" stroke="#333" stroke-width="4" fill="none"/>
+  <circle cx="250" cy="320" r="15" stroke="#333" stroke-width="4" fill="none"/>
+  
+  <!-- Bicycle Seat -->
+  <path d="M160 280 L190 280" stroke="#333" stroke-width="6" fill="none" stroke-linecap="round"/>
+  
+  <!-- Bicycle Handlebars -->
+  <path d="M200 280 L230 260" stroke="#333" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <line x1="230" y1="260" x2="250" y2="250" stroke="#333" stroke-width="4" fill="none"/>
+  
+  <!-- Pelican Body -->
+  <ellipse cx="190" cy="260" rx="40" ry="35" fill="#FFA500"/>
+  
+  <!-- Pelican Head -->
+  <circle cx="160" cy="240" r="20" fill="#FFA500"/>
+  
+  <!-- Pelican Beak -->
+  <path d="M170 225 L230 225 L210 260 Z" fill="#FFD700" stroke="#DAA520" stroke-width="2"/>
+  <path d="M170 225 L170 255 L210 260 Z" fill="#FF6347"/>
+  
+  <!-- Pelican Eye -->
+  <circle cx="160" cy="235" r="3" fill="black"/>
+  
+  <!-- Pelican Wings -->
+  <path d="M160 260 Q140 290 150 300" stroke="#FFA500" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <path d="M220 260 Q240 290 230 300" stroke="#FFA500" stroke-width="8" fill="none" stroke-linecap="round"/>
+  
+  <!-- Pelican Legs -->
+  <line x1="170" y1="285" x2="150" y2="310" stroke="#FFA500" stroke-width="8" stroke-linecap="round"/>
+  <line x1="210" y1="285" x2="230" y2="310" stroke="#FFA500" stroke-width="8" stroke-linecap="round"/>
+  
+  <!-- Pelican Shoes -->
+  <circle cx="150" cy="310" r="5" fill="#333"/>
+  <circle cx="230" cy="310" r="5" fill="#333"/>
+</svg>

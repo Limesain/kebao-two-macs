@@ -1,0 +1,33 @@
+{
+ "name": "portrait_seedream",
+ "model": "bytedance-seed/seedream-5-0-pro",
+ "provider": "openrouter",
+ "prompt": "一位三十岁左右的中国女性站在午后窗边，侧逆光，自然妆，亚麻衬衫，浅景深，85mm 镜头的胶片质感，柔和暖色，真实皮肤纹理，不要过度磨皮",
+ "aspect_ratio": "4:5",
+ "resolution": "2K",
+ "size": null,
+ "refs": [],
+ "wall_s": 39.7,
+ "cost_usd": 0.09,
+ "usage": {
+  "prompt_tokens": 64,
+  "completion_tokens": 13120,
+  "total_tokens": 13184,
+  "cost": 0.09,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.09,
+   "upstream_inference_prompt_cost": 0,
+   "upstream_inference_completions_cost": 0.09
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 13120
+  }
+ },
+ "file": "s2/cloud/portrait_seedream.jpg",
+ "when": "2026-10-13 18:43:14"
+}

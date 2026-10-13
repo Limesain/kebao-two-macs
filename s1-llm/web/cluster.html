@@ -1,0 +1,46 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><link rel="stylesheet" href="cards16/_base.css"><style>
+.page{padding:64px 110px 50px}
+.top{display:flex;justify-content:space-between;align-items:flex-end}
+.title{font-family:"Songti SC",serif;font-size:44px;margin:14px 0 4px}
+.sub{font-size:16px;color:var(--mut);letter-spacing:.08em}
+.nodes{display:grid;grid-template-columns:1fr 160px 1fr;gap:0;margin-top:30px;align-items:center}
+.node{border:1px solid var(--rule);padding:22px 28px;min-height:150px}
+.node .n{font-family:ui-serif,"New York",serif;font-size:30px}.node .n small{font-family:"PingFang SC";font-size:12px;letter-spacing:.3em;color:var(--mut);margin-left:12px}
+.node .m{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--mut);margin-top:8px;line-height:1.7}
+.node .mem{font-family:ui-serif,"New York",serif;font-size:46px;margin-top:10px;line-height:1}.node .mem span{font-size:14px;letter-spacing:.3em;color:var(--mut);margin-left:10px}
+.node.l .mem{color:var(--gold)}.node.r .mem{color:var(--slate)}
+.link{text-align:center;font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--mut);letter-spacing:.14em;line-height:1.8}
+.link .wire{height:1px;background:linear-gradient(90deg,var(--gold),var(--slate));margin:10px 0;position:relative;overflow:visible}
+.link .wire i{position:absolute;top:-3px;width:7px;height:7px;border-radius:50%;background:#fff;opacity:.9;animation:run 1.2s linear infinite}
+.link .wire i:nth-child(2){animation-delay:.4s}.link .wire i:nth-child(3){animation-delay:.8s}
+@keyframes run{from{left:0}to{left:100%}}
+.stream{margin-top:30px;flex:1;min-height:0;border-top:1px solid var(--rule);padding-top:22px;display:grid;grid-template-columns:1fr 300px;gap:48px}
+.q{font-family:"Songti SC",serif;font-size:20px;color:var(--mut);margin-bottom:14px}.q b{color:var(--ink);font-weight:400}
+.out{font-family:"Songti SC",serif;font-size:21px;line-height:1.85;color:var(--ink);white-space:pre-wrap;overflow:hidden;max-height:420px}
+.out::after{content:"▍";color:var(--gold);animation:blink 1s steps(2) infinite}@keyframes blink{to{opacity:0}}
+.stats .k{font-size:12px;letter-spacing:.32em;color:var(--mut);margin-top:22px}.stats .v{font-family:ui-serif,"New York",serif;font-size:52px;line-height:1.1}.stats .v small{font-size:14px;letter-spacing:.2em;color:var(--mut);margin-left:8px}
+.stats .v.gold{color:var(--gold)}
+</style></head><body><div class="page">
+<div class="top"><div><div class="kicker" id="kicker">克宝 · 实测 · 两台机器 · 一个模型</div><div class="title" id="title">两台 Mac 一起扛一个模型</div><div class="sub" id="sub">MLX distributed · 张量并行 · ring over Thunderbolt Bridge（TCP，62 Gbit/s）· 每一层都要两台机器交换一次结果</div></div></div>
+<div class="nodes">
+ <div class="node l"><div class="n">Mac Studio<small>M5 ULTRA · 96 GB · RANK 0</small></div><div class="m" id="lm">—</div><div class="mem" id="lmem">—<span>GiB 已载入</span></div></div>
+ <div class="link"><div>THUNDERBOLT 5</div><div class="wire"><i></i><i></i><i></i></div><div id="linkinfo">all-reduce / 层</div></div>
+ <div class="node r"><div class="n">MacBook Pro<small>M5 MAX · 48 GB · RANK 1 · 合盖</small></div><div class="m" id="rm">—</div><div class="mem" id="rmem">—<span>GiB 已载入</span></div></div>
+</div>
+<div class="stream"><div><div class="q" id="q"></div><div class="out" id="out"></div></div>
+ <div class="stats"><div class="k">出字速度</div><div class="v gold" id="tps">—<small>TOKENS / 秒</small></div><div class="k">已生成</div><div class="v" id="n">0<small>TOKEN</small></div><div class="k">状态</div><div class="v" id="st" style="font-size:26px">等待加载</div></div></div>
+<div class="foot"><span id="env">mlx 0.32.3 · mlx-lm 0.32.0 · macOS 27.0.1 · 2026-10-13</span><span class="sig">克宝 = Claude Fable 5.1 · 思考强度最高 · 实测</span></div></div>
+<script>
+const q=new URLSearchParams(location.search); const src=q.get('src')||'data/cluster_stream.json'; const maxWait=+(q.get('max')||600);
+if(q.get('title'))document.getElementById('title').textContent=q.get('title'); if(q.get('sub'))document.getElementById('sub').textContent=q.get('sub');
+const lm=q.get('lm')||'', rm=q.get('rm')||''; document.getElementById('lm').textContent=lm; document.getElementById('rm').textContent=rm;
+window.__log={events:[]}; let done=false, t0=Date.now();
+async function tick(){ try{ const d=await (await fetch(src+'?t='+Date.now(),{cache:'no-store'})).json();
+  if(d.mems){document.getElementById('lmem').innerHTML=d.mems[0].toFixed(1)+'<span>GiB 已载入</span>'; document.getElementById('rmem').innerHTML=(d.mems[1]||0).toFixed(1)+'<span>GiB 已载入</span>';}
+  document.getElementById('q').innerHTML='<b>问：</b>'+(d.prompt||''); let raw=d.text||''; let txt; if(/<\|channel\|>analysis<\|message\|>/.test(raw)&&!/<\|end\|>/.test(raw)){txt='（两台机器一起在想……）';} else {txt=raw.replace(/<\|channel\|>analysis<\|message\|>[\s\S]*?<\|end\|>/g,'').replace(/<\|start\|>assistant/g,'').replace(/<\|channel\|>final<\|message\|>/g,'').replace(/<\|[^|]*\|>/g,'').trim();} document.getElementById('out').textContent=txt;
+  document.getElementById('n').innerHTML=(d.n||0)+'<small>TOKEN</small>'; if(d.tps)document.getElementById('tps').innerHTML=d.tps.toFixed(1)+'<small>TOKENS / 秒</small>';
+  const st={loaded:'模型已载入两台机器',generating:'生成中 · 两台机器同时计算',done:'完成'}[d.status]||d.status; document.getElementById('st').textContent=st;
+  if(d.status==='done'&&!done){done=true; window.__log.final=d; setTimeout(()=>{document.title='DONE';},2500);} }catch(e){}
+  if(!done&&(Date.now()-t0)/1000>maxWait){document.title='DONE';} if(!done)setTimeout(tick,120); }
+tick();
+</script></body></html>

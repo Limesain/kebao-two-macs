@@ -1,0 +1,14 @@
+{
+ "name": "studio_gpt-oss-120b",
+ "model": "bench",
+ "reasoning": "none",
+ "temp": 0.7,
+ "wall_s": 12.1,
+ "tps": 111.70430944667663,
+ "ttft_s": 3.865,
+ "out_tok": 894,
+ "reason_tok": 175,
+ "svg_ok": true,
+ "svg_bytes": 1769,
+ "prompt": "Generate an SVG of a pelican riding a bicycle. Output only the SVG code, nothing else."
+}

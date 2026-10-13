@@ -1,0 +1,18 @@
+{"styles": [
+ {"id": "portrait", "title": "写实人像 · 自然光", "ar": "4:5", "w": 1664, "h": 2080,
+  "zh": "一位三十岁左右的中国女性站在午后窗边，侧逆光，自然妆，亚麻衬衫，浅景深，85mm 镜头的胶片质感，柔和暖色，真实皮肤纹理，不要过度磨皮",
+  "en": "A Chinese woman in her early thirties standing by a window in late afternoon light, backlit from the side, natural makeup, linen shirt, shallow depth of field, 85mm lens film look, soft warm tones, realistic skin texture, no over-smoothing"},
+ {"id": "poster", "title": "中文海报 · 文字渲染", "ar": "3:4", "w": 1536, "h": 2048,
+  "zh": "一张竖版电影海报：深蓝夜色里的雷雳线连接两台电脑，顶部大标题「两台 Mac 一个模型」，副标题「本地大模型实测 · 第一集」，底部小字「克宝 出品」，字体端正、排版克制、留白讲究，电影海报质感",
+  "en": "A vertical movie poster: a Thunderbolt cable linking two computers in deep blue night, big Chinese title 「两台 Mac 一个模型」 at the top, subtitle 「本地大模型实测 · 第一集」, small footer text 「克宝 出品」, clean typography, restrained layout, generous whitespace, cinematic poster finish"},
+ {"id": "ink", "title": "国风水墨 · 山水", "ar": "16:9", "w": 2048, "h": 1152,
+  "zh": "水墨山水长卷局部：远山淡墨、近松浓墨，江面一叶扁舟，薄雾，留白，题款与印章点缀，宣纸纹理，宋画气息",
+  "en": "A section of a Chinese ink landscape scroll: distant mountains in light wash, near pine in dense ink, a lone boat on the river, thin mist, generous blank space, a small inscription with a red seal, xuan paper texture, Song-dynasty painting mood"}
+],
+ "storyboard": {"id": "storyboard", "title": "连续镜头 · 同一角色五个分镜",
+  "character": "一位穿深绿雨衣、背着帆布包的年轻女性，短发，背景是雨夜的东京街头，霓虹倒映在湿漉漉的路面",
+  "character_en": "A young woman with short hair in a dark green raincoat carrying a canvas bag, rainy Tokyo street at night, neon reflected on the wet pavement",
+  "shots": ["建立镜头：远景，她撑伞站在十字路口", "中景：她走进便利店门口，回头看", "特写：她的脸，雨水顺着伞沿滴下", "过肩镜头：她看向橱窗里的猫", "收尾：她在路灯下走远的背影"],
+  "shots_en": ["Establishing wide shot: she stands at a crossing holding an umbrella", "Medium shot: she steps into a convenience store doorway and looks back", "Close-up: her face, rain dripping from the umbrella edge", "Over-the-shoulder: she looks at a cat in the shop window", "Closing: her back walking away under a street lamp"],
+  "grid_prompt": "一张 2×3 分镜格电影故事板，同一位角色贯穿六格：{character}。六格依次为：{shots}。每格用细白边分隔，统一色调与打光，电影感，角色外貌在每格保持完全一致"}
+}

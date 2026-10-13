@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><title>两机并排出字</title>
+<style>
+:root{--bg:#0b0f14;--fg:#e8eef5;--mut:#8a97a8;--acc:#19d3c5;--warm:#ffb454;--card:#121923}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:"PingFang SC","Hiragino Sans GB",-apple-system,system-ui,sans-serif;height:100vh;display:flex;flex-direction:column}
+header{padding:22px 40px 10px;display:flex;align-items:baseline;gap:18px}
+header .tag{font-size:20px;color:var(--acc);letter-spacing:.2em;border:1px solid var(--acc);border-radius:999px;padding:4px 14px}
+header .prompt{font-size:30px;font-weight:600}
+main{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:26px;padding:10px 40px 30px}
+.col{background:var(--card);border-radius:22px;padding:26px 30px;display:flex;flex-direction:column;min-height:0;border:1px solid #1e2a38}
+.col h2{margin:0;font-size:38px;font-weight:700}.col .sub{color:var(--mut);font-size:20px;margin:6px 0 16px;font-family:ui-monospace,Menlo,monospace}
+.out{flex:1;font-size:34px;line-height:1.55;overflow:hidden;white-space:pre-wrap;word-break:break-word}
+.out .think{color:var(--mut);font-size:24px}
+.stats{display:flex;gap:28px;margin-top:16px;border-top:1px solid #223042;padding-top:14px}
+.stat{display:flex;flex-direction:column}.stat b{font-size:44px;font-variant-numeric:tabular-nums;color:var(--acc)}.stat span{color:var(--mut);font-size:16px}
+.col.right .stat b{color:var(--warm)}
+.status{position:absolute;right:48px;top:30px;color:var(--mut);font-size:18px}
+.bar{height:14px;background:#1b2634;border-radius:7px;overflow:hidden;margin:10px 0 14px;display:none}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#19d3c5,#5ee7d9);transition:width .15s}.col.right .bar i{background:linear-gradient(90deg,#ffb454,#ffd28a)}.barlabel{color:var(--mut);font-size:20px;display:none}
+.cursor::after{content:"▍";color:var(--acc);animation:b .9s steps(2) infinite}@keyframes b{to{opacity:0}}
+</style></head><body>
+<header><span class="tag">克宝 · 实测</span><span class="prompt" id="prompt"></span></header>
+<div class="status" id="status"></div>
+<main>
+ <section class="col left"><h2 id="ln"></h2><div class="sub" id="lm"></div><div class="barlabel" id="lbl">正在读入全文…</div><div class="bar" id="lb"><i></i></div><div class="out" id="lo"></div>
+  <div class="stats"><div class="stat"><b id="lt">0</b><span>tokens</span></div><div class="stat"><b id="le">0.0</b><span>秒</span></div><div class="stat"><b id="ls">—</b><span>tokens / 秒</span></div><div class="stat"><b id="lf">—</b><span>首字 秒</span></div></div></section>
+ <section class="col right"><h2 id="rn"></h2><div class="sub" id="rm"></div><div class="barlabel" id="rbl">正在读入全文…</div><div class="bar" id="rb"><i></i></div><div class="out" id="ro"></div>
+  <div class="stats"><div class="stat"><b id="rt">0</b><span>tokens</span></div><div class="stat"><b id="re">0.0</b><span>秒</span></div><div class="stat"><b id="rs">—</b><span>tokens / 秒</span></div><div class="stat"><b id="rf">—</b><span>首字 秒</span></div></div></section>
+</main>
+<script>
+const q=new URLSearchParams(location.search);
+const P=q.get('p')||'用三句话解释：为什么统一内存让 Mac 适合在本地跑大语言模型？';
+const cfg={L:{host:q.get('left')||'127.0.0.1:1234',model:q.get('lm')||'qwen3.8-27b',name:q.get('ln')||'Mac Studio · M5 Ultra'},
+           R:{host:q.get('right')||'',model:q.get('rm')||'qwen3.8-27b',name:q.get('rn')||'MacBook Pro · M5 Max'}};
+const DOC=q.get('doc')||''; const title=q.get('title')||'';
+const reasoning=q.get('reasoning')||'off', maxOut=+(q.get('max')||300), ctx=+(q.get('ctx')||32768), delay=+(q.get('delay')||1500);
+document.getElementById('prompt').textContent=title||P;
+let FULL=P; async function prep(){ if(DOC){ const t=await (await fetch(DOC)).text(); FULL=P+'\n\n'+t; } }
+for(const s of ['L','R']){document.getElementById(s.toLowerCase()+'n').textContent=cfg[s].name;document.getElementById(s.toLowerCase()+'m').textContent=cfg[s].model+'  ·  '+(cfg[s].host||'(未配置)');}
+async function run(side){
+  const c=cfg[side]; if(!c.host) return; const id=side.toLowerCase();
+  const out=document.getElementById(id+'o'), t=document.getElementById(id+'t'), e=document.getElementById(id+'e'), sp=document.getElementById(id+'s'), f=document.getElementById(id+'f');
+  const body={model:c.model,input:FULL,context_length:ctx,max_output_tokens:maxOut,temperature:0.7,store:false,stream:true}; if(reasoning!=='none') body.reasoning=reasoning;
+  const t0=performance.now(); let n=0, tf=null, finalStats=null; out.classList.add('cursor'); const bar=document.getElementById(id+'b'), bl=document.getElementById(id+'bl'); if(DOC){bar.style.display='block'; bl.style.display='block';}
+  const timer=setInterval(()=>{const el=(performance.now()-t0)/1000; e.textContent=el.toFixed(1); if(tf&&n>1) sp.textContent=((n-1)/((performance.now()-tf)/1000)).toFixed(1);},100);
+  try{
+    const r=await fetch('http://'+c.host+'/api/v1/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const rd=r.body.getReader(); const dec=new TextDecoder(); let buf='';
+    while(true){const {value,done}=await rd.read(); if(done)break; buf+=dec.decode(value,{stream:true});
+      let i; while((i=buf.indexOf('\n\n'))>=0){const chunk=buf.slice(0,i); buf=buf.slice(i+2);
+        const line=chunk.split('\n').find(l=>l.startsWith('data:')); if(!line) continue;
+        let d; try{d=JSON.parse(line.slice(5));}catch{continue;}
+        if(d.type==='prompt_processing.progress'&&DOC){ bar.firstChild.style.width=Math.round(d.progress*100)+'%'; bl.textContent='正在读入全文… '+Math.round(d.progress*100)+'%  ·  '+((performance.now()-t0)/1000).toFixed(1)+' 秒'; }
+        else if(d.type==='message.delta'){ if(DOC&&tf===null){ bl.textContent='读完了，用时 '+((performance.now()-t0)/1000).toFixed(1)+' 秒 · 开始回答'; bar.firstChild.style.width='100%'; } if(tf===null){tf=performance.now(); f.textContent=((tf-t0)/1000).toFixed(2);} n++; t.textContent=n; out.textContent+=d.content; }
+        else if(d.type==='reasoning.delta'){ out.innerHTML+='<span class="think">'+(d.content||'')+'</span>'; }
+        else if(d.stats||(d.type&&d.type.endsWith('.end')&&d.stats)){ finalStats=d.stats; }
+        else if(d.type==='chat.end'){ finalStats=(d.result&&d.result.stats)||d.stats||finalStats; }
+      }}
+  }catch(err){ out.textContent+='\n[错误] '+err; }
+  clearInterval(timer); out.classList.remove('cursor');
+  if(finalStats&&finalStats.tokens_per_second){ sp.textContent=finalStats.tokens_per_second.toFixed(1); if(finalStats.time_to_first_token_seconds) f.textContent=finalStats.time_to_first_token_seconds.toFixed(2); }
+  document.getElementById('status').textContent='完成 · '+new Date().toLocaleTimeString();
+}
+setTimeout(async()=>{document.getElementById('status').textContent='生成中…'; await prep(); run('L'); run('R');}, delay);
+</script></body></html>

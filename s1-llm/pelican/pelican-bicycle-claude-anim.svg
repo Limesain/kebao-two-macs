@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" width="800" height="520">
+  <title>A pelican riding a bicycle (animated) — Claude Fable 5.1</title>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7cc6ff"/><stop offset="1" stop-color="#e9f6ff"/></linearGradient>
+    <linearGradient id="road" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6b6b70"/><stop offset="1" stop-color="#4a4a4f"/></linearGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#fff6b0"/><stop offset="1" stop-color="#ffd84d" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="800" height="520" fill="url(#sky)"/>
+  <circle cx="660" cy="90" r="90" fill="url(#sun)"><animate attributeName="r" values="90;96;90" dur="4s" repeatCount="indefinite"/></circle>
+  <circle cx="660" cy="90" r="38" fill="#ffe066"/>
+  <g fill="#ffffff" opacity="0.9">
+    <g><animateTransform attributeName="transform" type="translate" values="0 0;-60 0" dur="18s" repeatCount="indefinite"/>
+      <ellipse cx="150" cy="90" rx="60" ry="22"/><ellipse cx="190" cy="78" rx="40" ry="26"/><ellipse cx="110" cy="82" rx="36" ry="20"/>
+      <ellipse cx="470" cy="60" rx="50" ry="18"/><ellipse cx="500" cy="50" rx="34" ry="22"/>
+      <ellipse cx="950" cy="90" rx="60" ry="22"/><ellipse cx="990" cy="78" rx="40" ry="26"/></g>
+  </g>
+  <rect x="0" y="300" width="800" height="70" fill="#4aa3df"/>
+  <path d="M0 330 Q 100 315 200 330 T 400 330 T 600 330 T 800 330 T 1000 330 V 370 H 0 Z" fill="#3b8fc9" opacity="0.6"><animateTransform attributeName="transform" type="translate" values="0 0;-200 0" dur="6s" repeatCount="indefinite"/></path>
+  <path d="M0 370 Q 200 340 400 372 T 800 360 V 420 H 0 Z" fill="#e8d7a3"/>
+  <rect x="0" y="420" width="800" height="100" fill="url(#road)"/>
+  <g stroke="#f4e27a" stroke-width="6" stroke-dasharray="40 30"><line x1="0" y1="470" x2="800" y2="470"><animate attributeName="stroke-dashoffset" from="0" to="-70" dur="0.5s" repeatCount="indefinite"/></line></g>
+
+  <g id="bike" stroke="#1f2933" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g id="wheel-back"><animateTransform attributeName="transform" type="rotate" from="0 230 400" to="360 230 400" dur="1.2s" repeatCount="indefinite"/>
+      <circle cx="230" cy="400" r="70" stroke-width="10"/><circle cx="230" cy="400" r="58" stroke="#c9ced6" stroke-width="3"/>
+      <g stroke="#9aa5b1" stroke-width="3"><line x1="230" y1="330" x2="230" y2="470"/><line x1="160" y1="400" x2="300" y2="400"/><line x1="180" y1="350" x2="280" y2="450"/><line x1="280" y1="350" x2="180" y2="450"/></g>
+      <circle cx="230" cy="400" r="9" fill="#1f2933"/></g>
+    <g id="wheel-front"><animateTransform attributeName="transform" type="rotate" from="0 550 400" to="360 550 400" dur="1.2s" repeatCount="indefinite"/>
+      <circle cx="550" cy="400" r="70" stroke-width="10"/><circle cx="550" cy="400" r="58" stroke="#c9ced6" stroke-width="3"/>
+      <g stroke="#9aa5b1" stroke-width="3"><line x1="550" y1="330" x2="550" y2="470"/><line x1="480" y1="400" x2="620" y2="400"/><line x1="500" y1="350" x2="600" y2="450"/><line x1="600" y1="350" x2="500" y2="450"/></g>
+      <circle cx="550" cy="400" r="9" fill="#1f2933"/></g>
+    <polygon points="230,400 350,290 470,290 550,400" stroke="#d6336c"/>
+    <line x1="350" y1="290" x2="400" y2="400"/><line x1="400" y1="400" x2="550" y2="400"/><line x1="400" y1="400" x2="230" y2="400"/>
+    <line x1="350" y1="290" x2="335" y2="245"/><path d="M305 245 Q 335 232 372 246" stroke-width="12"/>
+    <line x1="470" y1="290" x2="550" y2="400"/><line x1="470" y1="290" x2="482" y2="235"/><path d="M455 235 Q 482 222 512 238" stroke-width="9"/>
+    <path d="M400 382 L 550 388 M400 418 L 550 412" stroke="#9aa5b1" stroke-width="3" stroke-dasharray="4 4"><animate attributeName="stroke-dashoffset" from="0" to="-16" dur="0.4s" repeatCount="indefinite"/></path>
+    <g id="crank"><animateTransform attributeName="transform" type="rotate" from="0 400 400" to="360 400 400" dur="1.2s" repeatCount="indefinite"/>
+      <circle cx="400" cy="400" r="18" fill="#1f2933"/><line x1="400" y1="400" x2="428" y2="440"/><line x1="400" y1="400" x2="372" y2="360"/>
+      <g><animateTransform attributeName="transform" type="rotate" from="0 431 440" to="-360 431 440" dur="1.2s" repeatCount="indefinite"/><rect x="418" y="436" width="26" height="9" fill="#1f2933" stroke="none"/></g>
+      <g><animateTransform attributeName="transform" type="rotate" from="0 369 358" to="-360 369 358" dur="1.2s" repeatCount="indefinite"/><rect x="356" y="354" width="26" height="9" fill="#1f2933" stroke="none"/></g></g>
+  </g>
+
+  <g id="pelican"><animateTransform attributeName="transform" type="translate" values="0 0;0 -5;0 0;0 3;0 0" dur="0.6s" repeatCount="indefinite"/>
+    <g stroke="#f08a24" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M340 300 L 372 340 L 372 358"><animate attributeName="d" values="M340 300 L 372 340 L 372 358;M340 300 L 378 332 L 384 350;M340 300 L 372 340 L 372 358" dur="1.2s" repeatCount="indefinite"/></path>
+      <path d="M352 298 L 410 400 L 430 438"><animate attributeName="d" values="M352 298 L 410 400 L 430 438;M352 298 L 404 392 L 416 428;M352 298 L 410 400 L 430 438" dur="1.2s" repeatCount="indefinite"/></path>
+    </g>
+    <path d="M262 262 L 212 290 L 270 288 Z" fill="#dfe6ee" stroke="#6b7a8a" stroke-width="3"><animateTransform attributeName="transform" type="rotate" values="0 268 270;-6 268 270;0 268 270;5 268 270;0 268 270" dur="0.6s" repeatCount="indefinite"/></path>
+    <ellipse cx="330" cy="255" rx="88" ry="54" fill="#f7f9fb" stroke="#6b7a8a" stroke-width="4"/>
+    <path d="M345 232 Q 410 205 480 232 Q 425 258 345 262 Z" fill="#dfe6ee" stroke="#6b7a8a" stroke-width="4"/>
+    <path d="M360 240 Q 400 232 440 242" fill="none" stroke="#b9c4cf" stroke-width="3"/>
+    <path d="M380 220 Q 405 150 440 140 Q 460 134 468 152 Q 462 180 430 196 Q 410 212 400 232 Z" fill="#f7f9fb" stroke="#6b7a8a" stroke-width="4"/>
+    <g id="head"><animateTransform attributeName="transform" type="rotate" values="0 455 160;2 455 160;0 455 160;-2 455 160;0 455 160" dur="1.2s" repeatCount="indefinite"/>
+      <circle cx="455" cy="140" r="36" fill="#f7f9fb" stroke="#6b7a8a" stroke-width="4"/>
+      <path d="M482 135 L 600 150 L 486 160 Z" fill="#f5b640" stroke="#c57d12" stroke-width="3"/>
+      <path d="M486 160 Q 540 200 598 152 Q 540 172 486 160 Z" fill="#f2a53b" stroke="#c57d12" stroke-width="3"><animate attributeName="d" values="M486 160 Q 540 200 598 152 Q 540 172 486 160 Z;M486 160 Q 540 210 598 152 Q 540 176 486 160 Z;M486 160 Q 540 200 598 152 Q 540 172 486 160 Z" dur="1.2s" repeatCount="indefinite"/></path>
+      <circle cx="462" cy="130" r="7" fill="#1f2933"/><circle cx="464" cy="128" r="2.4" fill="#ffffff"/>
+      <path d="M430 110 Q 428 94 442 92 M440 106 Q 442 90 456 90" fill="none" stroke="#6b7a8a" stroke-width="3"/>
+      <path d="M418 118 Q 455 78 492 118 Z" fill="#2f9e44" stroke="#1b6b2d" stroke-width="3"/><rect x="432" y="96" width="46" height="6" fill="#1b6b2d" opacity="0.6"/>
+      <path d="M424 126 Q 418 156 442 172" fill="none" stroke="#1b6b2d" stroke-width="3"/></g>
+  </g>
+  <g stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.8"><animate attributeName="opacity" values="0.8;0.2;0.8" dur="0.5s" repeatCount="indefinite"/>
+    <line x1="120" y1="372" x2="60" y2="372"/><line x1="140" y1="392" x2="90" y2="392"/><line x1="110" y1="412" x2="40" y2="412"/></g>
+  <text x="20" y="508" font-family="Helvetica, Arial, sans-serif" font-size="16" fill="#ffffff" opacity="0.9">pelican riding a bicycle · animated · Claude Fable 5.1 · 2026-10-13</text>
+</svg>

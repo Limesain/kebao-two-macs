@@ -1,0 +1,33 @@
+{
+ "name": "portrait_gptimage",
+ "model": "openai/gpt-image-2.5-flare",
+ "provider": "openrouter",
+ "prompt": "A Chinese woman in her early thirties standing by a window in late afternoon light, backlit from the side, natural makeup, linen shirt, shallow depth of field, 85mm lens film look, soft warm tones, realistic skin texture, no over-smoothing",
+ "aspect_ratio": "3:4",
+ "resolution": null,
+ "size": null,
+ "refs": [],
+ "wall_s": 20.4,
+ "cost_usd": 0.049165,
+ "usage": {
+  "prompt_tokens": 59,
+  "completion_tokens": 1629,
+  "total_tokens": 1688,
+  "cost": 0.049165,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.049165,
+   "upstream_inference_prompt_cost": 0.000295,
+   "upstream_inference_completions_cost": 0.04887
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 1629
+  }
+ },
+ "file": "s2/cloud/portrait_gptimage.png",
+ "when": "2026-10-13 18:44:37"
+}

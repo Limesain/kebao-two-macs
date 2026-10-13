@@ -1,0 +1,32 @@
+{
+ "L": [
+  {
+   "turn": 1,
+   "prompt": "用三句话解释：为什么统一内存让 Mac 适合在本地跑大语言模型？",
+   "wall": 3.679800000000745,
+   "stats": {
+    "input_tokens": 31,
+    "total_output_tokens": 107,
+    "reasoning_output_tokens": 0,
+    "tokens_per_second": 31.84833208487078,
+    "time_to_first_token_seconds": 0.301
+   },
+   "tokens": 101
+  }
+ ],
+ "R": [
+  {
+   "turn": 1,
+   "prompt": "用三句话解释：为什么统一内存让 Mac 适合在本地跑大语言模型？",
+   "wall": 7.9885,
+   "stats": {
+    "input_tokens": 31,
+    "total_output_tokens": 118,
+    "reasoning_output_tokens": 0,
+    "tokens_per_second": 15.791808822221137,
+    "time_to_first_token_seconds": 0.484
+   },
+   "tokens": 110
+  }
+ ]
+}

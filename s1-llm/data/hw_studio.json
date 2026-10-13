@@ -1,0 +1,10 @@
+{
+ "host": "Mac-Studio.local",
+ "when": "2026-10-13 17:11:36",
+ "ssd_write_MBps": 13858.0,
+ "ssd_read_MBps": 6842.0,
+ "ssd_test_GiB": 8,
+ "mem_bw_copy_GBps": 1043.0,
+ "mem_bw_read_GBps": 1067.0,
+ "chip": "Apple M5 Ultra"
+}

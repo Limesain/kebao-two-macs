@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="650" viewBox="0 0 640 520" role="img" aria-labelledby="title desc">
+  <title id="title">Pelican riding a bicycle</title>
+  <desc id="desc">A cheerful white pelican with a long golden bill pedals a teal bicycle along a sunny seaside path.</desc>
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1">
+      <stop stop-color="#dff3f3"/>
+      <stop offset="1" stop-color="#fff5dc"/>
+    </linearGradient>
+    <linearGradient id="feathers" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#fffef7"/>
+      <stop offset="1" stop-color="#d9e4df"/>
+    </linearGradient>
+    <linearGradient id="pouch" x2="0" y2="1">
+      <stop stop-color="#ffd274"/>
+      <stop offset="1" stop-color="#ee9c58"/>
+    </linearGradient>
+    <g id="wheel">
+      <circle r="80" fill="#fffdf5" fill-opacity=".6" stroke="#293d45" stroke-width="10"/>
+      <circle r="71" fill="none" stroke="#91aaa9" stroke-width="2"/>
+      <g stroke="#a3b9b6" stroke-width="1.5">
+        <path d="M-70 0H70M0-70V70M-49.5-49.5L49.5 49.5M-49.5 49.5L49.5-49.5"/>
+        <path d="M-65-27L65 27M-27-65L27 65M-65 27L65-27M-27 65L27-65"/>
+      </g>
+      <circle r="9" fill="#e9eee4" stroke="#293d45" stroke-width="3"/>
+    </g>
+  </defs>
+
+  <rect width="640" height="520" rx="28" fill="url(#sky)"/>
+  <circle cx="111" cy="99" r="43" fill="#ffda7d"/>
+  <g fill="#fff" opacity=".78">
+    <path d="M38 168c0-13 12-23 25-20 5-23 40-25 48-3 18-6 33 5 33 23Z"/>
+    <path d="M478 76c3-15 19-21 30-14 10-22 43-17 46 5 15-3 28 5 29 17H478Z"/>
+  </g>
+  <path d="M0 341Q115 322 231 342T457 340T640 335V416H0Z" fill="#b8ddd5"/>
+  <path d="M0 367Q103 350 220 368T453 365T640 360" fill="none" stroke="#eff9e9" stroke-width="4"/>
+  <path d="M0 405Q162 391 316 405T640 404V520H0Z" fill="#eddfbd"/>
+  <path d="M0 463Q179 449 340 467T640 456" fill="none" stroke="#f9efd8" stroke-width="5"/>
+  <ellipse cx="356" cy="471" rx="244" ry="15" fill="#958f74" opacity=".15"/>
+
+  <!-- Bicycle wheels and frame -->
+  <use href="#wheel" x="210" y="382"/>
+  <use href="#wheel" x="505" y="382"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M210 382L307 280L355 382ZM307 280H446L355 382M446 280L505 382" stroke="#24454a" stroke-width="12"/>
+    <path d="M210 382L307 280L355 382ZM307 280H446L355 382M446 280L505 382" stroke="#299b98" stroke-width="7"/>
+    <path d="M307 280L297 254" stroke="#52656a" stroke-width="7"/>
+    <path d="M446 280L431 240L457 230" stroke="#52656a" stroke-width="7"/>
+    <path d="M454 231L469 228" stroke="#263e44" stroke-width="10"/>
+    <path d="M454 239Q476 273 459 299" stroke="#52656a" stroke-width="2"/>
+  </g>
+  <path d="M273 249Q293 245 317 250Q326 256 316 261H278Q266 259 273 249Z" fill="#9b5e46" stroke="#293d45" stroke-width="3"/>
+  <path d="M210 373L355 369Q372 369 372 382Q372 395 355 395L210 391Z" fill="none" stroke="#667a78" stroke-width="3"/>
+  <circle cx="355" cy="382" r="18" fill="#e5e7d9" stroke="#293d45" stroke-width="4"/>
+  <circle cx="355" cy="382" r="7" fill="#667a78"/>
+
+  <!-- Far leg and pedal -->
+  <path d="M305 252Q299 283 318 313L328 355" fill="none" stroke="#a96937" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M326 347L345 361Q347 367 337 367H311L316 357Z" fill="#e5a14f" stroke="#674d38" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M355 382L328 363" fill="none" stroke="#52656a" stroke-width="6"/>
+  <path d="M312 367H341" stroke="#293d45" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- Tail and body -->
+  <path d="M263 216Q225 205 213 186L222 226L204 221Q223 247 264 250Z" fill="#edf0e6" stroke="#344b50" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M253 195Q281 172 328 183Q359 184 372 209Q383 237 358 260Q327 283 281 258Q246 245 243 222Q241 206 253 195Z" fill="url(#feathers)" stroke="#344b50" stroke-width="3.5"/>
+
+  <!-- Long curved neck -->
+  <path d="M342 221Q364 202 363 175Q358 145 382 117Q392 102 413 105L430 127Q403 139 401 160Q399 184 398 204Q398 236 366 249" fill="url(#feathers)" stroke="#344b50" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M380 209Q388 184 386 166Q384 148 399 132" fill="none" stroke="#c4d7d2" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- Head crest -->
+  <path d="M389 105L382 86L399 98L400 80L413 97" fill="#fffdf4" stroke="#344b50" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M385 117Q382 91 411 91Q439 90 446 114L439 136Q419 147 398 133Z" fill="#fffdf4" stroke="#344b50" stroke-width="3.5"/>
+
+  <!-- Pelican bill and generous throat pouch -->
+  <path d="M430 121L569 139Q545 168 496 174Q457 179 435 146Z" fill="url(#pouch)" stroke="#344b50" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M432 115Q491 116 572 139L434 136Z" fill="#f6bc45" stroke="#344b50" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M448 142Q473 161 516 154" fill="none" stroke="#ffe1a0" stroke-width="4" stroke-linecap="round"/>
+  <path d="M566 136L575 140L567 144" fill="#d98c36" stroke="#344b50" stroke-width="2" stroke-linejoin="round"/>
+  <ellipse cx="420" cy="111" rx="7.5" ry="9" fill="#344b50"/>
+  <circle cx="422" cy="108" r="2.5" fill="#fff"/>
+  <path d="M409 99Q416 94 424 98" fill="none" stroke="#344b50" stroke-width="2.5" stroke-linecap="round"/>
+  <ellipse cx="411" cy="127" rx="8" ry="4" fill="#efb39b" opacity=".65"/>
+
+  <!-- Windblown scarf -->
+  <path d="M383 157Q361 152 344 133Q338 149 314 145Q338 172 379 172Z" fill="#e7775a" stroke="#853f38" stroke-width="2.5"/>
+  <path d="M382 160Q361 171 343 168L353 180Q373 184 390 168" fill="#f08b67" stroke="#853f38" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M382 151L400 158L397 171L377 163Z" fill="#e7775a" stroke="#853f38" stroke-width="2.5"/>
+
+  <!-- Near leg with webbed foot -->
+  <path d="M334 259Q336 289 371 307L383 348" fill="none" stroke="#674d38" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M334 259Q336 289 371 307L383 348" fill="none" stroke="#e7a64d" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M380 341Q390 346 395 352L416 360Q421 366 412 369H374Q368 365 374 357Z" fill="#f2b755" stroke="#674d38" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M391 355L402 364M383 357L387 364" stroke="#c4863e" stroke-width="2" stroke-linecap="round"/>
+  <path d="M355 382L390 371" stroke="#52656a" stroke-width="6" stroke-linecap="round"/>
+  <path d="M375 372H410" stroke="#293d45" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- Wing reaching toward the handlebars -->
+  <path d="M279 199Q304 187 331 210Q356 230 386 231L449 225Q460 228 454 237Q424 252 387 254Q345 258 313 242Q291 232 279 213" fill="url(#feathers)" stroke="#344b50" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="none" stroke="#b4c9c3" stroke-width="3" stroke-linecap="round">
+    <path d="M292 207Q320 236 362 242"/>
+    <path d="M302 205Q328 228 357 233"/>
+    <path d="M374 245Q410 245 438 235"/>
+  </g>
+
+  <!-- Bell, motion marks, and beach grass -->
+  <path d="M443 224Q443 213 452 213Q461 213 462 224Z" fill="#efbd52" stroke="#344b50" stroke-width="2.5"/>
+  <g fill="none" stroke-linecap="round">
+    <path d="M469 203L476 196M476 214L486 212" stroke="#d1a351" stroke-width="3"/>
+    <path d="M155 269H198M143 287H181M162 305H191" stroke="#83b5ae" stroke-width="4"/>
+    <path d="M56 438Q58 417 48 407M57 437Q62 414 73 412M57 438L58 411M589 451Q582 431 585 421M589 451Q594 431 604 428" stroke="#8eaa80" stroke-width="4"/>
+  </g>
+  <g fill="#c7b58b">
+    <ellipse cx="105" cy="476" rx="5" ry="2"/>
+    <ellipse cx="462" cy="487" rx="7" ry="2"/>
+    <ellipse cx="549" cy="465" rx="4" ry="2"/>
+    <ellipse cx="82" cy="450" rx="3" ry="2"/>
+  </g>
+</svg>

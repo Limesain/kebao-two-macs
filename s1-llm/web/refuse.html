@@ -1,0 +1,14 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><link rel="stylesheet" href="cards16/_base.css"><style>
+.page{padding:72px 110px 56px}.msg{margin-top:60px}
+.msg .who{font-family:ui-serif,"New York",serif;font-size:34px}.msg .who small{font-family:"PingFang SC",sans-serif;font-size:14px;color:var(--mut);letter-spacing:.22em;margin-left:14px}
+.err{margin-top:34px;max-width:1150px;border-left:2px solid var(--gold);padding:26px 34px;background:rgba(255,255,255,.025)}
+.err .t{font-family:ui-monospace,Menlo,monospace;font-size:13px;letter-spacing:.2em;color:var(--gold);margin-bottom:16px}
+.err p{font-family:ui-monospace,Menlo,monospace;font-size:19px;line-height:1.75;color:var(--ink);margin:0}
+.why{margin-top:44px;font-family:"Songti SC",serif;font-size:26px;line-height:1.8;max-width:1150px}
+.why em{font-style:normal;color:var(--gold)}
+</style></head><body><div class="page">
+<div class="kicker">克宝 · 实测 · S1 三级容量</div><h1>笔记本试着加载 gpt-oss-120b</h1><p class="lead">mlx-community/gpt-oss-120b-MXFP4-Q8 · 63.4 GB 权重 · MacBook Pro M5 Max 48 GB</p><div class="rule"></div>
+<div class="msg"><div class="who">MacBook Pro<small>M5 MAX · 48 GB</small></div>
+<div class="err"><div class="t">LM STUDIO · 0.4.26 · 原文</div><p id="errtext">Model loading was stopped due to insufficient system resources. Continuing to load the model would likely overload your system and cause it to freeze. If you think this is incorrect, you can adjust the model loading guardrails in settings.</p></div>
+<div class="why">48 GB 统一内存里，系统和显示本身要占一部分，留给模型的大约 36 到 38 GB。<em>63 GB 的权重放不进去</em>，LM Studio 的内存护栏在加载前就拦住了它。<br>同一份权重，主机 96 GB 装下并跑到每秒 108 个 token。</div>
+<div class="foot"><span>LM Studio 0.4.26 · MLX engine 1.13.1 (nax) · macOS 27.0.1 · 2026-10-13</span><span class="sig">克宝 = Claude Fable 5.1 · 思考强度最高 · 实测</span></div></div></body></html>

@@ -1,0 +1,32 @@
+{
+ "L": [
+  {
+   "turn": 1,
+   "prompt": "用一段话（150字左右）介绍一下 Mac Studio 这台电脑，语气像朋友聊天，不要分点。",
+   "wall": 4.099400000002235,
+   "stats": {
+    "input_tokens": 38,
+    "total_output_tokens": 120,
+    "reasoning_output_tokens": 0,
+    "tokens_per_second": 31.716655033372035,
+    "time_to_first_token_seconds": 0.291
+   },
+   "tokens": 115
+  }
+ ],
+ "R": [
+  {
+   "turn": 1,
+   "prompt": "用一段话（150字左右）介绍一下 Mac Studio 这台电脑，语气像朋友聊天，不要分点。",
+   "wall": 6.868200000002981,
+   "stats": {
+    "input_tokens": 38,
+    "total_output_tokens": 119,
+    "reasoning_output_tokens": 0,
+    "tokens_per_second": 18.703961632673526,
+    "time_to_first_token_seconds": 0.481
+   },
+   "tokens": 116
+  }
+ ]
+}

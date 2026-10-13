@@ -1,0 +1,22 @@
+{
+ "name": "ink_zimage",
+ "engine": "zimage",
+ "model": "Z-Image Turbo",
+ "file": "z_image_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen_3_4b",
+ "shift": 3,
+ "sampler": "res_multistep",
+ "scheduler": "simple",
+ "steps": 9,
+ "cfg": 1,
+ "seed": 20261013,
+ "width": 2048,
+ "height": 1152,
+ "prompt": "水墨山水长卷局部：远山淡墨、近松浓墨，江面一叶扁舟，薄雾，留白，题款与印章点缀，宣纸纹理，宋画气息",
+ "negative": "",
+ "wall_s": 20.9,
+ "machine": "Mac-Studio.local",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-13 18:44:02"
+}

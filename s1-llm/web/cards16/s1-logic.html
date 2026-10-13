@@ -1,0 +1,27 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"><style>
+.page{padding:64px 110px 50px}
+.q{font-family:"Songti SC",serif;font-size:40px;margin:18px 0 6px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:26px;flex:1}
+.cell{padding:20px 26px;border-left:1px solid var(--rule);border-top:1px solid var(--rule)}.cell:nth-child(-n+4){border-top:0}.cell:nth-child(4n+1){border-left:0;padding-left:0}
+.cell h3{font-family:ui-serif,"New York",serif;font-weight:400;font-size:22px;margin:0 0 4px}.cell .m{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--mut);letter-spacing:.04em;margin-bottom:12px;line-height:1.6}
+.cell .v{font-family:"Songti SC",serif;font-size:24px;margin:8px 0 8px}.cell .v.ok{color:var(--gold)}.cell .v.no{color:var(--mut)}.cell .v.mid{color:var(--slate)}
+.cell p{font-size:14.5px;line-height:1.7;color:var(--ink);margin:0;font-weight:300}
+.ans{margin-top:22px;font-family:"Songti SC",serif;font-size:20px;line-height:1.8;color:var(--ink);max-width:1560px}.ans em{font-style:normal;color:var(--gold)}
+</style></head><body><div class="page">
+<div class="kicker">克宝 · 实测 · 一道中文逻辑题</div><div class="q">一个人是否能够同时拥有二伯和三叔？</div><p class="lead">伯 = 父亲的哥哥 · 叔 = 父亲的弟弟 · 数字 = 这位长辈在父亲兄弟里的出生次序 · 本地每档 4 次采样</p>
+<div class="grid" id="grid"></div>
+<div class="ans"><em>判法：</em>「二」「三」是同一条父辈排行上的位置，伯 / 叔只标出父亲在这条线之前还是之后。二伯要父亲排在二之后，三叔要父亲排在三之前，没有这样的位置，所以<em>不能</em>。答「可以」的，都在给伯和叔各数一遍，主人称之为「英语编号的幻觉」。</div>
+<div class="foot"><span>本地模型经 LM Studio 0.4.26 · MLX engine 1.13.1 · temperature 0.7 · 2026-10-13 · 云端 DeepSeek-V4.1-Flash 与 GPT-6 Astra 经官方 API</span><span class="sig">克宝 = Claude Fable 5.1 · 思考强度最高 · 实测</span></div></div>
+<script>
+const items=[
+ {n:'Qwen3.5-9B',m:'MLX 8bit · 思考关 · 主机 100 t/s',v:'可以 ×4',c:'no',p:'四次全答可以。定义本身就乱：把「伯」说成父亲的长子，把「叔」说成父亲的二哥以后。'},
+ {n:'Qwen3.8-27B',m:'MLX 8bit · 思考关 · 主机 32 t/s',v:'可以 ×3 · 不能 ×1',c:'no',p:'唯一一次「不能」理由是错的：说「二伯」这个词在规范里不存在。'},
+ {n:'Qwen3.8-27B',m:'MLX 8bit · 思考中档 · 推理 344–1307 token',v:'可以 ×4',c:'no',p:'四次都明说「伯、叔是两套各自独立的序列」，有一次还发明了「一叔」。想得越久，门越开。'},
+ {n:'gpt-oss-120b',m:'MXFP4 · 主机 108 t/s · 推理 277–380 token',v:'可以 ×4',c:'no',p:'「大伯、二伯、三伯」和「叔、二叔、三叔」各数一遍，规则讲得最整齐，错得最稳定。'},
+ {n:'DeepSeek-V4.1-Flash',m:'云端 · 思考关',v:'可以',c:'no',p:'推理中途自相矛盾（先说父亲排第三，又说排第二），结论照样是可以。'},
+ {n:'DeepSeek-V4.1-Flash',m:'云端 · 思考低档 · 想了约一万字',v:'看家规',c:'mid',p:'规范排行下不能，分开排行则可以。先证明矛盾，再把门留着。'},
+ {n:'GPT-6 Astra',m:'云端 · 推理高档 · 推理 2,291 token',v:'看家规',c:'mid',p:'统一排行下不能；称「伯叔分别编号在部分家庭确实存在」，又承认拿不出方言材料。'},
+ {n:'炘宝 · 克宝',m:'主人 @Iason · Claude Fable 5.1 思考最高（初版留了后门，被主人纠正）',v:'不能',c:'ok',p:'排行是人的固定属性，伯 / 叔只标父亲的位置；「分开排」不是汉语制度，是英语式的 uncle 计数。'},
+];
+document.getElementById('grid').innerHTML=items.map(i=>`<div class="cell"><h3>${i.n}</h3><div class="m">${i.m}</div><div class="v ${i.c}">${i.v}</div><p>${i.p}</p></div>`).join('');
+</script><script src="_anim.js"></script></body></html>

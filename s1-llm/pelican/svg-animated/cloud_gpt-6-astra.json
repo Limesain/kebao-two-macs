@@ -1,0 +1,21 @@
+{
+ "name": "cloud_gpt-6-astra",
+ "cloud": "openai",
+ "wall_s": 104.8,
+ "svg_ok": true,
+ "svg_bytes": 10099,
+ "model": "gpt-6-astra",
+ "usage": {
+  "input_tokens": 56,
+  "input_tokens_details": {
+   "cache_write_tokens": 0,
+   "cached_tokens": 0
+  },
+  "output_tokens": 4092,
+  "output_tokens_details": {
+   "reasoning_tokens": 226
+  },
+  "total_tokens": 4148
+ },
+ "prompt": "Generate an animated SVG of a pelican riding a bicycle. Use SMIL animation (<animateTransform>/<animate>) so the wheels spin, the pedals turn and the pelican bobs gently as it rides. Output only the SVG code, nothing else."
+}

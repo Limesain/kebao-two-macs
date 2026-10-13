@@ -1,0 +1,33 @@
+{
+ "name": "storyboard_grid_seedream",
+ "model": "bytedance-seed/seedream-5-0-pro",
+ "provider": "openrouter",
+ "prompt": "一张 2×3 分镜格电影故事板，同一位角色贯穿六格：一位穿深绿雨衣、背着帆布包的年轻女性，短发，背景是雨夜的东京街头，霓虹倒映在湿漉漉的路面。六格依次为：第1格 建立镜头：远景，她撑伞站在十字路口；第2格 中景：她走进便利店门口，回头看；第3格 特写：她的脸，雨水顺着伞沿滴下；第4格 过肩镜头：她看向橱窗里的猫；第5格 收尾：她在路灯下走远的背影。每格用细白边分隔，统一色调与打光，电影感，角色外貌在每格保持完全一致",
+ "aspect_ratio": "3:2",
+ "resolution": "2K",
+ "size": null,
+ "refs": [],
+ "wall_s": 78.0,
+ "cost_usd": 0.09,
+ "usage": {
+  "prompt_tokens": 199,
+  "completion_tokens": 10928,
+  "total_tokens": 11127,
+  "cost": 0.09,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.09,
+   "upstream_inference_prompt_cost": 0,
+   "upstream_inference_completions_cost": 0.09
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 10928
+  }
+ },
+ "file": "s2/cloud/storyboard_grid_seedream.jpg",
+ "when": "2026-10-13 18:51:30"
+}

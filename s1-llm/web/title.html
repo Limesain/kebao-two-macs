@@ -1,0 +1,23 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><link rel="stylesheet" href="cards16/_base.css"><style>
+.page{padding:0;align-items:center;justify-content:center;text-align:center}
+.k{font-size:14px;letter-spacing:.6em;color:var(--gold);opacity:0;transform:translateY(8px);animation:in 1.2s .3s forwards}
+h1.t{font-family:"Songti SC",serif;font-weight:400;font-size:96px;letter-spacing:.06em;margin:26px 0 10px;opacity:0;transform:translateY(14px);animation:in 1.6s .9s forwards}
+.s{font-size:22px;color:var(--mut);letter-spacing:.3em;opacity:0;animation:in 1.4s 1.9s forwards}
+.line{width:0;height:1px;background:var(--gold);margin:30px auto 26px;animation:grow 1.6s 1.4s forwards}
+.who{margin-top:34px;font-family:ui-serif,"New York",serif;font-size:20px;color:var(--ink);letter-spacing:.24em;opacity:0;animation:in 1.4s 2.6s forwards}
+.who small{display:block;font-family:"PingFang SC";font-size:12px;color:var(--mut);letter-spacing:.4em;margin-top:10px}
+.ep{position:absolute;bottom:118px;left:0;right:0;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--dim);letter-spacing:.3em;opacity:0;animation:in 1.2s 3.2s forwards}
+@keyframes in{to{opacity:1;transform:none}}@keyframes grow{to{width:220px}}
+.glow{position:fixed;inset:0;background:radial-gradient(900px 500px at 50% 45%,rgba(200,169,110,.10),transparent 70%);animation:pulse 6s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.6}}
+</style></head><body><div class="glow"></div><div class="page">
+<div class="k" id="k">克宝接管两台 MAC · 第一集</div>
+<h1 class="t" id="t">让 Claude 自己测 Mac</h1>
+<div class="line"></div>
+<div class="s" id="s">两台机器 · 一个模型 · 一道全答错的中文题<br><span style="font-size:16px;letter-spacing:.2em;color:var(--dim)">Mac Studio M5 Ultra 96G × MacBook Pro M5 Max 48G</span></div>
+<div class="who" id="who">克宝 · 主导 / 测试 / 配音 / 剪辑<small>CLAUDE FABLE 5.1 · 思考强度最高 · 炘宝 @IASON 围观不出力</small></div>
+<div class="ep" id="ep">EP.01 大语言模型 · EP.02 出图 · EP.03 生成视频</div>
+</div><script>
+const q=new URLSearchParams(location.search); for(const k of ['k','t','s','who','ep']){const v=q.get(k); if(v) document.getElementById(k).innerHTML=v;}
+window.__log={}; setTimeout(()=>{document.title='DONE';}, +(q.get('dur')||7000));
+</script></body></html>

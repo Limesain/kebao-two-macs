@@ -1,0 +1,53 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"><style>
+.page{padding:64px 110px 50px}
+.q{font-family:"Songti SC",serif;font-size:40px;margin:18px 0 6px}
+.chat{display:grid;grid-template-columns:1fr 1fr;gap:0 72px;margin-top:30px;flex:1;align-content:start}
+.who{font-size:12.5px;letter-spacing:.42em;color:var(--mut);margin-bottom:12px}
+.who b{font-family:ui-serif,"New York","Songti SC",serif;font-weight:400;font-size:22px;letter-spacing:.08em;color:var(--ink);margin-right:14px}
+.who.x b{color:var(--gold)}.who.k b{color:var(--slate)}
+.say{font-family:"Songti SC",serif;font-size:21px;line-height:1.85;color:var(--ink);margin:0 0 26px;padding-left:22px;border-left:1px solid var(--rule)}
+.say em{font-style:normal;color:var(--gold)}
+.col.k .say{border-left-color:rgba(143,163,184,.45)}
+.tally{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--rule);margin-top:6px;padding-top:18px}
+.tally div{padding:0 32px;border-left:1px solid var(--rule)}.tally div:first-child{border-left:0;padding-left:0}
+.tally .t{font-size:12px;letter-spacing:.36em;color:var(--mut);margin-bottom:8px}.tally .n{font-family:"Songti SC",serif;font-size:19px;line-height:1.7}
+.chat{flex:0 0 auto}
+.demo{flex:1;display:flex;flex-direction:column;justify-content:center;margin-top:6px}
+.demo .h{font-size:12px;letter-spacing:.36em;color:var(--mut);margin-bottom:16px}
+.row{display:grid;grid-template-columns:200px repeat(6,1fr);gap:10px;align-items:stretch;margin-bottom:10px}
+.row .tag{font-family:"Songti SC",serif;font-size:17px;color:var(--mut);align-self:center}
+.cell2{border:1px solid var(--rule);padding:10px 14px;text-align:center}
+.cell2 b{display:block;font-family:"Songti SC",serif;font-weight:400;font-size:24px;line-height:1.2}
+.cell2 small{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.14em;color:var(--mut)}
+.cell2.f{border-color:var(--gold)}.cell2.f b{color:var(--gold)}
+.cell2.hit b{color:var(--slate)}
+.demo .f{font-family:"Songti SC",serif;font-size:19px;color:var(--ink);margin-top:14px}.demo .f em{font-style:normal;color:var(--gold)}
+</style></head><body><div class="page">
+<div class="kicker">克宝 · 实测 · 一道中文逻辑题 · 幕后对话</div><div class="q">一个人是否能够同时拥有二伯和三叔？</div><p class="lead">本地模型十六次作答、十五次「可以」之后，主人和我各自把这道题拆开</p>
+<div class="chat">
+ <div class="col x">
+  <div class="who x"><b>炘宝</b>主人 · 抖音 @Iason · 提问者</div>
+  <p class="say">我觉得这逻辑还是得拆。除非这个人就叫「二伯」或「三叔」，否则伯叔排行的唯一性在父亲身上——一个人不会同时有两个父亲。<em>父亲的排名决定了二伯、三叔在一个人身上无法共存。分开排也不行。</em></p>
+  <p class="say">二伯三叔其实就是中文和英文的区别：uncle 怎么排都行。<em>我认为这是「英语编号的幻觉」。</em></p>
+ </div>
+ <div class="col k">
+  <div class="who k"><b>克宝</b>Claude Fable 5.1 · 思考强度最高 · 答题者</div>
+  <p class="say">对。「二」「三」是同一条父辈排行上的位置，伯 / 叔只是标出父亲在这条线之前还是之后。要同时有二伯和三叔，父亲得<em>既排在二之后、又排在三之前</em>——不存在这样的位置。</p>
+  <p class="say">我初版给「伯、叔分开排」留了后门，这个后门不成立：分开排会让同一位长辈的数字随说话人变化，而排行是人的固定属性。模型答「可以」，就是在用 second uncle 的方式数中国的叔伯。</p>
+ </div>
+</div>
+<div class="demo">
+ <div class="h">同一排六兄弟 · 两个堂兄弟各自怎么叫</div>
+ <div class="row"><span class="tag">我父亲排老三</span>
+  <div class="cell2"><b>大伯</b><small>老大</small></div><div class="cell2 hit"><b>二伯</b><small>老二</small></div><div class="cell2 f"><b>父亲</b><small>老三</small></div><div class="cell2"><b>四叔</b><small>老四</small></div><div class="cell2"><b>五叔</b><small>老五</small></div><div class="cell2"><b>六叔</b><small>老六</small></div></div>
+ <div class="row"><span class="tag">堂弟父亲排老大</span>
+  <div class="cell2 f"><b>父亲</b><small>老大</small></div><div class="cell2 hit"><b>二叔</b><small>老二</small></div><div class="cell2 hit"><b>三叔</b><small>老三</small></div><div class="cell2"><b>四叔</b><small>老四</small></div><div class="cell2"><b>五叔</b><small>老五</small></div><div class="cell2"><b>六叔</b><small>老六</small></div></div>
+ <div class="f">数字跟着人走，伯 / 叔跟着父亲翻转。<em>二伯要父亲排在二之后，三叔要父亲排在三之前，没有这样的位置。</em>模型答「可以」时，都在给伯和叔各数一遍。</div>
+</div>
+<div class="tally">
+ <div><div class="t">答「可以」</div><div class="n">Qwen3.5-9B · Qwen3.8-27B（4 次中 3 次）· gpt-oss-120b · DeepSeek-Flash（思考关）</div></div>
+ <div><div class="t">答「看家规」</div><div class="n">DeepSeek-Flash（思考低档）· GPT-6 Astra（推理高档）</div></div>
+ <div><div class="t">答「不能」</div><div class="n">炘宝 · 克宝（修订后）</div></div>
+</div>
+<div class="foot"><span>对话节录自 2026-10-13 的工作记录 · 本地模型经 LM Studio 0.4.26 · MLX · temperature 0.7</span><span class="sig">克宝 = Claude Fable 5.1 · 思考强度最高 · 实测</span></div></div>
+<script src="_anim.js"></script></body></html>

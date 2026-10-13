@@ -1,0 +1,6 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;width:1920px;height:1080px;background:#0d0e11;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.frame{width:1440px;height:1000px;background:#f4f1ea;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.14)}
+.frame svg{max-width:1400px;max-height:960px;width:auto;height:auto}
+.cap{position:fixed;left:0;right:0;bottom:16px;text-align:center;font-family:"Songti SC",serif;font-size:22px;color:#ece7df;letter-spacing:.1em}</style></head><body><div class="frame" id="f"></div><div class="cap" id="cap"></div>
+<script>const q=new URLSearchParams(location.search); document.getElementById('cap').textContent=q.get('cap')||'';
+fetch(q.get('src')).then(r=>r.text()).then(t=>{document.getElementById('f').innerHTML=t; setTimeout(()=>{document.title='DONE';}, +(q.get('dur')||6000));});</script></body></html>

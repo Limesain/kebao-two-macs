@@ -1,0 +1,28 @@
+{
+ "name": "cloud_grok-4.7",
+ "cloud": "xai",
+ "wall_s": 19.3,
+ "svg_ok": true,
+ "svg_bytes": 4740,
+ "model": "grok-4.7",
+ "usage": {
+  "prompt_tokens": 1291,
+  "completion_tokens": 1950,
+  "total_tokens": 3329,
+  "prompt_tokens_details": {
+   "text_tokens": 1291,
+   "audio_tokens": 0,
+   "image_tokens": 0,
+   "cached_tokens": 1152
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 88,
+   "audio_tokens": 0,
+   "accepted_prediction_tokens": 0,
+   "rejected_prediction_tokens": 0
+  },
+  "num_sources_used": 0,
+  "cost_in_usd_ticks": 130820000
+ },
+ "prompt": "Generate an animated SVG of a pelican riding a bicycle. Use SMIL animation (<animateTransform>/<animate>) so the wheels spin, the pedals turn and the pelican bobs gently as it rides. Output only the SVG code, nothing else."
+}

@@ -1,0 +1,33 @@
+{
+ "name": "ink_seedream",
+ "model": "bytedance-seed/seedream-5-0-pro",
+ "provider": "openrouter",
+ "prompt": "水墨山水长卷局部：远山淡墨、近松浓墨，江面一叶扁舟，薄雾，留白，题款与印章点缀，宣纸纹理，宋画气息",
+ "aspect_ratio": "16:9",
+ "resolution": "2K",
+ "size": null,
+ "refs": [],
+ "wall_s": 77.4,
+ "cost_usd": 0.045,
+ "usage": {
+  "prompt_tokens": 49,
+  "completion_tokens": 9216,
+  "total_tokens": 9265,
+  "cost": 0.045,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.045,
+   "upstream_inference_prompt_cost": 0,
+   "upstream_inference_completions_cost": 0.045
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 9216
+  }
+ },
+ "file": "s2/cloud/ink_seedream.jpg",
+ "when": "2026-10-13 18:48:38"
+}

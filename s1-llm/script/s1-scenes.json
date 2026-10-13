@@ -1,0 +1,198 @@
+{
+ "gap": 0.45,
+ "lead": 0.5,
+ "tail": 0.8,
+ "xfade": 0.6,
+ "gain": 2.2,
+ "music_gain": 0.16,
+ "scenes": [
+  {
+   "type": "video",
+   "src": "assets/captures/v2/t0-title.mp4",
+   "segs": [
+    "s0a"
+   ],
+   "label": "开场"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/v2/c-s1-series.mp4",
+   "segs": [
+    "s0b"
+   ],
+   "label": "这个系列怎么拍"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/v2/c-s1-devices.mp4",
+   "segs": [
+    "s1a",
+    "s1b"
+   ],
+   "label": "两位选手与那根雷雳 5 线"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/v2/r1-27b-short.mp4",
+   "segs": [
+    "s2a"
+   ],
+   "label": "27B 同题双机"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/v2/r3-27b-book50k.mp4",
+   "segs": [
+    "s2b"
+   ],
+   "speed": 10,
+   "label": "读《红楼梦》五万 token"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/v2/c-chart-prefill.mp4",
+   "segs": [
+    "s2c"
+   ],
+   "label": "十万 token 与 48G 的边"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/v2/r4-27b-turns.mp4",
+   "segs": [
+    "s2d"
+   ],
+   "speed": 8,
+   "label": "六轮对话"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/v2/c-chart-turns.mp4",
+   "segs": [],
+   "hold": 4.5,
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/v2/c-s1-27b.mp4",
+   "segs": [],
+   "hold": 4.5,
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/v2/r8-120b-short.mp4",
+   "segs": [
+    "s3a"
+   ],
+   "label": "gpt-oss-120b 只有主机能跑"
+  },
+  {
+   "type": "image",
+   "src": "assets/cards16/s1-refuse-120b.png",
+   "segs": [
+    "s3b"
+   ],
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/v2/r10-cluster-gptoss.mp4",
+   "segs": [
+    "s4a",
+    "s4b"
+   ],
+   "start": 9,
+   "label": "两台 Mac 一起扛 120B"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/v2/c-s1-cluster.mp4",
+   "segs": [
+    "s4c"
+   ],
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/v2/r5-27b-logic.mp4",
+   "segs": [
+    "s5a",
+    "s5b"
+   ],
+   "speed": 2,
+   "label": "一道中文题：二伯和三叔"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/v2/c-s1-logic.mp4",
+   "segs": [
+    "s5c"
+   ],
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/v2/c-s1-dialog.mp4",
+   "segs": [
+    "s5d"
+   ],
+   "hold": 2.5,
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/v2/r11-pelican-gallery.mp4",
+   "segs": [
+    "s5e"
+   ],
+   "label": "画一只骑自行车的鹈鹕"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/v2/r13-pelican-anim6.mp4",
+   "segs": [],
+   "hold": 9.5,
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/v2/c-chart-thermal.mp4",
+   "segs": [
+    "s6a"
+   ],
+   "label": "温度与功耗"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/v2/c-chart-sustain.mp4",
+   "segs": [
+    "s6b"
+   ],
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/v2/c-s1-tiers.mp4",
+   "segs": [
+    "s7a"
+   ],
+   "label": "三级容量总结"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/v2/c-s1-end.mp4",
+   "segs": [
+    "s7b",
+    "s7e",
+    "s7d",
+    "s7c"
+   ],
+   "hold": 2.0,
+   "label": "幕后与下集"
+  }
+ ],
+ "voice_dir": "assets/voice3",
+ "music": "assets/music/bgm_bed.wav",
+ "music_mode": "full"
+}

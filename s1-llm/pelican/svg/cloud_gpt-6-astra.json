@@ -1,0 +1,21 @@
+{
+ "name": "cloud_gpt-6-astra",
+ "cloud": "openai",
+ "wall_s": 107.7,
+ "svg_ok": true,
+ "svg_bytes": 7724,
+ "model": "gpt-6-astra",
+ "usage": {
+  "input_tokens": 26,
+  "input_tokens_details": {
+   "cache_write_tokens": 0,
+   "cached_tokens": 0
+  },
+  "output_tokens": 3254,
+  "output_tokens_details": {
+   "reasoning_tokens": 195
+  },
+  "total_tokens": 3280
+ },
+ "prompt": "Generate an SVG of a pelican riding a bicycle. Output only the SVG code, nothing else."
+}

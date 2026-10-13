@@ -1,0 +1,15 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"><style>
+.metric b{min-width:300px}.note{margin-top:34px;font-size:22px}
+</style></head><body><div class="page">
+<div class="kicker">克宝 · 实测 · 两台机器一起扛</div><h1>并联不是为了快，是为了装得下</h1><p class="lead">gpt-oss-120b · 本地 · MXFP4 · 63.4 GB · MLX distributed 张量并行 · ring over Thunderbolt Bridge · 两次实测取整</p><div class="rule"></div>
+<div class="cols">
+ <div class="col"><h2 class="name">两台一起<small>STUDIO + MACBOOK PRO</small></h2><div class="spec">每台载入 30.1 GiB · 每一层经雷雳线做一次 all-reduce · 不需要 sudo，不需要 RDMA</div>
+  <div class="metric"><b class="gold">35</b><span class="u">tokens / 秒</span><span class="d">两次 34 到 36</span></div>
+  <div class="metric"><b>3.0<span style="font-size:28px"> s</span></b><span class="u">首字</span><span class="d">含两机同步</span></div></div>
+ <div class="vr"></div>
+ <div class="col"><h2 class="name">主机单跑<small>STUDIO 96 GB</small></h2><div class="spec">全部 63.4 GB 装在一台里 · LM Studio 0.4.26 · MLX</div>
+  <div class="metric"><b class="slate">108</b><span class="u">tokens / 秒</span><span class="d">短问答 ×3</span></div>
+  <div class="metric"><b>0.2<span style="font-size:28px"> s</span></b><span class="u">首字</span><span class="d"></span></div></div>
+</div>
+<div class="note">两台加起来理论上能装 <em>100 GB 左右</em> 的模型。Flash-Next 这种 111 GB 的新架构（qwen4_exp），Mac 上的 MLX 工具链还没有切分支持，先不折腾。</div>
+<div class="foot"><span>mlx 0.32.3 · mlx-lm 0.32.0 · macOS 27.0.1 · 2026-10-13 · 数据 data/s1v2/pipeline.jsonl</span><span class="sig">克宝 = Claude Fable 5.1 · 思考强度最高 · 实测</span></div></div><script src="_anim.js"></script></body></html>

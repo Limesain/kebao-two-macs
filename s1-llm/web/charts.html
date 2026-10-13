@@ -1,0 +1,77 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><link rel="stylesheet" href="cards16/_base.css"><style>
+.page{padding:72px 110px 56px}
+svg{width:100%;height:100%}
+.axis{stroke:rgba(255,255,255,.14);stroke-width:1}
+.grid{stroke:rgba(255,255,255,.06);stroke-width:1}
+.lbl{font-family:ui-monospace,Menlo,monospace;font-size:12px;fill:#8d8f95;letter-spacing:.12em}
+.val{font-family:ui-serif,"New York",serif;font-size:22px;fill:#ece7df}
+.ser1{fill:none;stroke:#c8a96e;stroke-width:2.2}.ser2{fill:none;stroke:#8fa3b8;stroke-width:2.2}
+.ser1b{fill:none;stroke:#c8a96e;stroke-width:1.2;stroke-dasharray:4 5;opacity:.75}.ser2b{fill:none;stroke:#8fa3b8;stroke-width:1.2;stroke-dasharray:4 5;opacity:.75}
+.dot1{fill:#c8a96e}.dot2{fill:#8fa3b8}
+.legend{display:flex;gap:36px;font-size:13px;letter-spacing:.2em;color:#8d8f95;margin-top:8px}.legend i{display:inline-block;width:26px;height:2px;vertical-align:middle;margin-right:10px}
+.chart{flex:1;min-height:0;margin-top:24px}
+
+body.anim .page>*{opacity:0;animation:rise .9s cubic-bezier(.2,.7,.2,1) forwards}body.anim .page>*:nth-child(1){animation-delay:.2s}body.anim .page>*:nth-child(2){animation-delay:.45s}body.anim .page>*:nth-child(3){animation-delay:.7s}body.anim .page>*:nth-child(4){animation-delay:.9s}body.anim .page>*:nth-child(5){animation-delay:1.1s}body.anim .page>*:nth-child(6){animation-delay:1.3s}body.anim .page>*:nth-child(7){animation-delay:1.5s}
+@keyframes rise{to{opacity:1}}
+body.anim path.ser1,body.anim path.ser2,body.anim path.ser1b,body.anim path.ser2b{stroke-dasharray:4000;stroke-dashoffset:4000;animation:draw 3.2s 1.6s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+body.anim circle,body.anim text.val,body.anim svg text.lbl.pt{opacity:0;animation:fadein .6s 4.2s forwards}@keyframes fadein{to{opacity:1}}
+body.anim rect.bar{transform-origin:left center;transform:scaleX(0);animation:grow 1.8s 1.8s cubic-bezier(.2,.7,.2,1) forwards}@keyframes grow{to{transform:scaleX(1)}}
+</style></head><body><div class="page">
+<div class="kicker" id="kicker">克宝 · 实测 · S1 三级容量</div><h1 id="h1"></h1><p class="lead" id="lead"></p><div class="rule" style="margin:28px 0 0"></div>
+<div class="legend" id="legend"></div>
+<div class="chart"><svg id="svg" viewBox="0 0 1700 640" preserveAspectRatio="none"></svg></div>
+<div class="foot"><span id="env">LM Studio 0.4.26 · MLX engine 1.13.1 (nax) · macOS 27.0.1 · 2026-10-13</span><span class="sig">克宝 = Claude Fable 5.1 · 思考强度最高 · 实测</span></div></div>
+<script>
+const q=new URLSearchParams(location.search), type=q.get('type')||'sustain', NS='http://www.w3.org/2000/svg'; const ANIM=q.get('anim')==='1'; if(ANIM) document.body.classList.add('anim');
+const svg=document.getElementById('svg'); const W=1700,H=640,L=70,Rr=70,T=30,B=60;
+function el(n,a,txt){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;svg.appendChild(e);return e;}
+function axes(xmax,ymax,xl,yl,xfmt,yfmt){ for(let i=0;i<=4;i++){const y=T+(H-T-B)*(1-i/4); el('line',{x1:L,y1:y,x2:W-Rr,y2:y,class:i?'grid':'axis'}); el('text',{x:L-12,y:y+4,class:'lbl','text-anchor':'end'},yfmt(ymax*i/4));}
+  for(let i=0;i<=6;i++){const x=L+(W-L-Rr)*i/6; el('text',{x,y:H-B+26,class:'lbl','text-anchor':'middle'},xfmt(xmax*i/6));} el('text',{x:W-Rr,y:H-B+48,class:'lbl','text-anchor':'end'},xl); el('text',{x:L,y:T-12,class:'lbl','text-anchor':'start'},yl); }
+const X=(v,m)=>L+(W-L-Rr)*v/m, Y=(v,m)=>T+(H-T-B)*(1-v/m);
+function line(pts,cls){ el('path',{d:pts.map((p,i)=>(i?'L':'M')+p[0]+' '+p[1]).join(' '),class:cls}); }
+function legend(items){document.getElementById('legend').innerHTML=items.map(([c,t])=>`<span><i style="background:${c}"></i>${t}</span>`).join('');}
+async function csv(u){const t=await (await fetch(u)).text(); const [h,...rows]=t.trim().split('\n'); const k=h.split(','); return rows.map(r=>Object.fromEntries(r.split(',').map((v,i)=>[k[i],v])));}
+(async()=>{
+ const S=await (await fetch('data/summary.json')).json();
+ const pick=(m,test,tag)=>S.find(s=>s.machine===m&&s.test===test&&(!tag||s.model.includes(tag)));
+ if(type==='sustain'){
+   document.getElementById('h1').textContent='持续负载三分钟：出字速度与功耗'; document.getElementById('lead').textContent='Qwen3.8-27B · MLX 8bit · 连续请求，每点一次请求 · 实线：tokens/秒 · 虚线：GPU 功耗（W）';
+   const sus=m=>S.filter(s=>s.test==='sustain'&&s.machine===m&&(s.src||'').endsWith('_p3')).pop()||S.filter(s=>s.test==='sustain'&&s.machine===m).pop(); const a=sus('studio'), b=sus('mbp');
+   let pa=[],pb=[]; try{pa=await csv('data/power_sustain_studio.csv');}catch{} try{pb=await csv('data/power_sustain_mbp.csv');}catch{}
+   const xmax=200, ymax=40, pmax=200; axes(xmax,ymax,'秒','TOKENS / 秒',v=>Math.round(v),v=>v.toFixed(0));
+   for(let i=0;i<=4;i++){const y=T+(H-T-B)*(1-i/4); el('text',{x:W-Rr+12,y:y+4,class:'lbl'},(pmax*i/4).toFixed(0)+' W');}
+   if(pa.length) line(pa.map((r,i)=>[X(i,xmax),Y(r.gpu_mW/1000,pmax)]),'ser1b'); if(pb.length) line(pb.map((r,i)=>[X(i,xmax),Y(r.gpu_mW/1000,pmax)]),'ser2b');
+   if(a){const pts=a.runs.map(r=>[X(r.t_offset_s,xmax),Y(r.tps,ymax)]); line(pts,'ser1'); pts.forEach(p=>el('circle',{cx:p[0],cy:p[1],r:3.5,class:'dot1'})); el('text',{x:pts.at(-1)[0]+10,y:pts.at(-1)[1]+8,class:'val'},a.runs.at(-1).tps.toFixed(1));}
+   if(b){const pts=b.runs.map(r=>[X(r.t_offset_s,xmax),Y(r.tps,ymax)]); line(pts,'ser2'); pts.forEach(p=>el('circle',{cx:p[0],cy:p[1],r:3.5,class:'dot2'})); el('text',{x:pts.at(-1)[0]+10,y:pts.at(-1)[1]+8,class:'val'},b.runs.at(-1).tps.toFixed(1));}
+   legend([['#c8a96e','MAC STUDIO · M5 ULTRA'],['#8fa3b8','MACBOOK PRO · M5 MAX（合盖）']]);
+ } else if(type==='turns'){
+   document.getElementById('h1').textContent='六轮对话：上下文越长，首字还快吗'; document.getElementById('lead').textContent='Qwen3.8-27B · MLX 8bit · 香港三日行程的六轮追问 · 横轴为每轮送入的上下文 token，纵轴为首字延迟（秒）';
+   const a=pick('studio','turns'), b=pick('mbp','turns'); const xmax=3000, ymax=1.2; axes(xmax,ymax,'上下文 TOKEN','首字 · 秒',v=>Math.round(v),v=>v.toFixed(1));
+   for(const [s,c,cls,dot,dy] of [[a,'#c8a96e','ser1','dot1',-14],[b,'#8fa3b8','ser2','dot2',30]]){ if(!s)continue; const pts=s.runs.map(r=>[X(r.in_tok,xmax),Y(r.ttft_s,ymax)]); line(pts,cls); pts.forEach((p,i)=>{el('circle',{cx:p[0],cy:p[1],r:4,class:dot}); el('text',{x:p[0],y:p[1]+dy,class:'lbl pt','text-anchor':'middle'},'第'+(i+1)+'轮 '+s.runs[i].ttft_s.toFixed(2)+'s');}); }
+   legend([['#c8a96e','MAC STUDIO'],['#8fa3b8','MACBOOK PRO']]);
+ } else if(type==='prefill'){
+   document.getElementById('h1').textContent='读长文：五万与十万 token 的首字时间'; document.getElementById('lead').textContent='Qwen3.8-27B · MLX 8bit · 《红楼梦》前九回 50,240 token · 十万档：主机读《三国》100,693 token，笔记本读《红楼梦》100,600 token（同长度《三国》在 48 GB 上两次显存不足）· 两台各自干净加载、读完才开始作答';
+   const rows=[['读 5 万 token',pick('studio','long50'),pick('mbp','long50')],['读 10 万 token',S.find(s=>s.machine==='studio'&&s.test==='long100'&&s.doc==='sanguo-100k')||S.find(s=>s.machine==='studio'&&s.test==='long100'&&s.doc==='sanguo-120k')||pick('studio','long100'),S.find(s=>s.machine==='mbp'&&s.test==='long100'&&s.doc==='sanguo-100k')||pick('mbp','long100')]];
+   const xmax=Math.max(...rows.flatMap(r=>[r[1]?.ttft||0,r[2]?.ttft||0]))*1.15||200; const bh=70;
+   rows.forEach((r,i)=>{const y0=T+40+i*170; el('text',{x:L,y:y0,class:'lbl'},r[0]); [[r[1],'#c8a96e'],[r[2],'#8fa3b8']].forEach(([s,c],j)=>{ if(!s)return; const y=y0+22+j*bh; const w=(W-L-Rr)*s.ttft/xmax; el('rect',{x:L,y,width:w,height:bh-26,fill:c,opacity:.85,class:'bar'}); el('text',{x:L+w+14,y:y+30,class:'val'},s.ttft.toFixed(1)+' s'); el('text',{x:L+w+120,y:y+30,class:'lbl'},(s.runs[0].in_tok/s.ttft).toFixed(0)+' TOKEN/S 预填充'+(s.machine==='mbp'&&s.doc==='honglou-100k'?' · 空闲内存只剩 0.1 GB，已到 48 GB 的边':''));});});
+   legend([['#c8a96e','MAC STUDIO'],['#8fa3b8','MACBOOK PRO']]);
+ } else if(type==='thermal'){
+   document.getElementById('h1').textContent='同一份活，两台机器的温度与功耗'; document.getElementById('lead').textContent='Qwen3.8-27B · MLX 8bit · 先读 5 万 token 长文，再连续生成 150 秒 · 实线：GPU 温度 ℃（SMC 传感器最高值）· 虚线：GPU 功耗 W（powermetrics）· 竖线：读完长文开始连续生成 · 阴影：系统温度压力非 Nominal';
+   const sec=t=>{const [h,m,s]=t.split(':').map(Number);return h*3600+m*60+s;};
+   async function load(m){let pw=[],tp=[];try{pw=await csv(`data/power5_profile_${m}.csv`);}catch{} try{tp=await csv(`data/temp5_profile_${m}.csv`);}catch{} const t0=pw.length?sec(pw[0].ts):(tp.length?sec(tp[0].ts):0); return {pw:pw.map(r=>({t:sec(r.ts)-t0,w:r.gpu_mW/1000,mhz:+r.gpu_mhz,p:r.pressure})),tp:tp.map(r=>({t:sec(r.ts)-t0,g:+r.gpu_max,c:+r.cpu_max,f:+r.fan0_rpm}))};}
+   const A=await load('studio'), Bm=await load('mbp'); const xmax=290, ymax=120, pmax=300;
+   // 压力阴影
+   for(const [d,c] of [[A,'#c8a96e'],[Bm,'#8fa3b8']]){ let s=null; d.pw.forEach((r,i)=>{const bad=r.p&&r.p!=='Nominal'; if(bad&&s===null)s=r.t; if((!bad||i===d.pw.length-1)&&s!==null){el('rect',{x:X(s,xmax),y:T,width:Math.max(2,X(r.t,xmax)-X(s,xmax)),height:H-T-B,fill:c,opacity:.10}); s=null;}}); }
+   axes(xmax,ymax,'秒','GPU ℃',v=>Math.round(v),v=>v.toFixed(0));
+   for(let i=0;i<=4;i++){const y=T+(H-T-B)*(1-i/4); el('text',{x:W-Rr+12,y:y+4,class:'lbl'},(pmax*i/4).toFixed(0)+' W');}
+   for(const [m,c,lab] of [['studio','#c8a96e','主机读完 5 万 TOKEN'],['mbp','#8fa3b8','笔记本读完 5 万 TOKEN']]){const s5=S.find(x=>x.machine===m&&x.test==='long50'); if(!s5)continue; const x=X(10+s5.ttft,xmax); el('line',{x1:x,y1:T,x2:x,y2:H-B,stroke:c,'stroke-width':1,'stroke-dasharray':'2 6',opacity:.8}); el('text',{x:x+8,y:T+16,class:'lbl',fill:c},lab);}
+   for(const [d,cls,clsb,c] of [[A,'ser1','ser1b','#c8a96e'],[Bm,'ser2','ser2b','#8fa3b8']]){
+     if(d.pw.length) line(d.pw.filter(r=>r.t<=xmax).map(r=>[X(r.t,xmax),Y(r.w,pmax)]),clsb);
+     if(d.tp.length){const pts=d.tp.filter(r=>r.t<=xmax&&r.g>0); line(pts.map(r=>[X(r.t,xmax),Y(r.g,ymax)]),cls); const mx=pts.reduce((a,b)=>b.g>a.g?b:a,pts[0]); el('circle',{cx:X(mx.t,xmax),cy:Y(mx.g,ymax),r:4.5,fill:c}); el('text',{x:X(mx.t,xmax)+12,y:Y(mx.g,ymax)-10,class:'val',fill:c},mx.g.toFixed(0)+' ℃'); }
+   }
+   legend([['#c8a96e','MAC STUDIO · M5 ULTRA'],['#8fa3b8','MACBOOK PRO · M5 MAX（合盖）']]);
+ }
+ setTimeout(()=>{document.title='DONE';}, ANIM? +(q.get('dur')||8000): 300);
+})();
+</script></body></html>

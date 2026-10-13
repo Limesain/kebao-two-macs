@@ -1,0 +1,915 @@
+# 情报附录 A · 两台 Mac（M5 Ultra 96GB + M5 Max 48GB）Thunderbolt 5 分布式推理（截至 2026-10-12）
+
+> 由检索代理整理，Claude 复核要点。标注约定：**[一手]** = 官方文档/仓库/PR/Issue 原文核实；**[社区]** = 博客、论坛、X 帖子等二手或个人实测。
+
+---
+
+## 1. exo（exo-explore/exo）
+
+**版本与安装 [一手]**
+- 最新 tag **v1.0.71（2026-04-23）**，此后无新 tag；但 `main` 分支到 **2026-10-12 当天**仍在密集提交（选主/发现/网络稳定性修复，PR #2319–#2364）；2026-06-03 用 Zenoh 替换了 libp2p。GitHub Releases 页为空，47.8k stars，Apache-2.0。 https://github.com/exo-explore/exo/tags · https://github.com/exo-explore/exo/commits/main
+- 安装：`brew install --cask exo`（cask 版本 1.0.71，自动更新）或 EXO-latest.dmg；**macOS Tahoe 26.2+**；App 会请求安装 Network profile。源码路径：Xcode + `brew install uv node` + Rust nightly + **pinned 的 macmon fork（README 明说 Homebrew macmon 0.6.1 在 M5 上会崩）** → `uv sync --extra mlx` → `uv run exo` → http://localhost:52415 。无 pip 包。 https://github.com/exo-explore/exo · https://formulae.brew.sh/cask/exo
+- 注意：1.0.71 发布于 macOS 27 之前，README 仍写 26.2+，未见 macOS 27 的兼容声明或 issue。
+
+**RDMA over TB5 [一手]**
+- README："RDMA is a new capability added to macOS 26.2"，任何 TB5 Mac 可用（列举含 M4 Max MacBook Pro）；Recovery → `rdma_ctl enable` → 重启；RDMA 集群内**每台设备必须与其他所有设备直连（全互联）**；必须 TB5 线；**Mac Studio 紧挨以太网口那个 TB5 口不可用**；源码运行时用 `tmp/set_rdma_network_config.sh` 关掉 Thunderbolt Bridge 并给每个 RDMA 口设 DHCP；**所有节点 macOS 版本必须完全一致（含 beta 号）**。
+- 后端："uses MLX as an inference backend and MLX distributed for distributed communication"（即 JACCL）。Tensor parallel 宣称 2 台 1.8×、4 台 3.2×；Pipeline 为可选 placement（"sharding": "Pipeline"）。
+
+**异构支持（关键）[一手]**
+- Issue #953（2025-12-21 开，2026-09-11 仍有评论，open）：**TP 用 mlx-lm 的 `shard_linear/shard_inplace` 均分权重，要求维度能被 group size 整除**，明文列为「heterogeneous devices 上更聪明 TP 的阻塞项」。上游 MLX PR #4465 "Support uneven tensor parallel sharding"（2026-09-04 开，open，low priority）。 https://github.com/exo-explore/exo/issues/953 · https://github.com/ml-explore/mlx/pulls?q=is%3Apr+uneven+tensor+parallel
+- Issue #957（open）：**Pipeline placement 按各节点可用 RAM 比例分层**，不考虑带宽/延迟；评论者实测把一台 36GB M4 Max 笔记本加入集群后「在现行算法下反而变慢」。 https://github.com/exo-explore/exo/issues/957
+- 推论：对 96+48 的组合，exo 的 TP 均分意味着每台承担一半权重，上限被 MBP 的 ~38GB 卡死 → 可跑模型 ≤ ~76GB，**不比 Studio 单机更大**；只有 Pipeline 才能真正利用 ~113GB 合并容量，而 Pipeline 不提速。
+
+**公开基准 [社区：Jeff Geerling 2025-12-18，4×M3 Ultra，RDMA TP]**
+- Qwen3-235B 8-bit：19.5 → 26.2 → 31.9 t/s（1/2/4 节点）；DeepSeek V3.1 671B 8-bit：21.1 → 27.8 → 32.5；Kimi K2 Thinking 4-bit ≈ 28–30 t/s；对照 llama.cpp RPC：20.4 → 17.2 → 15.2（越加越慢）。TB5 实测「50–60 Gbps real-world」，延迟 300μs → <50μs；稳定性差（"works great when it works"，模型加载失败、HPL over TCP 让两台机器重启）。 https://www.jeffgeerling.com/blog/2025/15-tb-vram-on-mac-studio-rdma-over-thunderbolt-5/
+- exo 官方 X（2025-12-20）：2×M4 Pro mini，Llama 3.1 8B 15.7 → 28.4 t/s（1.8×）。 https://x.com/exolabs/status/2002200839142928745
+- exo 官方 X（2026-08-25）：被 Apple M5 Ultra Mac Studio 页面引用；"4×M5 Ultra 聚合带宽 ~4.8TB/s"，跑 Kimi K3 / GLM-5.3 "at API speeds"——无具体 t/s。 https://x.com/exolabs/status/2092320487019880735
+- Apple 官网 [一手]："use exo to cluster multiple AI workstations"；脚注：4 节点全互联 M5 Ultra 512GB，**72B dense、32K prompt 摘要，mlx-lm，最高 3×**。 https://www.apple.com/mac-studio/
+- 稳定性 issue [一手]：#1711（2026-03-12，**M3 Ultra 96GB Studio + M4 Max 128GB MacBook**，exo 1.0.68）：RDMA 随机失效 "RTR failed errno 22"，维护者：重插 TB5 线常可恢复，仍 open。MLX #3777（exo 1.0.71 触发 JACCL segfault，2026-08-12 由 PR #4180 修复）。 https://github.com/exo-explore/exo/issues/1711 · https://github.com/ml-explore/mlx/issues/3777
+
+## 2. MLX 原生分布式
+
+**[一手] MLX 0.32.3 文档（2026-09-29 发布）**
+- 后端表：RING（TCP sockets，始终可用）/ JACCL（"RDMA over thunderbolt. Necessary for things like tensor parallelism"，macOS 26.2+，**仅全互联拓扑**，延迟比 ring 低约一个数量级）/ MPI / NCCL。
+- 流程：`mlx.distributed_config --backend jaccl --over thunderbolt --hosts A,B --auto-setup --output h.json`（需免密 sudo；自动检测线缆拓扑、验证 RDMA、**关闭 Thunderbolt Bridge 并为每根线建点对点子网**、写 hostfile）→ `mlx.launch --backend jaccl --hostfile h.json -- mlx_lm.chat --model ...`。Ring over TB 只需把 `--backend` 换成 ring（走 TCP，非 RDMA）。要求免密 SSH、Python/脚本路径一致。`MLX_METAL_FAST_SYNCH=1` 可选但可能死锁 GPU。 https://ml-explore.github.io/mlx/build/html/usage/distributed.html · https://ml-explore.github.io/mlx/build/html/usage/launching_distributed.html
+- 版本线：PR #2808 JACCL 合入 2025-12-17（维护者："Tb5 only"）；0.31.2（04-22）JACCL 独立库；0.32.1（08-18）coordinator 可选 + JACCL ring 重构；0.32.3 修 jaccl ring all_gather。 https://github.com/ml-explore/mlx/pull/2808 · https://github.com/ml-explore/mlx/releases
+- WWDC26 Session 233：Python API `sharded_load(model, pipeline_group, tensor_group)` + `stream_generate`；CLI 默认 TP，加 `--pipeline` 切 pipeline（"不提速，但通信少；并非所有模型支持"）；Qwen3.6-27B 4×M3 Ultra ≈ 3×；Kimi K2.6 1T 跨 4 台。 https://developer.apple.com/videos/play/wwdc2026/233
+- 异构内存：**文档与 session 均未涉及**；TP 均分（见 #953），mlx-lm pipeline 如何按内存不均分无官方说明。`mlx_lm.share` 可经 RDMA 向其他节点分发模型文件（>5 GB/s，维护者评论 #3207）。
+- 硬限制 [一手 Issue #3162，open]：macOS 26.3 下每设备约 100 个 Memory Region；26.5.1 下每设备约 10 个 Queue Pair（TN3205 亦写明 max 10 UC QPs）。该 issue 的硬件恰是 **2×Mac Studio M4 Max 128GB + MacBook Pro M4 36GB** 三节点，证明异构能跑通。 https://github.com/ml-explore/mlx/issues/3162
+
+**Apple TN3205 [一手，2026-03-19 首发，04-13 修订]**
+- "available starting with macOS 26.2 on Macs with Apple silicon with Thunderbolt 5"；Recovery `rdma_ctl enable`；`ibv_devices` 验证；IP over TB 与 RDMA 并行，硬件负载均衡；**两台 Mac = 一根线 en2↔en2 即全互联**；有环路时须 System Settings → Network → Thunderbolt Bridge → Make Inactive；**"Disable Idle Sleep … Thunderbolt does not support Wake-on-LAN"**；Verbs 仅 send/recv、UC QP ≤10、消息 ≤16MB；链路 8X×10Gbps = 80 Gbps/口。 https://developer.apple.com/documentation/technotes/tn3205-low-latency-communication-with-rdma-over-thunderbolt
+
+**macOS 27 Golden Gate（2026-09-14 发布）**
+- [社区：MacGeneration 2026-09-24] RDMA 开关改为 **System Settings > Privacy & Security > Developer Tools 里一个勾选框**，不再需要 Recovery（与 WWDC26 演示一致）；吞吐无变化。 https://www.macg.co/intelligence-artificielle/2026/09/macos-27-simplifie-la-mise-en-place-dun-cluster-de-mac-studio-avec-le-rdma-311231
+- Apple 企业版说明（2026-09-28）未提 RDMA/Thunderbolt 变化。 https://support.apple.com/en-us/148830
+- [社区] Layr-Labs PR #1407（2026-10-09~11）：**M3 Ultra 256GB（macOS 27.2 beta）+ M5 Max 128GB（macOS 27.0）单根 TB5 线 JACCL RDMA 可用**——目前唯一的 macOS 27 实测。 https://github.com/Layr-Labs/d-inference/pull/1407
+
+## 3. llama.cpp RPC
+
+- [一手] README：仍标 "proof-of-concept … fragile and insecure"；**PR #26421 "rpc: support apple RDMA as an RPC transport" 2026-08-01 开、08-25 合入**（TN3205 实现，UC QP，128KiB stride），握手时自动协商 RDMA/回退 TCP，`GGML_RDMA_DEV` 选口，`GGML_RPC_NO_RDMA` 强制 TCP；默认**按各设备可用内存比例切分**，`--tensor-split` 可覆盖。 https://github.com/ggml-org/llama.cpp/blob/master/tools/rpc/README.md · https://github.com/ggml-org/llama.cpp/pull/26421
+- PR 作者基准（M3 Ultra，layer parallel）：Qwen3.6-27B Q4_K_XL 单机 24.4 t/s → 2 节点 TCP 18.0 / RDMA 22.5；DeepSeek V4 Flash 2 节点 RDMA 22.4 vs TCP 14.7（单机 27.6）；**3+ 节点 DeepSeek V4 初始化失败**。结论：RPC 是「容量」不是「速度」，2 节点一定比单机慢。
+- 坑 [一手/社区]：Issue #27667 Metal+RPC 默认 mmap 会让主节点保留整个模型 → 加 `-mmp 0`；冷启动要把全部张量推到 worker（分钟级）；社区项目反馈 RDMA 偶发 "wedge a worker until reboot"。 https://github.com/ggml-org/llama.cpp/issues/27667 · https://github.com/riozilla/mac-thunderbolt-llama-cluster
+
+## 4. LM Studio
+
+- [一手] 最新 **0.4.26（2026-10-08）**。唯一跨机能力是 **LM Link**（Tailscale 加密，0.4.x）：远端设备上加载的模型在本机列表中出现并可调用，"preferred device" 选加载位置——**模型整体落在一台机器上，不做切分**。0.4.20（07-22）「用本机模型在 Bionic 里通过 LM Link」；Bionic（07-16）是 agent 应用；0.4.26 "Coexistence with Bionic"。changelog/blog 无 distributed/sharding/RDMA 字样。 https://lmstudio.ai/changelog/lmstudio · https://lmstudio.ai/docs/lmlink · https://lmstudio.ai/blog
+- 本机实测补充（Claude）：`lms link status` 返回 "You do not have access to LM Link. Visit https://lmstudio.ai/lm-link to request access."——该功能需申请。
+- 结论：LM Studio 对「切分模型」无用，只能当远端 API 前端（`lms server start --bind 0.0.0.0` 就够）。
+
+## 5. 可行模型（可用池 ≈ Studio 75–85 + MBP 36–40 ≈ 110–120 GB）
+
+Qwen3.8 系列 [一手 QwenLM/Qwen3.8 + HF]：**Qwen3.8-2.4T-A95B**（08-12 开权重，Qwen3.8-Max 许可）、**Qwen3.8-27B** dense（08-14，Apache 2.0，原生 VL，262K）、**Qwen3.8-Flash-Next**（08-26，125B 主干 + 51B n-gram 表 + 4B MTP ≈ 180B，**6B 激活**，512 专家 10+1，262K/1M，许可 qwen-community-1.0：本地/内部用无限制，MaaS 与「AI Work Assistant」产品需商业授权）。Qwen3.8-Max 仅 API（08-03）。3.8 代**没有** 35B-A3B（那是 3.5/3.6）。 https://github.com/QwenLM/Qwen3.8 · https://huggingface.co/Qwen/Qwen3.8-Flash-Next
+
+| 模型（mlx-community） | 文件大小 [一手 HF tree] | 单台 96GB | 双机 | 备注 |
+|---|---|---|---|---|
+| **Qwen3.8-Flash-Next-4bit** | **111.5 GB** | 不行 | **可（pipeline）** | M5 Ultra 实测 52 t/s@16K prompt / 111.6 t/s 散文（MTP，MacStories 09-23）；M5 Max 128GB 33 t/s；需 mlx-vlm git 版 |
+| **Qwen3-235B-A22B-2507-3bit** | **102.9 GB** | 不行 | 可 | 4-bit 132.1 GB 装不下；M3 Ultra 512GB 4-bit 单机 24 t/s |
+| MiniMax-M2.5/M2.7-4bit | 128.7 GB | 不行 | **装不下** | 3-bit 约 97 GB（估）可；M2.7 许可商用受限 |
+| gpt-oss-120b-MXFP4-Q8 | 63.4 GB | **可** | 无需 | M5 Max 128GB 77–85 t/s，不是集群目标 |
+| Qwen3.5-122B-A10B-4bit | ~66–70 GB [社区] | 可（紧） | 无需 | |
+| DeepSeek-V4-Flash-4bit（284B） | 151.5 GB | 不行 | 不行 | |
+| GLM-5.3-Flash-4bit / GLM-5.2 / Kimi K2.x-K3 | 178–190 GiB / 744B / 1T+ | 不行 | 不行 | |
+
+双机实测 t/s：**无人公开过 Ultra+Max 两机跑以上任一模型的数字**；最接近的是 Layr-Labs（9B/27B 小模型）和 llama.cpp PR（2×M3 Ultra）。
+
+## 6. TB5 链路实测
+
+- TCP（Thunderbolt Bridge）[社区]：Geerling 50–60 Gbps（4 节点）；MacRumors ~65 Gbps iperf3（M4 Max MBP↔M4 Pro mini，TB5）；exo #957 评论者 43.8 Gbit/s（两台 Studio 桥接，对照 10GbE 9.42）；TB4 37 Gbps（M4 mini↔M4 Air）。Macfax 说「桥接只有 ~10 Gbps」与上述矛盾，不采信。 https://forums.macrumors.com/threads/thunderbolt-5-data-transfer-between-two-computers.2442800/ · https://forums.macrumors.com/threads/speed-of-thunderbolt-bridge-m4-mini-to-m4-macbook-air-with-tb4-cable.2458791/
+- RDMA [一手 Issue #3207，2026-03]：JACCL 文件传输**单口 3.5–3.8 GB/s 持续（≈ 理论 80 Gbps 的 37%）**，3 节点 5.5–7.4 GB/s；Thunderbolt Bridge 会让 RDMA 建连失败（RTR errno 22），且**每次重启/系统更新后 bridge 会自动恢复**；另一用户称给各 TB 口单独分 IP 则可与 bridge0 共存。 https://github.com/ml-explore/mlx/issues/3207
+- 延迟：TCP ~300μs → RDMA 3–50μs（Apple/Geerling/exo 口径不一）；RDMA 的价值是延迟而非带宽。macOS 27 未见吞吐变化。
+
+## 7. Mac Studio + MacBook Pro 异构社区经验 [社区]
+
+- Layr-Labs（2026-10）：M3 Ultra + M5 Max 两段 pipeline，Qwen3.5-9B decode：Ultra 单机 60–65、Max 单机 77–81、**双机 59–63 t/s——不比慢的那台快**；prefill 双机反而低于 M5 Max 单机；**TB 口作为 bridge 成员时约 2 小时后 IPv4 被系统回收**（Internet Sharing 跑在同一 bridge 上）；一侧 rank 挂掉另一侧死等；MBP 常驻 43GB 桌面应用导致 27B 请求被拒。
+- exo #1711 / #957：Studio+MacBook 组合能跑但 RDMA 随机掉线需重插线；慢节点在按内存比例的 placement 下拖慢整体。
+- Apple Community（2026-04-11）：M3 Max（TB4）MBP 内核日志 "controller does not support Thunderbolt 5, RDMA not supported"，只能 ring——两台都是 TB5，不受影响。 https://discussions.apple.com/thread/256279343
+- 睡眠/合盖：TN3205 要求关闭 idle sleep（TB 无 Wake-on-LAN）；合盖不接外显会睡，社区通行做法 `sudo pmset -a disablesleep 1`（Apple 未文档化，散热变差）。Macfax 列的坑：无显示器时 GPU 可能不初始化（HDMI 假负载）、Metal 等待 >~5s 可能崩、节点重连后 exo 可能走慢速回退链路（40–70ms）。 https://macfax.com/blog/at-home-mac-inference-cluster-the-complete-2026-guide
+- 散热：14" M5 Max 持续负载被单篇文章称降到 ~42W（16" 62W+），另有来源称 30 分钟 70B 推理无降频——无定论。
+
+---
+
+## 给这位用户的建议（代理结论，Claude 认可）
+
+**先说结论：这套双机组合只能换「容量」，换不来「速度」。** 原因有三：exo 的 tensor parallel 是均分，被 48GB 那台卡住，能跑的模型反而不超过 Studio 单机；真正能用满 ~113GB 的只有 pipeline，而 pipeline 不加速且受慢节点牵制；Layr-Labs 的 Ultra+Max 实测双机 decode ≈ 慢机单机水平。所以**目标只有一个：跑 Studio 单机装不下、而双机装得下的模型**。
+
+- **工具**：首选 **MLX 原生**（MLX 0.32.3 + mlx-lm，2026-09-29 发布，唯一在 macOS 27 上有人跑通 JACCL 的路径）：两机各装同版本，`mlx.distributed_config --backend jaccl --over thunderbolt --auto-setup` → `mlx.launch --hostfile … -- mlx_lm.chat --pipeline`。exo 1.0.71（4 月）作为图形化备选，但它早于 macOS 27 且要求两机系统号完全一致、TP 对本组合无益。llama.cpp RPC（8 月已有 RDMA）是 GGUF 生态的兜底，默认按内存比例切分，代价是 2 节点必慢于单机。LM Studio 不参与。
+- **第一个模型**：**mlx-community/Qwen3.8-Flash-Next-4bit（111.5GB）**——6B 激活、与已用的 Qwen3.8-27B 同代、M5 Ultra 单机实测 52–111 t/s。pipeline 下估 decode **30–45 t/s**（MTP 可更高），prefill 受 MBP 拖累；量化版若加载不了可退 Qwen3.8-Flash-Next-4bit-mtp 或 Vontra oQ4（112GB）。备选 Qwen3-235B-A22B-2507-3bit（103GB，22B 激活），估 12–20 t/s。以上两组 t/s 是推算，无人公开过这套硬件的实测。
+- **前置步骤**：macOS 27 → System Settings > Privacy & Security > Developer Tools 勾 RDMA，两台都做，`ibv_devices` 看到 `rdma_enX`；Thunderbolt Bridge 设 Make Inactive 并关 Internet Sharing；两台 `pmset` 关睡眠（MBP 合盖加 `disablesleep 1`，最好接电）；先用 iperf3 和 `mlx.launch -n2` 的 all_sum 验链路再上模型。
+- **风险**：RDMA 随机 errno 22 需重插线；bridge 重启后自恢复、IPv4 被回收；MR/QP 硬限制；一侧崩另一侧死等；MBP 必须清空大内存应用否则 ~38GB 不够；Qwen3.8-Flash-Next 许可为 qwen-community-1.0（个人/内部用没问题，对外服务需授权）；16" MBP 长时负载散热不确定。若实测双机 <20 t/s，更划算的路是 Studio 单机跑 gpt-oss-120b / Qwen3.5-122B-A10B，把 MBP 留作独立节点。
+# 情报附录 B · Apple Silicon 本地视频生成现状（截至 2026-10-12）
+
+> 由检索代理整理，Claude 复核要点；所有链接为一手来源。对象：Mac Studio M5 Ultra（80 核 GPU / 96 GB / macOS 27.0.1），Comfy Desktop + PyTorch MPS。基线：2026-07 在 M5 Max 48 GB 上 Wan2.2 TI2V-5B 768×512×49f 约 5 分钟，结论「落后 CUDA 7–10×，主因软件」。
+
+---
+
+## 一、七月列出的「回归信号」逐项核对
+
+### (a) PyTorch MPS 后端 —— **部分变化**（attention / conv3d 变了，fp8 没变）
+
+| 版本 | 日期 | 与视频相关的 MPS 变化 |
+|---|---|---|
+| 2.11 | 2026-03-30 | 仅算子覆盖扩展 + 异步错误报告，无性能项。[blog](https://pytorch.org/blog/pytorch-2-11-release-blog/) |
+| 2.12 | 2026-05-19 | Metal-4 离线预编译 shader（wheel 以 macOS 26 / metal-4 标准编译），只省首次启动延迟，不提速。[blog](https://pytorch.org/blog/pytorch-2-12-release-blog/) |
+| 2.13 | 2026-07-08 | FlexAttention 登陆 MPS（稀疏 mask 最高 ~12×，稠密 attention 仍走 SDPA）；大批算子从 MPSGraph 迁到手写 Metal kernel。[blog](https://pytorch.org/blog/pytorch-2-13-release-blog/) |
+| **2.14** | **2026-09-17** | **「MPS Prefill Attention Acceleration」**：基于 macOS 26.2 新增的 Metal Performance Primitives（`matmul2d` 张量算子），从 MLX 的 M5 kernel 移植，fp16/bf16、head dim 64/96/128/256、qlen>8 自动启用，作者实测 **2–4×**；官方注明「性能在 M5 上验证最充分」。另：**conv3d 迁到原生 Metal kernel**（直击 VAE 3D 卷积慢的痛点）、allocator 分桶减碎片。[blog](https://pytorch.org/blog/pytorch-2-14-release-blog/) · [PR #182256](https://github.com/pytorch/pytorch/pull/182256)（2026-07-30 合入） |
+
+- **fp8**：PyTorch 官方 MPS 仍无 float8 存储/计算 dtype，四个版本均无相关条目。社区方案：[tashiscool/fp8-mps-metal](https://github.com/tashiscool/fp8-mps-metal)、PyPI `fp4-fp8-for-torch-mps`。
+- **神经加速器**：PyTorch 没有直接 API，但 2.14 的 MPP attention kernel 用的正是 M5 的 cooperative-tensor 数据布局——这是 MPS 首次间接吃到 M5 矩阵单元。
+- **新 bug 已修**：`F.pad` 对 5D 张量在 MPS 上静默写坏（影响所有 3D-conv 视频 VAE，≥256px 触发），2026-08-26 报告、08-31 合入 main（[#194922](https://github.com/pytorch/pytorch/issues/194922)）。2.14.0 分支切在此之前，需确认 Comfy Desktop 内置 torch 是否含该修复。
+- ⭐ 本机现状：Comfy Desktop 的 venv 里是 **torch 2.10.0**，上面这些全都没吃到。
+
+### (b) MLX 视频生成 —— **变了**（社区端成熟，Apple 官方仍无视频）
+
+- Apple 2025-11-19 的 [MLX + M5 神经加速器博客](https://machinelearning.apple.com/research/exploring-llms-mlx-m5) 只涉及 LLM 与 FLUX 图像（FLUX-dev-4bit M5 比 M4 快 >3.8×），要求 macOS 26.2+，无视频。
+- [dgrauet/ltx-2-mlx](https://github.com/dgrauet/ltx-2-mlx)：纯 MLX 的 LTX-2.3 **与 LTX-2.5** 移植，distilled 模式、int8/int4 权重包、`--low-ram` 磁盘流式、Sol 块稀疏 attention（v0.16.2）。最新 v0.16.3 **2026-10-09**。LTX-2.5 int8 包约 75 GB，int4 约 47 GB。
+- [gajesh/LTX-2.3-mlx-fp16](https://huggingface.co/gajesh/LTX-2.3-mlx-fp16) 给出目前最干净的 **MLX vs MPS 同机对照**（M4 Max 128 GB，LTX-2.3 22B distilled，576×1024×121f）：PyTorch MPS bf16 **264 s / >60 GB**，MLX fp16 带音频 **206 s / 46.8 GB**，纯视频 **152.5 s / 34.2 GB**；MLX 快 1.3–1.7× 且省一半内存。
+- [Blaizzy/mlx-video](https://github.com/Blaizzy/mlx-video)：支持 Wan2.1 1.3B/14B、Wan2.2 T2V-14B/TI2V-5B/I2V-14B、LTX-2；无公开计时。
+- 非 MLX 但同属「原生 Metal」路线：antirez 的 [h3.c](https://github.com/antirez/h3.c)（MiniMax H3 原生推理，见第二节）。
+
+### (c) Draw Things —— **变了**（但「亚分钟」只在短/低清片段成立）
+
+- 2025-11-10 [Metal FlashAttention v2.5](https://releases.drawthings.ai/p/metal-flashattention-v25-w-neural) 已用 M5 神经加速器（M5 vs M4 最高 4.6×）。
+- 2026-03（1.20260314.0）Codex 写的 Metal 3D-conv shader：LTX-2.3 视频 VAE 解码 **M1–M4 快 2.4×，M5 快 4.7×**（此前 M5 上解码耗时可与整个扩散过程相当）。[engineering.drawthings.ai](https://engineering.drawthings.ai/p/2-days-to-ship-codex-authored-metal)
+- 2026-03 Ivan Fioravanti 实测：LTX-2.3 22B distilled，5 秒视频，默认设置，**M5 Max 40 核 121 s vs M3 Ultra 80 核 206 s**。[X](https://x.com/ivanfioravanti/status/2033907708617699328)
+- **26.0910.1（2026-09-11）支持 MiniMax H3 系列 + LoRA + TeaCache**；26.0924.0（09-25）加 **Sol Attention** 与 SpinQuant 4-bit S；**26.1008.0（10-08）「Performance improvements on M5 Ultra」**，LTX-2.3 distilled 更新到 1.1。[changelog](https://drawthings.ai/downloads/) · [GitHub releases](https://github.com/drawthingsai/draw-things-community/releases)
+- 未发现 LTX-2.5、HunyuanVideo 1.5 支持。
+
+### (d) ComfyUI Mac 优化 —— **官方几乎没变，社区补齐**
+
+- 官方 changelog 2026-06~10 唯一 Mac 条目：v0.35.0（09-09）「缺 `torch._int_mm` 时禁用 int8 weight-only 量化（MPS）」。[changelog](https://docs.comfy.org/changelog)
+- FP8→FP16 转换 [PR #14606](https://github.com/Comfy-Org/ComfyUI/pull/14606) 2026-06-23 关闭未合；H3 VAE pad 修复 [PR #15902](https://github.com/Comfy-Org/ComfyUI/pull/15902)（08-26）至今 open。
+- 真正的进展在社区节点 [ComfyUI-AppleSilicon-FP8](https://github.com/pawel-mazurkiewicz/ComfyUI-AppleSilicon-FP8)：fp8/int8/int4 反量化与 Metal matmul kernel、Metal flash attention（长序列比 fused SDPA 快 3–4×）、conv3d im2col（快 2.7×），已覆盖 WanVideo、LTX-2.3、SeedVR2。**int8/int4 kernel 要 Metal 4.0（macOS 26）+ M5 级芯片；fp8 kernel 要 Metal 4.1（macOS 27）+ M5 级芯片——本机正好全部满足**，这是 7 月那台 M5 Max/macOS 26 做不到的。
+
+### (e) 蒸馏 / Mac 友好权重 —— **变了**
+LTX-2.3/2.5 官方 8-step distilled（bf16 + int8 convrot）；H3 社区 3–4 步 LoRA 与 GGUF；Wan 2.2 Lightning 4-step LoRA 早已有。详见下文。
+
+---
+
+## 二、「MiniMax H3」到底是什么
+
+- **官方名 MiniMax H3**（公司博客 2026-07-31，[minimax.io/blog/minimax-h3](https://www.minimax.io/blog/minimax-h3)）；社区称 Hailuo 3.0/03；API 模型 ID `MiniMax-H3`，另有 `MiniMax-H3-Max`（fal 后训练的加速版，**仅 API**，480P/768P）。[API docs](https://platform.minimax.io/docs/guides/video-generation)
+- **是开放权重**，2026-08-02/03 上 HF [MiniMaxAI/MiniMax-H3](https://huggingface.co/MiniMaxAI/MiniMax-H3)：**33B dense 单流 Transformer**（约 13B 在 AdaLN 分支，推理可剪掉→「pruned」版），文本编码器 **Qwen3-VL-32B**，视频 VAE + 音频 VAE，FL2VA（T2V/首尾帧）与 Ref2VA 两个 BF16 checkpoint，CFG-distilled。原生 24 fps、4–15 秒、立体声。这是 MiniMax **首个**开放视频模型（Hailuo 2.3 闭源）。
+- **未开源**：H3-Context-IR（托管提示预处理）、H3-Regenerate-2K（2K 重生成）、稀疏注意力。**本地只能出 768p**，2K 必须走 API。
+- **许可**：MiniMax H3 Community License，**适用地域排除美国/欧盟/英国/韩国**，年收入 >2000 万美元需书面授权；中国大陆可用。[License Q&A](https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/docs/QA-about-License.md)
+- **API 价格**：768P $0.08/s，2K $0.13/s，768P→2K 重生成 $0.05/s（第三方汇总，官方页需登录核对）。
+- **ComfyUI**：08-03 day-0 原生支持（≥0.30.0），[Comfy-Org/MiniMax-H3](https://huggingface.co/Comfy-Org/MiniMax-H3)：bf16 66.3 GB、pruned bf16 40.2 GB、pruned fp8 21 GB、int8 convrot ~21 GB、NVFP4 12 GB；编码器 bf16 51.5 GB / int8 27.1 GB / NVFP4 15.7 GB / 社区 GGUF Q4_K_M 14.6 GB。
+- **Mac 可跑，但有坑**：原版 ComfyUI 的 INT8/FP8 路径在 MPS 报 `aten::_int_mm` 未实现（[issue #56](https://github.com/MiniMax-AI/MiniMax-H3/issues/56)，M2 Ultra，08-15）；BF16 可跑但需 ~96 GB；装 ComfyUI-AppleSilicon-FP8 后 int8 在 M4 Max 64 GB 可跑（[讨论 #24](https://huggingface.co/Comfy-Org/MiniMax-H3/discussions/24)）。实测：M 系列 608×352×7s 20 步 24–48 分钟，Turbo LoRA 6 步 18 分钟；[Bambushu/minimax-h3-mac](https://github.com/Bambushu/minimax-h3-mac) 在 M5 Pro 48 GB 用 GGUF Q5_K_M + Turbo 8 步：352×608×124f（5.17 s）**6 分 54 秒**，480×864 **12 分 52 秒**（2026-09-14）。
+- **Draw Things** 路线（M4 Pro 64 GB，2026-09-20 [note.com](https://note.com/sane_weasel8589/n/nabcc71763d2b)）：8-bit S + Turbo v4 LoRA 832×512×22f 4 步 **111 s**；TaoMate 3-step LoRA **99 s**；1152×640×73f（3 s）**567–693 s**。
+- **h3.c**（原生 Metal）：M5 Max 128 GB，512×512 端到端含音频 **~75 s**，DiT 去噪 4 步 ~3.5 s；int8 在 M5 默认启用，BF16 DiT 约 36.5 GiB。ComfyUI 包装「Wild H3C」512×512 4 步热态 ~32 s（[HF 讨论 #109](https://huggingface.co/MiniMaxAI/MiniMax-H3/discussions/109)）。
+
+---
+
+## 三、96 GB Mac 的开放视频模型盘点（2026-10）
+
+| 模型 | 参数 / 日期 / 许可 | 权重格式 | Mac 实测 |
+|---|---|---|---|
+| **Wan 2.2** TI2V-5B / T2V·I2V-A14B | 2025-07-28，Apache 2.0 | fp16/bf16、GGUF、[Lightning 4-step LoRA](https://huggingface.co/lightx2v/Wan2.2-Distill-Loras) | 7 月的 5 分钟是唯一 M5 代数据；M1 Max 832×480×2s GGUF 82 分钟（旧） |
+| Wan 2.5 / 2.6 / 2.7 | **全部 API-only，无权重**（2.7 于 2026-04 发布） | — | — |
+| Wan 2026 新开源 | Wan2.2-Animate-2-14B（2026-08-07，Apache 2.0，角色动画专用，10 步蒸馏）、Wan-Dancer-14B | bf16 | 无 |
+| **LTX-2.3** 22B | 2026-03-05，LTX-2 Community（<$10M 免费） | dev / **distilled 8-step CFG=1** / distilled 1.1 / LoRA，bf16；int8 convrot；MLX int8/int4 | M5 Max 5s **121 s**；M3 Ultra 206 s；M4 Max MPS 264 s / MLX 152.5 s |
+| **LTX-2.5** 22B | **2026-08-11**，LTX-2.x Community | dev/distilled bf16，int8 convrot，NVFP4；Gemma 4 12B 编码器；新扩散式视频解码器 | **M5 Ultra 实测见第四节** |
+| HunyuanVideo 1.5 | 8.3B，2025-11-20；480p I2V 8/12 步蒸馏（2025-12-05） | fp16（Comfy-Org repackaged） | M2 Ultra 832×480×73f 可出；**>73 帧全黑，121 帧 MPSGraph INT_MAX**，需 tiled decode（[讨论 #15109](https://github.com/Comfy-Org/ComfyUI/discussions/15109)）；无计时 |
+| Kandinsky 5.0 Lite 2B | 5s/10s，distill 16 NFE | 文本编码器仅发 **fp8** Qwen2.5-VL（Mac 不利） | 无 Mac 报告 |
+| Mochi 1 10B / CogVideoX 5B | 2024 | — | 已被上列模型全面取代，不值得测 |
+
+---
+
+## 四、2026 年 M 系列实测数字
+
+- **M5 Ultra（64 核 GPU，256 GB，macOS 27.0.1，ComfyUI 官方 LTX-2.5 T2V 模板，int8 convrot distilled，121f/5.04s/24fps，2026-09-30）**：720p（1280×704）冷启 135 s、热态 **109–122 s**，`--gpu-only` + 全帧 VAE **92 s**；1080p（1920×1088）热态 269 s，**tiled VAE 1024 → 243.6 s**，全帧 VAE 在 1080p 报 "value cannot be converted … without overflow" 失败。[fireside-labs](https://github.com/fireside-labs/m5-ultra-llm-benchmarks) · [runs.jsonl](https://raw.githubusercontent.com/fireside-labs/m5-ultra-llm-benchmarks/main/results/ltx/runs.jsonl)
+- M5 Ultra 图像：BGR 评测（09-21）ComfyUI Z-Image Turbo 比 M3 Ultra 快 2–3×。无 Wan/H3 的 M5 Ultra 公开计时。
+- 其余：M5 Max LTX-2.3 5s 121 s；M4 Max 128 GB LTX-2.3 576×1024×121f MPS 264 s / MLX 152.5 s；M4 Pro 64 GB H3 见上；M5 Pro 48 GB H3 GGUF 5s 6 分 54 秒；M1 Max ltx-2-mlx LTX-2.5 q8 distilled 576×1024×241f 563 s。
+
+---
+
+## 五、2026 年 Mac 视频生成的已知坑
+
+1. **fp8**：官方 PyTorch/ComfyUI 仍不支持；原版 ComfyUI 加载 fp8 直接 TypeError。要么用 bf16/int8/GGUF，要么装 ComfyUI-AppleSilicon-FP8（macOS 27 + M5 可用其原生 fp8 kernel）。
+2. **dtype**：`--force-fp16` 会出黑图（macOS 14.5+ 的 MPS fp16 attention NaN bug）；fp8 转换只能转 bf16 不能转 fp16。M5 有原生 bf16，M1–M3 的「bf16 慢 2×」问题不会遇到。[lilting.ch](https://lilting.ch/en/articles/comfyui-qwen-mps-bf16-slowdown)
+3. **VAE 解码**：长帧数走 Tiled VAE Decode（Hunyuan >73f 全黑、LTX-2.5 1080p 全帧溢出都靠它）；PyTorch 2.14 的原生 conv3d 与 Draw Things 的 3D-conv shader 是这块真正的提速来源。
+4. **F.pad 5D 静默损坏**（≥256px 的 3D-conv VAE encode）：torch main 08-31 已修，ComfyUI 侧 PR 仍 open，I2V/Ref2V 出灰白画面先查这个。
+5. **int8**：缺 `aten::_int_mm` → 原版 ComfyUI 0.35+ 会自动禁用而非崩溃；真要 int8 得靠社区 Metal kernel。
+6. **内存上限**：`iogpu.wired_limit_mb` 默认约 75% RAM（96 GB → ~72 GB 给 GPU），`sudo sysctl iogpu.wired_limit_mb=…` 可提，重启失效，别吃光剩余给 WindowServer 的余量。fireside 在 256 GB 机上设 245760。
+7. **散热**：Mac Studio M5 Ultra 满载 GPU 功耗 >400 W、风扇明显但无降频报告；MacBook Pro M5 持续负载有降频记录（LTX 用户报 GPU 86°C+）。Studio 是对的机器。
+
+---
+
+## 六、建议：抖音「这台 Mac 能做什么」该测什么
+
+**首选：LTX-2.5 22B distilled（int8 convrot）+ ComfyUI 官方模板**
+唯一有 M5 Ultra 公开数字的组合，64 核版 720p×5s 带音频 92–110 s、1080p 244 s。80 核版估计 **720p 约 75–95 s，1080p（开 tiled VAE 1024）约 3–3.5 分钟**。开 `--gpu-only`，1080p 必须 tiled。镜头语言：5 秒带声音的 1080p 视频，一台桌面机 3 分钟出片。对照组用 Draw Things 的 LTX-2.3 distilled 1.1（零配置，M5 Max 121 s → 预计 M5 Ultra 70–90 s）。
+
+**次选（热点）：MiniMax H3 本地跑——可以，且是真话题**
+- H3 **能**成为本地测试的一部分，但只限 768p、FL2VA/Ref2VA 两个开源 checkpoint；2K 与 H3 Max 是云端独有，视频里要讲清楚。
+- 最省事：**Draw Things 26.1008+**，H3 8-bit S + TaoMate 3-step LoRA，开 TeaCache/Sol Attention。预期（由 M4 Pro 16 核 GPU 数据按 GPU 规模与 M5 加速器外推，未经验证）：832×512×22f（~1 s）**20–40 s**；1152×640×73f（3 s）**1.5–3 分钟**；5 秒 768p **4–8 分钟**。
+- 想要最猛的数字就跑 h3.c（M5 Max 128 GB 512×512 端到端 75 s；96 GB 走 int8 够用）。
+- ComfyUI 路线须先装 ComfyUI-AppleSilicon-FP8，用 pruned bf16 40 GB 或 int8 21 GB + Qwen3-VL GGUF Q4 14.6 GB；原版 fp8/int8 模板会在第一步失败。
+
+**对照组：复跑 7 月的 Wan2.2 TI2V-5B 768×512×49f 24 步**——相同工作流在 80 核 + PyTorch 2.14（MPP attention + 原生 conv3d）下，预期 **2–3 分钟**，这是「三个月前 vs 现在」最硬的同题对照。
+
+**不建议上镜**：HunyuanVideo 1.5（MPS 帧数上限、无 M5 数据）、Kandinsky 5（fp8 编码器）、Mochi/CogVideoX（过时）。
+
+**结论一句话**：相比 7 月，attention/conv3d 层面的软件差距确实在收窄（PyTorch 2.14、MLX 移植、Draw Things M5 专项优化），fp8 仍是官方空白；M5 Ultra 上 5 秒 720p 带音频约 1.5 分钟已是现实，「亚分钟」目前只属于 1 秒级或 512p 片段。
+# 情报附录 C · DeepSeek Harness / deepseek-flash / Pelican 基准 / LM Studio Bionic / Qwen3.8（截至 2026-10-12）
+
+> 由检索代理整理，Claude 复核要点。全部基于官方文档、GitHub、Hugging Face、官方博客与一手报道；未找到的明确标注。
+
+---
+
+## 1. DeepSeek Harness —— 确有其物，但它不是 Claude Code 式终端 agent
+
+- **官方名/定位**：DeepSeek Harness，CLI 命令 `dsh`，npm 包 `@deepseek-ai/dsh`，仓库 [deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness)，MIT 协议，"developer preview，THERE WILL BE COMPATIBILITY-BREAKING CHANGES"。它是 **agent runtime/harness**（"Everything is a Plugin"，基于 Cordis，论文 [arXiv 2608.25512](https://arxiv.org/abs/2608.25512)），模型适配器、工具、会话、沙箱、agent loop 全是插件。官网 [deepseek.com/en/harness](https://www.deepseek.com/en/harness/)。
+- **发布时间**：2026-08-13 晚，与 V4-Pro GA 同晚（[网易科技 2026-08-14](https://www.163.com/tech/article/L49GUDOP00097U7T.html)）。npm 记录：包创建 2026-08-10，`0.1.0-rc.2` 2026-08-13；当前 `latest`=`0.2.0-rc.2`（2026-09-29），`alpha`=`0.2.1-alpha.2`（2026-10-09）（[registry.npmjs.org/@deepseek-ai/dsh](https://registry.npmjs.org/@deepseek-ai/dsh)）。
+- **形态**（[apps/cli/README](https://github.com/deepseek-ai/deepseek-harness/blob/master/apps/cli/README.md)）：`dsh web`（Web UI，http://127.0.0.1:3080）、`dsh --profile headless "任务"`（跑一次打印结果退出）、`--profile acp`/`sdk`/`sdk-minimal`（stdio 服务）、`tui`（需另装 profile）；官网提供 **macOS (Apple silicon) 与 Windows 桌面安装包**。**没有** Claude Code/Codex CLI 那种终端 REPL。另有 Python SDK `pip install deepseek-harness-sdk`（自带 runtime，不需系统 Node；[文档](https://deepseek-harness.github.io/deepseek-harness/en/guide/python-sdk)）。
+- **macOS 安装**：仅 npm 路径，需 Node `^22.19 || >=24`（本机 nvm 有 v24.16.0，满足）；`npx -y @deepseek-ai/dsh web`。无 brew、无独立二进制（桌面包除外）。
+- **自定义/本地 OpenAI 兼容端点：支持**。两种方式：
+  - UI：Settings → Models → 添加自定义 provider（Provider ID 创建后不可改；填 base URL、协议、凭证、模型；可 "Fetch available models"，端点需实现 `GET /models`）。
+  - YAML（[官方 providers 文档](https://deepseek-harness.github.io/deepseek-harness/en/guide/providers)）：`$DSH_HOME/profiles/web/cordis.patch.yml`
+    ```yaml
+    - id: llm-pi-ai
+      config:
+        providers:
+          my-gateway:
+            apiKeyEnv: GATEWAY_API_KEY
+            api: openai-completions      # 也支持 openai-responses / anthropic-messages
+            baseURL: https://gateway.example/v1
+            models:
+              - id: vision-preview
+                input: [text, image]
+    ```
+    0.1.x 时期的中文教程写在 `settings.yaml` 的 `llm-pi-ai: providers:` 下（[runoob](https://www.runoob.com/deepseek-harness/deepseek-harness-model-providers.html)），版本差异，以本机 `--dump-config` 为准。
+- **密钥/环境变量**：DeepSeek key 在 UI 填，落盘 `~/.dsh/.credentials.yaml`（`DSH_HOME` 可改）；也可 `DEEPSEEK_API_KEY`、`DEEPSEEK_BASE_URL`（只改 DeepSeek 这条线）。已知坑：web_search 插件端点写死 `api.deepseek.com/anthropic/v1`，自建网关需另设 `DEEPSEEK_SEARCH_BASE_URL`（[Discussion #408](https://github.com/deepseek-ai/deepseek-harness/discussions/408)，2026-08-13 开，至 09-24 无官方回复）。`--host 0.0.0.0` 被拒，仅本机。
+- **默认模型** `deepseek-flash`，默认 1M 上下文、256K 输出、reasoning `high`（[deepseekagent.io 指南，2026-10-09 更新](https://deepseekagent.io/guides/deepseek-harness)）。
+- **中文热度**：上线数小时 3 万 star，2 天 9.5 万，8/17 13.5 万，10/2 24.2 万，现 **247.9k star / 29.8k fork**；有 `README.zh.md`、企微群问卷、微信公众号；runoob 开了专题教程；腾讯云/CSDN/知乎大量「接 Ollama/27B 本地模型」教程。网易引述开发者评价：「底层架构很强，用户体验很差。」
+- **别混淆**：Deep Code（`npm i -g @vegamo/deepcode-cli`，lessweb 社区项目，DeepSeek 文档列为集成，配置 `~/.deepcode/settings.json` 含 `BASE_URL`；[文档](https://api-docs.deepseek.com/quick_start/agent_integrations/deepcode/)）才是终端 coding agent；Yoke（原名 DSH，Elixir）无关。
+
+## 2. deepseek-flash = DeepSeek-V4.1-Flash
+
+- **发布** 2026-09-10（[Change Log](https://api-docs.deepseek.com/updates/)、[官方新闻](https://www.deepseek.com/en/news/deepseek-v4-1-flash/)）。**552B MoE**（safetensors 计 763B），prefill 激活 8B / decode 16B；"Causal Encoder-Decoder" 40 层（20 编码+20 解码），1 共享 + 384 路由专家、激活 6；原生视觉 DeepSeek-ViT；**1M 上下文，最大输出 384K**；MIT 开源 [HF](https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash)；DSpark 投机解码；KV cache 为上代 1/4。96GB Mac 不可能本地跑（上代 284B 的 V4-Flash 都要「至少 156GB」，[LM Studio 2026-08-02](https://lmstudio.ai/blog/deepseek-v4-flash)）。
+- **API**：base `https://api.deepseek.com`（Anthropic 格式 `/anthropic`）；`thinking:{type:enabled}` 默认开，`reasoning_effort: low|high|max`，默认 high（[thinking_mode](https://api-docs.deepseek.com/guides/thinking_mode)）；并发 2500。
+- **价格**（[定价页](https://api-docs.deepseek.com/zh-cn/quick_start/pricing)，每百万 token）：deepseek-flash 空闲 ¥1 入 / ¥4 出（缓存命中 ¥0.02），高峰 ¥2/¥8；美元 $0.15/$0.60 与 $0.30/$1.20。deepseek-v4-pro 空闲 ¥4.5/¥13.5，高峰 ¥9/¥27。高峰=工作日北京时间 9–12、14–18。
+- **基准**（max effort，HF 卡）：GPQA 90.9、HLE 36.8、Codeforces 3471、Terminal-Bench 2.1 **90.6**（Opus-5.0 89.1）、DeepSWE 74.2、SEC-Bench Pro 62.8；官方称多项反超 V4-Pro。Artificial Analysis：Intelligence Index 39（#7/117），208 tok/s，$0.27/任务（[AA](https://artificialanalysis.ai/models/deepseek-v4-1-flash)）。
+- **2026-10 模型阵容**：`deepseek-flash`（V4.1-Flash）、`deepseek-v4-pro`（V4-Pro-0813，1.7T，9/14 后继续服务、计费不变）；`deepseek-v4-flash`、`deepseek-v4-flash-vision-exp` 为旧名，路由到 V4.1-Flash 按 Flash 计费；`deepseek-chat`/`deepseek-reasoner` 于 2026-07-24 停用（4/24 公告），定价页已无。时间线：04-24 V4 → 07-31 V4-Flash-0731（304B）→ 08-13 V4-Pro GA、峰谷计价 → 08-21 Vision-Exp → 09-10 V4.1-Flash。
+
+## 3. "Pelican riding a bicycle"（Simon Willison）
+
+- **原文 prompt**：`Generate an SVG of a pelican riding a bicycle`（[2024-10-25 首文](https://simonwillison.net/2024/Oct/25/pelicans-on-a-bicycle/)，[simonw/pelican-bicycle](https://github.com/simonw/pelican-bicycle)）。他存成 llm 模板 `-t pelican`，按 `-o reasoning_effort` 逐档跑，渲染靠 [markdown-svg-renderer](https://tools.simonwillison.net/markdown-svg-renderer) 读 gist。
+- **判定**：纯肉眼、无 rubric（自称 "deeply unscientific"）：车架形状、脚够不够到脚踏、还像不像鹈鹕、加分项（篓里的鱼、帽子），同时记 token 数/耗时/花费。他 9/1 自述对该基准作为「总体能力信号」已 **losing faith**，更看同族/不同 effort 的对比。
+- **画廊**：tag 页 148 篇 [pelican-riding-a-bicycle](https://simonwillison.net/tags/pelican-riding-a-bicycle/)；网格 [GPT](https://static.simonwillison.net/static/2026/gpt-pelicans-grid.html)、[GPT-6 vs 5.6](https://static.simonwillison.net/static/2026/gpt-6-and-5.6-pelicans.html)、[Claude](https://static.simonwillison.net/static/2026/claude-pelicans-grid.html)；社区时间线 [pelican-timeline](https://nilethebot.github.io/pelican-timeline/)（60 模型，到 2026-02）。**唯一带打分的标准化变体**是 Dylan Castillo 的 [pelicanmaxxing](https://dylancastillo.co/posts/pelicanmaxxing.html)（2026-07-18）：8 动物×6 载具×3 次×7 模型=1008 张，GPT-5.6 Luna 三项 1–5 分，结论「没人在 pelicanmaxxing」（鹈鹕+自行车格子排 42/48）。
+- **2026 结果**：Qwen3.8-27B（[8/16](https://simonwillison.net/2026/Aug/16/qwen-38-27b/)，LM Studio Q4_K_M，M5 Max 128GB）默认 xhigh **21 分钟、22,276 推理 token**，"by far the best pelican SVG from a local model"，但 "Was that worth waiting 21 minutes for? Absolutely not"；关推理 137 秒但车架崩；建议 low/none 起步。DeepSeek V4-Flash-0731（[7/31](https://simonwillison.net/2026/Jul/31/deepseek-v4-flash-0731/)）默认差、`-o reasoning_effort high` 好得多；V4-Pro-0813（[8/12](https://simonwillison.net/2026/Aug/12/deepseek-v4-pro-0813/)）三档风格迥异；**V4.1-Flash 尚无专文**（[deepseek tag](https://simonwillison.net/tags/deepseek/)）。Claude Opus 5.5 max 两次撞 128K 输出上限，各 $2.56/20 分钟（[9/22](https://simonwillison.net/2026/Sep/22/opus-and-sol-and-luna/)）；Claude Fable 5.1 max $3.30/13m54s，"best pelican from any Anthropic model"（[9/1](https://simonwillison.net/2026/Sep/1/claude-fable-5-1/)）；Haiku 5.5 low 0.09¢/7 秒（[10/7](https://simonwillison.net/2026/Oct/7/claude-haiku-5-5/)）；GPT-6 Astra 任何档位都胜最佳 GPT-5.6 Sol（[9/4](https://simonwillison.net/2026/Sep/4/astra-pelicans/)）。
+- **本地跑法（无官方 harness，三条路）**：(1) [llm-lmstudio](https://github.com/llm-lmstudio/llm-lmstudio) 插件（需 llm≥0.32、LM Studio≥0.4.0，默认 http://localhost:1234，模型名 `lmstudio/<id>`，会自动 load；**不暴露 reasoning 选项**）；(2) llm 0.32 内置 `llm openai endpoint <base> -m <id> -o reasoning_effort none…max`（[文档](https://llm.datasette.io/en/stable/other-models.html)）；(3) LM Studio 原生 `/api/v1/chat` 的 `reasoning: off|low|medium|high|on`（见第 4 节）。Simon 本人就是 LM Studio + `llm -m lmstudio/qwen/qwen3.8-27b`。
+
+## 4. LM Studio Bionic 与 LM Studio 0.4.x
+
+- **Bionic**：2026-07-16 发布（[博客](https://lmstudio.ai/blog/introducing-lm-studio-bionic)），"a new, separate app"，闭源；本地模型由 LM Studio runtime（MLX + llama.cpp，实验后端 Splash）驱动，云端 LM Studio Secure Cloud（美国托管、ZDR、需账号+credits）；**Remote models via LM Link** = 用另一台已配对设备上的本地模型（[docs/bionic/models](https://lmstudio.ai/docs/bionic/models)，LM Studio 0.4.20 起）。文档 [lmstudio.ai/docs/bionic](https://lmstudio.ai/docs/bionic)（quick-start / projects-and-sessions / agent/code-project / work-project / skills / models / voice-input）。
+- **能做什么**：Code project（"Allow coding" → 选文件夹；搜索/编辑文件/Git/shell，inline diff，sub-sessions 并行）；Work project（文档/幻灯/表格，沙箱，checkpoints，网页搜索）；Skills（[8/17](https://lmstudio.ai/blog/skills)，Agent Skills `SKILL.md`，Settings→Skills，可直接复用 Claude Code/Codex 的 skills）；Auto Review（[8/27](https://lmstudio.ai/blog/how-auto-review-works)，AST 规则 + 子代理审 shell 命令）。**MCP**：官方文档未写，但 [Cloudflare 2026-10-05](https://developers.cloudflare.com/agent-setup/bionic/) 与多份第三方指南一致：Settings → Connected Apps → "+ Add custom MCP"，"On this computer"（command + 逐条 arguments）或 "Web address"，改后重启；模型需支持 tools（Library 锤子图标）。**pelican 任务可做**：Code project 内写 `pelican.svg` 并给 diff。
+- **共存**：旧版弹窗 "cannot run at the same time"；Bionic 1.1.8 + LM Studio 0.4.26（2026-10-08）起支持共存（"Bionic uses LM Studio for local model inference while LM Studio is running"），两者本地 API 都占 1234；1.1.8 已有回归 [#2485](https://github.com/lmstudio-ai/lmstudio-bug-tracker/issues/2485)（10/10）。本机正好是 Bionic 1.1.8 + LM Studio 0.4.26。
+- **0.4.x 要点**（[changelog](https://lmstudio.ai/changelog/lmstudio)）：0.4.0（1/28）llmster 无头守护进程、llama.cpp continuous batching（默认 4 slot）、`lms chat`、stateful `/api/v1/chat`（**`reasoning: off|low|medium|high|on`、`context_length`、`integrations` 直接挂 MCP**，返回 tokens/s 统计，[文档](https://lmstudio.ai/docs/developer/rest/chat)）；0.4.1 Anthropic 兼容 `/v1/messages` → Claude Code 直连：`ANTHROPIC_BASE_URL=http://localhost:1234`、`ANTHROPIC_AUTH_TOKEN=lmstudio`、`claude --model <id>`（[1/30](https://lmstudio.ai/blog/claudecode)）；MLX engine v1.8.5（[6/5](https://lmstudio.ai/blog/mlx-engine-agentic-workloads)）KV cache 落盘、VLM continuous batching；0.4.17 加载期投机解码（含视觉）；0.4.19 `lms chat /reasoning`；0.4.20 LM Link→Bionic；0.4.22 DFlash/DSpark/MTP drafters（llama.cpp 引擎）；0.4.25（9/19）**Splash engine**（M3+，macOS 26.4+）；0.4.26 Bionic 共存。
+- **LAN**：`lms server start --bind 0.0.0.0 [--port] [--cors]` 或 `LMS_SERVER_HOST`，官方建议开鉴权（[docs](https://lmstudio.ai/docs/cli/server-start)）。
+- **图像生成：不支持本地 diffusion**。0.4.17–0.4.26 无任何 diffusion 条目；Qwen-Image-2.1 GGUF 在 LM Studio 报错 "The installed llama.cpp does not recognise this GGUF's model architecture ('qwen_image21')"，作者回复须用 ComfyUI（[HF 讨论](https://huggingface.co/abenzerps/Qwen-Image-2.1-Uncensored-GGUF/discussions/17)）。0.4.0 的「generated images 按钮」只服务插件产图（altra/image 走 HF 云 API，Draw Things 插件走本机 Draw Things）。**本机 `~/.lmstudio/models/abenzerps/Qwen-Image-2.1-Uncensored-GGUF`（13 GB）在 LM Studio 里是跑不了的，要搬去 ComfyUI 或删。**
+
+## 5. Qwen3.8 与 Qwen-Image-2.1
+
+- **时间线**：2026-08-03 Qwen3.8-Max 上线（2.4T-A95B，API $2/$6，[qwen.ai](https://qwen.ai/blog?id=qwen3.8)）；8/13–14 开源 [Qwen3.8-2.4T-A95B](https://huggingface.co/Qwen/Qwen3.8-2.4T-A95B)（92 层，512 专家激活 10+1，license "qwen3.8-max"，首次开源 Max 级）与 [Qwen3.8-27B](https://huggingface.co/Qwen/Qwen3.8-27B)（Apache-2.0）；8/26 [Qwen3.8-Flash-Next](https://huggingface.co/Qwen/Qwen3.8-Flash-Next)（~180B=125B LM+51B n-gram+4B MTP，**6B 激活**，QSA+Gated DeltaNet，`qwen4_exp` 即 Qwen4 架构预览，qwen-community-1.0，带视觉）。**没有** 235B-A22B 之类中档 MoE；社区 "Whittle-MoE-27B-A17.8B" 是非官方切割。API-only：Max、Flash（1M）。
+- **27B 是 dense**：64 层、hidden 5120、16×(3 Gated DeltaNet + 1 Gated Attention)、视觉编码器（图/视频）、MTP 训练；**262,144 原生，YaRN 到 1M**；thinking 默认开，`reasoning_effort` **xhigh（默认）/medium/low**。基准：Terminal Bench 2.1 73.0（3.6-27B 63.4，Opus 4.6 Max 78.2）、SWE-bench Pro 61.7、GPQA 89.2、OSWorld-Verified 84.3。AA Index 34，同级 #1/142，46.5 tok/s，$0.50/$3.00（[AA](https://artificialanalysis.ai/models/qwen3-8-27b)）。本机的 Qwen3.5-9B 属 2026-02 的 Qwen3.5 系列（dense 32 层同构 hybrid，视觉，Apache-2.0，[HF](https://huggingface.co/Qwen/Qwen3.5-9B)）；27B 官方自述 "built on the Qwen3.5 architecture"。
+- **Apple Silicon 速度（27B）**：M5 Ultra 256GB，oMLX 4-bit：短 prompt 写 **48 tok/s**，64K/128K/256K 上下文 38.9/32.4/24.3；M3 Ultra 31；RTX 5090 59（[MacStories，2026-09](https://www.macstories.net/stories/m5-ultra-mac-studio-review-the-dream-mac-for-local-ai-agents/)）。M5 Max：LM Studio Q4_K_M 15–30（Simon）；MLX 4-bit ~33、**8-bit ~18 tok/s（28.9GB）**、BF16 ~10，均无 MTP（[汇编](https://www.contextstudios.ai/blog/qwen-3-8-27b-hardware-guide)）；MTPLX 4-bit 开 MTP 55–88。Splash 版（Bionic 1.1.5+，`incoai/Qwen3.8-27B-Splash`，自带 DFlash 2 draft）M5 Pro 48GB 短 prompt **74 tok/s**、32K 54、4 并发合计 170（[9/18](https://lmstudio.ai/blog/splash-engine)）。**M5 Ultra 8-bit MLX 没有实测数**；按带宽折算约 25–30 tok/s（无投机解码），这是估算。
+- **Qwen-Image-2.1 不是 "Qwen3.8" 产品线**（[QwenLM/Qwen-Image-2.1](https://github.com/QwenLM/Qwen-Image-2.1)）：2026-09-20 发布，10-09 出 Turbo（8 步，CFG 1，schedule 固化）；7B 单流 DiT 32 层，文本编码器 **Qwen3-VL-8B**，64 通道 RGBA VAE；生成+编辑同一模型，默认 40 步 2048²；**Qwen Research License（非商用）**，不同于 1.0 的 Apache-2.0。ComfyUI Day-0 原生支持（[教程](https://docs.comfy.org/tutorials/image/qwen/qwen-image-2-1.md)）：`qwen_image_2.1_int8_convrot/bf16.safetensors` → `diffusion_models/`，`qwen3vl_8b_*` → `text_encoders/`，`qwen_image_2.1_vae_bf16` → `vae/`，模板 25 步 CFG 1 euler/simple，需最新 ComfyUI。Mac 无官方说明；GGUF 路线走 ComfyUI-GGUF（Q8_0 约 7.2GB），另有社区 mflux（M4 Max 20 步 1024 约 2 分钟）与 Core ML 移植。96GB 建议先试官方 bf16 模板，不行再 GGUF。
+
+---
+
+## 在这台 Mac 上跑 pelican 测试：迷你方案
+
+**(a) 本机 Qwen3.8-27B MLX 8-bit via LM Studio**
+```bash
+lms ls                                  # 记下 identifier，如 qwen/qwen3.8-27b
+lms load qwen/qwen3.8-27b --context-length 32768   # 默认 8192 会在推理中途爆（Simon 实测）
+lms server start --port 1234
+# 原生 API 可逐档控推理（off/low/medium/high/on；on=模型默认 xhigh）
+curl -s http://localhost:1234/api/v1/chat -H 'Content-Type: application/json' -d '{
+  "model":"qwen/qwen3.8-27b",
+  "input":"Generate an SVG of a pelican riding a bicycle",
+  "reasoning":"low","context_length":32768,"max_output_tokens":8192,"temperature":1
+}' > pelican-low.json
+python3 -c 'import json,re;t="".join(o["content"] for o in json.load(open("pelican-low.json"))["output"] if o["type"]=="message");open("pelican-low.svg","w").write(re.search(r"<svg.*</svg>",t,re.S).group(0))'
+qlmanage -p pelican-low.svg
+```
+响应 `stats.tokens_per_second` 顺带给出 8-bit 实测速度。先跑 low，再 medium/high；`on`（xhigh）按 Simon 经验可能 20 分钟起。替代：`uvx llm openai endpoint http://127.0.0.1:1234/v1 -m <identifier> -o reasoning_effort low 'Generate an SVG of a pelican riding a bicycle'`。
+
+**(b) deepseek-flash via DeepSeek Harness**
+```bash
+node -v   # 本机 v24.16.0，满足 ^22.19 或 >=24
+export DEEPSEEK_API_KEY=sk-...
+mkdir -p ~/pelican && cd ~/pelican
+npx -y @deepseek-ai/dsh web          # 浏览器开 127.0.0.1:3080 → Settings→Models 填 key → 选 DeepSeek-V4.1-Flash → Choose workspace 选本目录
+# 或一次性无头：
+npx -y @deepseek-ai/dsh --profile headless "Generate an SVG of a pelican riding a bicycle and write it to pelican-flash.svg"
+```
+注意 Harness 跑的是「agent 写文件」，不是裸模型输出；要和 (a) 公平对比请用裸 API：`llm openai endpoint https://api.deepseek.com/v1 --key $DEEPSEEK_API_KEY -m deepseek-flash -o reasoning_effort low '...'`（low/high/max 三档）。费用：一张图几千 token，空闲时段 ¥1/¥4 每百万，不到 5 分钱。
+
+**(c) 可选：让 dsh 调本机 LM Studio**——在 `~/.dsh/profiles/web/cordis.patch.yml` 加 provider `lmstudio`：`api: openai-completions`、`baseURL: http://127.0.0.1:1234/v1`、`apiKeyEnv: LMSTUDIO_API_KEY`（export 任意占位值）、`models: [{id: <identifier>, input: [text, image]}]`；或 UI 加自定义 provider 后点 "Fetch available models"（LM Studio 实现了 `GET /v1/models`）。
+
+**两个提醒**：Bionic 与 LM Studio 共存需 Bionic ≥1.1.8 + LM Studio 0.4.26，且 1.1.8 有已知回归，测试期间先只开 LM Studio；`llm-lmstudio` 插件不传 reasoning 参数，别用它做 effort 对比。
+# 情报附录 D · Mac Studio M5 Ultra / MacBook Pro M5 Max 本机出图与 2K 壁纸实践（2026-10-12）
+
+> 由检索代理整理，Claude 复核要点。所有数字均标注来源与日期，估算值单独注明。
+
+## 1. 主流开源文生图模型 × Mac/MPS 现状
+
+**Z-Image-Turbo / Z-Image（Base）**（阿里通义，S3-DiT 6B，Apache-2.0）
+- Turbo 2025-11-26 发布，8 NFE、CFG=0（ComfyUI 里 CFG 1）；Base 2026-01-27 发布，28–50 步、CFG 3–5、支持负面词；Edit/Omni-Base 仍 "to be released"。官方推荐 512²–2048² 总像素、任意比例。文本编码器 Qwen3-4B，VAE=FLUX ae。[GitHub](https://github.com/Tongyi-MAI/Z-Image)
+- ComfyUI 原生模板：`z_image_turbo_bf16.safetensors`（~12 GB）+ `qwen_3_4b.safetensors`（~7–8 GB，**本机已有**）+ `ae.safetensors`（335 MB，**本机已有**），所以实际只需补下 ~12 GB 主模型。[Comfy docs](https://docs.comfy.org/tutorials/image/z-image/z-image-turbo) / [thundercompute 2026-10-01](https://www.thundercompute.com/blog/z-image-turbo-comfyui)
+- Mac 实测（ComfyUI/MPS，1024²，9 步，社区汇总 2026-06-17）：M2 Max 64G ≈14 s、M3 Max 64G ≈30 s、M4 Pro 48G ≈40 s、峰值内存 20–24 GB。[zimage.run](https://zimage.run/blog/zi-103-z-image-turbo-apple-silicon-comfyui-en-20260617)；M4 Pro 24G 另有 60–80 s 报告。[heyuan110 2026-02](https://www.heyuan110.com/posts/ai/2026-02-15-mac-mini-local-image-generation/)
+- 提示词：长自然语言段落，不用 tag、Turbo 无负面词、中英双语。[HF 讨论](https://huggingface.co/Tongyi-MAI/Z-Image-Turbo/discussions/8)
+
+**Qwen-Image-2.1**（阿里千问，2026-09-20；DiT 7B + Qwen3-VL-8B 编码器 + 64ch RGBA VAE；**Qwen Research License，非商用**）
+- 原生 2K：官方预设 2048²、16:9=2752×1536、9:16=1536×2752（均 32 的倍数）；默认 40 步、CFG 1（无引导训练）。[GitHub](https://github.com/QwenLM/Qwen-Image-2.1)
+- **Qwen-Image-2.1-Turbo 2026-10-09 发布**：8 步、CFG 1、同架构。[HF](https://huggingface.co/Qwen/Qwen-Image-2.1-Turbo)（ComfyUI/Draw Things 是否已支持尚未确认）。另有官方 Fun-Acc 4 步 LoRA（需 T8 节点，ComfyUI ≥0.36）。[ComfyUI Wiki 2026-09-24](https://comfyui-wiki.com/en/news/2026-09-24-qwen-image-2-1-fun-acc-lora)
+- ComfyUI 模板默认 `int8_convrot` 版 DiT+编码器、25 步 euler/simple、2K 用 4.0 MP；">2K 会掉提示词服从，4K 很差"。[Comfy docs](https://docs.comfy.org/tutorials/image/qwen/qwen-image-2-1)
+- 体积：bf16 DiT 14.2 GB + 编码器 17.5 GB + VAE 1.4 GB ≈33 GB；int8 约 7.2+8.7+0.6 GB。
+- Mac 实测：M5 Max 36G ComfyUI GGUF-Q8 1024² 40 步 156 s（3.86 s/步），20 步 79 s，**2048² 1094 s**；同机 MLX 119 s。[KGP Talkie 2026-09-21](https://kgptalkie.com/tutorials/llm-benchmarking/qwen-image-2-1-macbook-pro-m5-max-comfyui)。M5 Pro 48G int8_convrot ComfyUI 25 步：1024² 143.5 s，1536² 343.5 s。[peakevergreen 2026-09-22](https://peakevergreen.com/blog/qwen-image-2-1-local-workflows/)。mflux bf16 M5 Max：1.5 s/步、40 步 78 s、峰值 46 GB（diffusers MPS 85 s）。[mflux README](https://github.com/mflux-community/mflux/blob/main/src/mflux/models/qwen21/README.md)。**M5 Ultra**（mflux 分支，1536×864，40 步 bf16）：中位 39.3→36.2 s。[2026-10-08](https://github.com/jerryfane/mflux/releases/tag/qwen21-performance-evidence-20261008)
+- 本机注：LM Studio 里已有社区的 `Qwen-Image-2.1-Uncensored-GGUF`（14 GB），说明 LM Studio 0.4.26 已原生支持 Qwen-Image 2.1 出图；但上镜要用官方权重。
+
+**FLUX.2 [klein] 4B / 9B**（BFL，2026-01-15；4B Apache-2.0，9B 非商用）
+- 蒸馏版 4 步、Base 50 步；4B 配 Qwen3-4B、9B 配 Qwen3-8B，VAE flux2-vae（**本机已有**）。权重 4B 7.75 GB / 9B 18.2 GB；Comfy 文档只列 fp8 文件，Mac 需到 BFL 仓库拿 bf16。[Comfy blog](https://blog.comfy.org/p/flux2-klein-4b-fast-local-image-editing) / [Comfy docs](https://docs.comfy.org/tutorials/flux/flux-2-klein)
+- Mac：4B 在 M1 Max mflux 1024² 31.7 s；9B 需 ~29 GB，M4 Max ≈85 s（lilting，是否实测不明）。[lilting 2026](https://lilting.ch/en/articles/flux2-klein-apple-silicon)；fusion-mlx M5 Max klein-base-4B 1024² 4 步 6.8 s / 8 步 13.6 s。[PyPI](https://pypi.org/project/fusion-mlx/)
+- **FLUX.2 [dev]** 32B bf16 64.4 GB + Mistral-Small-3.2-24B 编码器（bf16 ≈48 GB）：96 GB 装不下 bf16，只能 GGUF，且分钟级/张，不适合拍视频。[modelfit 2026-06-12](https://modelfit.io/guides/local-image-generation-mac/)
+
+**Krea 2 Turbo / Raw**（2026-06-22；DiT 12–13B；Krea 2 Community License：<$1M 营收/<50 席位，需内容过滤）
+- 8 步、CFG 0/1、`--mu 1.15`；训练区间 1K–2K，2048 长边为上限；编码器 Qwen3-VL-4B（CLIP 类型 krea2），VAE=Qwen Image VAE；ComfyUI ≥0.26 原生。[HF](https://huggingface.co/krea/Krea-2-Turbo) / [Comfy docs](https://docs.comfy.org/tutorials/image/krea/krea-2)
+- Mac 专项仓库：bf16 三件 ≈35.5 GB，"bf16 想要 ~48 GB 统一内存"，坑：batch 必须 1、LoRA 强度 0.0 会 NaN 黑图、GGUF 不支持、int8_convrot 标注 CUDA-only（但本机 int8 编码器已跑通，且 Qwen 2.1 int8_convrot 在 M5 Pro MPS 实测可跑，说明新版 ComfyUI 已做 MPS 回退）。[Bambushu/krea2-turbo-mac](https://github.com/Bambushu/krea2-turbo-mac)
+
+**其他（结论先行）**
+- **HiDream-O1-Image** 8B 像素空间、MIT、2026-05-08，ComfyUI 原生（PR #13817），最高 2048²，编码器 Gemma4-E4B（Comfy 只给 fp8）；Mac 未见实测。[Comfy docs](https://docs.comfy.org/tutorials/image/hidream/hidream-o1)
+- **Ideogram 4.0** 9.3B、2026-06-03、**非商用**，Comfy 只提供 fp8（2×13.8 GB）+ Qwen3-VL-8B fp8 + Gemma4，需 torch ≥2.11；Mac 要靠 fp8 补丁节点，不推荐上镜。[Comfy docs](https://docs.comfy.org/tutorials/image/ideogram/ideogram-v4)
+- **HunyuanImage 3.0** 80B MoE（bf16 151 GB）无 Mac 路径；**没有 3.1**。HunyuanImage 2.1（17B，2K 原生）可装但无 Mac 数据。[GitHub](https://github.com/Tencent-Hunyuan/HunyuanImage-3.0)
+- **ERNIE-Image** 8B Apache（百度，含 8 步 Turbo，ComfyUI 原生）；**Ming-Image 0.1 Design** 6B+16B MoE 编码器（蚂蚁，MIT，偏 UI/海报，仅 nightly）；**Anima** 2B（Cosmos-Predict2 架构，Illustrious 接班者，非商用）；SDXL/Illustrious/NoobAI 仍是动漫 LoRA 生态王者（tag 提示词）；**Chroma1-HD** 8.9B Apache；**SD 3.5、Lumina 2.0 已过时**。[ComfyUI Wiki ERNIE](https://comfyui-wiki.com/en/models/ernie/ernie-image) / [Ming](https://comfyui-wiki.com/en/news/2026-09-23-ming-image-design) / [Anima](https://docs.comfy.org/tutorials/image/anima/anima)
+- **fp8 在 MPS 不原生**：只能靠 [ComfyUI-AppleSilicon-FP8](https://github.com/pawel-mazurkiewicz/ComfyUI-AppleSilicon-FP8) 查表解码为 bf16（省内存不提速）；它在 **M5 + Metal 4.1（macOS 27）** 上另有原生 fp8/int8 核：int8 W8A8 比 bf16 GEMM 快 ~1.85×，Krea 2 渲染快 ~24%。另：M1–M3 无 bf16 硬件，M4/M5 有，所以两台机默认 bf16 没问题。[lilting 2026-03-26](https://lilting.ch/en/articles/comfyui-qwen-mps-bf16-slowdown)
+
+## 2. M5 Ultra / M5 Max 基准与神经加速器
+
+- Apple 官方（2026-08-25，Draw Things）：M5 Max 文生图 ≤3.5× M4 Max；M5 Ultra ≤4.3× M3 Ultra、8.2× M1 Ultra；**Ultra 带宽 1.2 TB/s（M5 Max 614 GB/s）**，每个 GPU 核含 Neural Accelerator。[Apple Newsroom](https://www.apple.com/newsroom/2026/08/apple-introduces-new-mac-studio-with-m5-max-and-m5-ultra/)
+- **唯一 M5 Ultra ComfyUI 公开评测**（BGR 2026-09-21，36 核 CPU/256 GB）：Z-Image Turbo 在 ComfyUI 中比 M3 Ultra 快「至少 2 倍、常达 3 倍」，无绝对秒数；LLM 仅快 30–40%。[BGR via Yahoo](https://tech.yahoo.com/ai/apple-intelligence/articles/mac-studio-m5-ultra-review-160000594.html)。独立评测明确「尚无 M5 Ultra GPU/出图实测数据」。[kingy.ai](https://kingy.ai/blog/mac-studio-m5-local-ai-buying-guide/)
+- Draw Things：M5 Max 比 M4 Max 快 3.3×，Lightning Draft 下 klein 4B/9B、Z-Image Turbo「约 1 秒」（厂商说法）；Metal Quantized Attention 在 M5 Max 达 ~110 TFLOPs；26.1008.0（2026-10-08）「M5 Ultra 性能改进」、支持 Qwen Image 2.1、Krea 2、Ideogram 4。[Draw Things 2026-03-24](https://releases.drawthings.ai/p/introducing-lightning-draft-interactive) / [2026-04-01](https://releases.drawthings.ai/p/metal-quantized-attention-pulling) / [Downloads](https://drawthings.ai/downloads/)
+- **PyTorch/MPS 吃到 M5 加速器了吗？部分吃到了**：PyTorch 2.14（2026-09-17）新增基于 Metal Performance Primitives 的 prefill attention（移植 MLX 的 M5 路径，需 macOS 26.2+，fp16/bf16，head dim 64/96/128/256，官方称「在 M5 上验证」，2–4× 注意力加速）；2.12 预编译 Metal 4 着色器；2.13/2.14 大批算子迁到原生 Metal。[PyTorch 2.14](https://pytorch.org/blog/pytorch-2-14-release-blog/) / [PR #182256](https://github.com/pytorch/pytorch/pull/182256)。矩阵乘仍未用加速器（MLX/Draw Things 已用）。实测差距：同一台 M5 Max 上 Qwen 2.1 MLX 119 s vs ComfyUI-MPS 156 s（≈1.3×）。**本机 Comfy Desktop 实例是 torch 2.10.0，没吃到。**
+- 粗估（**非实测**）：按 M2 Max 14 s 和 Apple/DT 倍率推算，Z-Image Turbo 1024² 在 M5 Max ComfyUI 约 6–10 s、M5 Ultra 约 3–6 s；Qwen 2.1 bf16 2K 在 Ultra 约 2–4 分钟。
+
+## 3. 2K+ 壁纸最佳实践
+
+- **原生 vs 放大**：只有 Qwen-Image-2.1 是 2K 设计点，直出 2752×1536（裁到 2560×1440）与 1440×3136（裁 16 px→1440×3120，4.5 MP 略超 4 MP，或 1312×2848 再 1.1× 放大）。Z-Image/Krea 2 直出 2K 有畸变风险，建议 **944×2048（精确 9:19.5）→1.53× 放大**到 1440×3120；桌面 2048×1152→1.25×。所有尺寸取 16/32 倍数。MPS 有 2^32 元素上限，4K 以上会炸。
+- **Mac 可用放大器**：4x-UltraSharp/ESRGAN（核心节点，MPS 秒级，先 4× 再缩回最稳；**本机已有**）；Ultimate SD Upscale（tile 1024、denoise 0.15–0.3，可用）；**SeedVR2**（numz 节点 "Full MPS support"，Mac 用 3B fp16，7B fp8 有质量问题，BlockSwap 在 macOS 不可用，4K 级会被 MPS 注意力内存杀掉，短边设 1440 即可）。[numz](https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler)；SUPIR 无任何 Mac 验证，跳过；"Pixea" 只是 macOS 看图软件的 ML 2×/4× 超分，不是生成式放大。
+- **提示词风格**：Z-Image/Krea 2/klein = 自然语言长段；Qwen 2.1 = 超长英文细描（PE 风格，可开 refine_prompt，需再装 9B PE 编码器）；SDXL 系 = booru tag。壁纸框架：先写画幅与构图（竖构图、主体居中偏下、顶部留负空间给时钟）→光线→色板（OLED 纯黑）→材质→镜头，不要文字、不要人物（锁屏用）。
+
+## 4. MLX 替代（mflux / Draw Things / fusion-mlx）
+
+- Draw Things 自称比 mflux/iris.c 快 1.24–2.57×，比 ComfyUI 快 ~20%（M4 Pro 独立对比）；mflux 比 diffusers-MPS 快约 10%（78 vs 85 s）；KGP 同机 MLX 快 ComfyUI 约 30%。结论：**M5 上 MLX 路径快 1.2–2×，但 ComfyUI 的节点生态/工作流更适合上镜**；真要秒出镜头，Draw Things 最快。mflux 已支持 Z-Image、klein、Qwen 2.1、Krea 2、Ideogram 4。[mflux](https://github.com/mflux-community/mflux)
+
+## 5. 内存规划：96 GB vs 48 GB
+
+- **48 GB MacBook**：Z-Image Turbo bf16（峰 ~24 GB）✓；klein 4B（~16 GB）✓、9B（~29 GB）✓；Krea 2 Turbo bf16 勉强（≈26 GB + 工作集，2K 吃紧，沿用现有 bf16 主模 + int8 编码器）；Qwen 2.1 **bf16 ✗**（峰 46 GB）→ 用 int8_convrot/GGUF-Q8（1K 14 GB、2K 20–21 GB）✓；FLUX.2 dev ✗。LM Studio 不能同时开（默认 GPU 可用 ≈36 GB，先 Eject 模型，与此前结论一致）。
+- **96 GB Studio**：以上全 bf16 ✓，Qwen 2.1 bf16 2K 有余量；FLUX.2 dev 仅 GGUF（≈55–60 GB，慢）；Hunyuan 3.0 ✗。默认 `iogpu.wired_limit_mb=0` ≈ 75% RAM ≈ 72 GB，Qwen 2.1 bf16（46 GB）+ 30B-A3B Q4 LLM（~18 GB）可并行；若要抬到 `sudo sysctl iogpu.wired_limit_mb=81920`（留 14 GB 给系统），重启归零、需 LaunchDaemon 持久化、要在启动两个 App 之前设置（App 启动时缓存上限），风险是内核级卡死而非普通 OOM。[modelpiper 2026-08-15](https://modelpiper.com/blog/iogpu-wired-limit-mb-mac)
+
+## 推荐上镜的三个模型（代理建议，Claude 的取舍见《02-方案可行性研究》）
+
+1. **Z-Image-Turbo**（补下 ≈12 GB）— 国产、Apache、AA 榜开源第一出身、Mac 最快（Ultra 预计几秒一张），最能撑「这台 Mac 几秒出图」的镜头。
+   Prompt: `A vertical phone wallpaper. A lone pine tree on a misty granite ridge at blue hour, soft volumetric fog filling the valley below, a thin band of warm amber light on the horizon. Deep navy and charcoal palette with true blacks in the lower third, generous empty sky in the upper half, no text, no people. Shot on a 35mm lens, fine film grain, ultra-detailed bark and needles.`
+2. **Qwen-Image-2.1**（bf16 ≈33 GB / int8 ≈17 GB，可加 Turbo 或 Fun-Acc 4 步）— 当前开源画质/排版天花板、原生 2K 直出，最有「画质说服力」；缺点慢且研究许可（拍视频属非商用没问题）。
+   Prompt: `An ultra-detailed 2K vertical wallpaper for a smartphone lock screen. A quiet Jiangnan water town at dawn: whitewashed walls with grey tiled roofs, a narrow canal reflecting pale pink and lavender sky, a single wooden boat with a paper lantern, willow branches dripping morning dew in the foreground. The composition keeps the upper third nearly empty sky for a clock; the lower two-thirds hold the architecture and reflections. Cinematic soft lighting, crisp micro-textures on stone and water, muted pastel palette, no people, no visible text, no watermark.`
+3. **Krea 2 Turbo**（bf16 ≈35.5 GB，本机已跑通带 10 个 LoRA）— 「去 AI 味」审美与原生 1K–2K、8 步，适合展示「质感派」壁纸；若观众更认 FLUX 品牌，可换 **FLUX.2 [klein] 4B**（≈8 GB 主模型，Apache，4 步）。
+   Prompt (Krea 2): `Desktop wallpaper, 16:9. Minimalist still life of a matte ceramic vase with a single dried eucalyptus stem on a sun-warmed plaster windowsill, long soft shadows, dust motes in a shaft of late afternoon light. Warm beige and terracotta palette, shallow depth of field, editorial photography look, subtle halftone texture, lots of calm negative space on the left for icons.`
+
+**未核实项**：M5 Ultra 任何模型的绝对秒数（没人发表）、Qwen-Image-2.1-Turbo 的 ComfyUI 支持状态、Lens/Boogu 身份。
+# 情报附录 E · MacBook Pro（M5 Max）作为 Mac Studio（M5 Ultra）的 Thunderbolt 5 合盖算力副机（截至 2026-10-12）
+
+> 由检索代理整理，Claude 复核要点。「本机实测」均来自 Studio 一侧；MacBook 一侧本轮无法核验。TB5 实测带宽数字来自论坛摘要，已标注可信度。
+
+---
+
+## 1. Thunderbolt Bridge 双机直连
+
+- **自动创建**：macOS 自动把全部 Thunderbolt 口桥接成 `bridge0`，并在 System Settings > Network 中生成 "Thunderbolt Bridge" 服务。Studio 本机实测：`ifconfig bridge0` 成员 en2/en3/en4/en5/en6/en13，MTU 1500，当前 `status: inactive`（此刻 MacBook 未连通——这本身就是「合盖即掉线」的现场证据）。Apple TN3205 给出同样结构，并说明若服务丢失可在 Network 里重新添加：[Apple Mac User Guide (26/27)](https://support.apple.com/en-asia/guide/mac-help/ip-thunderbolt-connect-mac-computers-mchld53dd2f5/26/mac/27)、[TN3205](https://developer.apple.com/documentation/technotes/tn3205-low-latency-communication-with-rdma-over-thunderbolt.md)。
+- **IP 分配**：默认 DHCP；两台 Mac 之间没有 DHCP 服务器，于是各自自派 **169.254.x.x/16** link-local（TN3205 示例 `inet 169.254.205.255 netmask 0xffff0000`；[Eclectic Light](https://eclecticlight.co/2022/05/09/whats-the-fastest-way-to-transfer-files-with-m1-macs/)；[Brejcha 实测](https://www.jiribrejcha.net/2024/05/direct-20-gbps-connection-between-mac-and-windows-machine-with-no-ethernet-adapters/)）。Network 面板显示 "Self-assigned IP" 属正常，但地址会漂移，Tailscale 等软件还会忽略 169.254 地址（[tailscale#7134](https://github.com/tailscale/tailscale/issues/7134)）。
+- **推荐手动 IP**（家里 LAN 是 10.0.0.x，要避开）：Studio `192.168.77.1`，MacBook `192.168.77.2`，掩码 `255.255.255.0`，**Router 留空**（否则 bridge 会抢默认路由，Wi-Fi 上网会断）。路径：Network > Thunderbolt Bridge > Details… > TCP/IP > Configure IPv4: Manually。
+- **验证**：`ping 192.168.77.2`；`ifconfig bridge0` 看 `status: active` 和 `inet`；`system_profiler SPThunderboltDataType` 应在某个端口下看到对方 Mac，`Speed: 80 Gb/s` 即 TB5 链路（Studio 本机的 Studio Display 就显示为 80 Gb/s）。
+- **MTU/Jumbo**：可在 Details… > Hardware > Configure: Manually > MTU 9000，但 Eclectic Light 在 M1 上实测无增益且有拖慢；Brejcha 实测 Mac 侧改 9000 对 Mac→PC 方向无提升。**保持 1500**——LLM API 流量不足 1 Mbps，根本用不上。
+- **带宽预期**：Intel 官方表格 "Thunderbolt networking" 理论上限 **TB5 64 Gbps / TB4 32 Gbps**（[Intel Thunderbolt Messaging Guide PDF](https://www.intel.com/content/dam/www/central-libraries/us/en/documents/2023-09/thunderbolt-messaging-guide.pdf)）。实测：TB4 时代 iperf3 16–37 Gbps（[Brejcha](https://www.jiribrejcha.net/2024/05/direct-20-gbps-connection-between-mac-and-windows-machine-with-no-ethernet-adapters/)、[MacRumors M4 mini↔M4 Air](https://forums.macrumors.com/threads/speed-of-thunderbolt-bridge-m4-mini-to-m4-macbook-air-with-tb4-cable.2458791/)）；TB5 有 ~65 Gbps 的论坛报告（M4 Max MBP↔M4 Pro mini，[MacRumors](https://forums.macrumors.com/threads/thunderbolt-5-data-transfer-between-two-computers.2442800/)，方法不明）；文件拷贝实际 0.5–1 GB/s。合理预期：`iperf3 -P 4` 在 TB5↔TB5 得 30–60 Gbps。
+- **线缆**：必须是带闪电标的 **Thunderbolt/USB4 线**；随机附送的 USB-C 充电线只有 USB 2.0（480 Mbps），桥接不会建立（[Macworld](https://www.macworld.com/article/234713/how-to-tell-if-your-usb-c-cable-is-usb-only-or-supports-thunderbolt-3.html)）。TB4 线→40 Gbps 链路；Apple Thunderbolt 5 Pro 线（1 m，120 Gbps）→80 Gbps 对称（[Apple 118204](https://support.apple.com/en-asia/118204)）。
+- **macOS 26.2 新增 RDMA over Thunderbolt**（仅 TB5 机型，两台都符合）：Recovery 里 `rdma_ctl enable`（macOS 27 改为 Privacy & Security > Developer Tools 勾选，见附录 A）；与 IP 桥并行，只对 MLX distributed/exo 有意义，做 API 副机**不需要**。但 TN3205 有三条 Apple 官方集群建议直接适用：关闭闲置睡眠、开启自动登录、"**Thunderbolt does not support Wake-on-LAN**"。
+
+## 2. 合盖、无显示器，如何保持唤醒
+
+- **默认行为**：合盖 = 睡眠，除非处于 closed-display 模式（外接显示器 + 外接键鼠 + 电源）。注意 Apple 原 HT201834 文章现已跳转到 2026-04-06 发布的 "Connect displays to your Mac"，**不再包含合盖章节**；2026 年第三方复测行为未变（[clamshell.dev 2026-10](https://clamshell.dev/guides/clamshell-mode-without-external-display)、[slack.green 实测 macOS 26.5.2](https://slack.green/en/blog/pmset-disablesleep)、[macky.dev 2026-10](https://macky.dev/blog/keep-macbook-awake-lid-closed-remote-access)）。
+- **"Prevent automatic sleeping on power adapter when the display is off"**（macOS 27 路径：System Settings > Battery > Options；台式机在 Energy）只阻止**闲置**睡眠，**挡不住合盖睡眠**；`caffeinate -s` 同理（只是 idle assertion）。[Apple 文档](https://support.apple.com/guide/mac-help/prevent-your-mac-from-sleeping-mchle41a6ccd/mac)。
+- **真正有效**：`sudo pmset -a disablesleep 1`（man page 未记载的隐藏键，重启后仍保留，`pmset -g | grep SleepDisabled` 查看；撤销用 `0`）。Plan B：HDMI 假负载插头（MBP 有 HDMI 口）让系统进入真正的 closed-display 模式。
+- **pmset 对照**：`sudo pmset -c sleep 0` ≈ 上述 Battery 选项；`womp 1` ≈ "Wake for network access"；`pmset -g assertions` 看谁在阻止睡眠（[pmset man](https://keith.github.io/xcode-man-pages/pmset.1.html)）。
+- **Wake for network access 对 Thunderbolt Bridge 无效**（Apple TN3205 明说），设计只能是「永不睡」。**Studio 本机实测 `sleep 1`**——Studio 自己 1 分钟就会睡（此刻靠 Claude 应用的断言撑着），需在 Energy 开启 "Prevent automatic sleeping when the display is off"。
+- **散热**：Apple 102336（2026-04）只说放平稳通风面、键盘上别盖东西，**没有任何关于合盖降频的声明**（[Apple](https://support.apple.com/102336)）。14/16" MBP 出风在转轴与侧面，合盖不堵风道；风扇机型实测开合温度相同；M3 Air 合盖 20 分钟掉到 52% 是无风扇机型，不适用。持续 GPU 满载会触顶功耗墙，这与开盖一样，不是合盖造成的。
+- **供电**：Apple 未公布 Mac Studio 单口功率；Intel 规范对台式机口的要求仅是 **≥15 W 给配件**，不要求给电脑充电（上面 Intel PDF 表格）。16" M5 Max 标配 **140 W** 适配器、100 Wh 电池（[Apple specs](https://www.apple.com/macbook-pro/specs/)）。结论：**MBP 必须自接 MagSafe 3 140 W**，TB 线只负责数据。可在 MBP 上用 `system_profiler SPPowerDataType` 看 "Wattage" 核实。
+
+## 3. 从 Studio 远程操控
+
+- **(a) Screen Sharing / High Performance**：MBP 上 System Settings > General > Sharing > Screen Sharing(i) 打开，"Allow access for: Only these users"（与 Remote Management 互斥）（[Apple macOS 27](https://support.apple.com/guide/mac-help/mh11848/mac)）。High Performance 要求双方 Apple silicon + macOS 14+、UDP 5900–5902、~75 Mbps、推荐有线（bridge 完美满足）；Studio 上打开 Screen Sharing.app → 输入 192.168.77.2 → Screen Sharing Type: High Performance → Display Type: 1 Virtual Display。它用**虚拟显示器**，headless Mac 已被 9to5Mac 实测可用，合盖 MBP 等同 headless；60 fps，4K 上限，每台一次一个会话（[Apple](https://support.apple.com/guide/mac-help/mchl1883115d/mac)、[9to5Mac 2026-02](https://9to5mac.com/2026/02/05/how-to-use-macos-high-performance-screen-sharing-for-lower-latency-and-better-color-video/)）。
+- **(b) Remote Login (SSH)**：General > Sharing > Remote Login 打开，限定用户（[Apple macOS 27](https://support.apple.com/guide/mac-help/allow-a-remote-computer-to-access-your-mac-mchlp1066/mac)）。Studio 已有 `~/.ssh/id_ed25519.pub`（本机实测），一句 `ssh-copy-id iason@192.168.77.2` 即免密。
+- **(c) Universal Control / Sidecar**：Universal Control 要求设备 "awake and unlocked" 且各显各屏，合盖无屏即无意义；Sidecar 只对 iPad（[Apple 102459](https://support.apple.com/en-us/102459)）。**不适用**。
+- **(d) macOS 26/27 新特性**：没有 Mac-to-Mac 镜像；macOS 27 只改进了 iPhone Mirroring（[MacRumors](https://www.macrumors.com/2026/06/18/three-ways-macos-27-improves-iphone-mirroring/)）。真正相关的新东西只有 26.2 的 RDMA。
+- **必须开盖一次性做的**：Screen Sharing、Remote Login、`pmset disablesleep`（需 sudo）、LM Studio 开关、自动登录。
+- **FileVault**：预启动解锁必须**物理输入密码**，无 Touch ID、无网络。保留 FileVault 则每次重启/断电都要开盖；远程重启可用 `sudo fdesetup authrestart`（一次性绕过，Apple silicon 令牌单次有效，man page 警告 "FileVault protections are reduced"，[fdesetup man](https://keith.github.io/xcode-man-pages/fdesetup.8.html)）。**代理结论**：这台机器不出门就关掉 FileVault（Privacy & Security > FileVault），这样才能开 "Automatically log in as"（FileVault 开着时该项灰掉，[Apple 102316](https://support.apple.com/en-us/102316)），重启后直达桌面、登录项自启，才算真正无人值守；Apple TN3205 对集群也是这样建议的。（Claude 的取舍见《01-两机交互指南》第三节第 6 条：这是用户的决定。）
+
+## 4. MBP 上跑 LLM 服务，Studio 消费
+
+- **LM Studio**（Studio 本机已装 0.4.26，CLI 实测）：GUI 在 Developer 页服务器栏 Settings 里开 **"Serve on Local Network"**（"Allow other devices on the same local network to access the API server"），可选 "Require Authentication"（API token）；CORS 仅浏览器应用需要（[docs](https://lmstudio.ai/docs/developer/core/server/serve-on-network)、[settings](https://lmstudio.ai/docs/developer/core/server/settings)）。CLI：`lms server start --bind 0.0.0.0 --port 1234`（默认 127.0.0.1；亦可环境变量 `LMS_SERVER_HOST`；`--cors`）（[docs](https://lmstudio.ai/docs/cli/server-start)）。Studio 侧 Base URL：`http://192.168.77.2:1234/v1`，`curl http://192.168.77.2:1234/v1/models` 验收。
+- **mlx_lm.server** 备选：`--host` 默认 127.0.0.1、`--port` 8080，需显式 `--host 0.0.0.0`；源码自述「不建议生产使用」（[server.py](https://raw.githubusercontent.com/ml-explore/mlx-lm/main/mlx_lm/server.py)）。
+- **防火墙/弹窗**：macOS 防火墙默认关（两台都关）；若开着，首次绑定会弹 "accept incoming connections?" 点 Allow，或在 Network > Firewall > Options 确认 LM Studio 在允许列表、"Block all incoming connections" 关闭（[Apple macOS 27](https://support.apple.com/guide/mac-help/mh11783/mac)）。Sequoia/Tahoe 的 Local Network 隐私权限：**入站 TCP 不需要权限**，弹窗只针对出站（Studio 上的客户端首次访问 192.168.77.2 可能弹，点允许）；已知 Tahoe 有重启后权限丢失的个案（[Eclectic Light 2026-01](https://eclecticlight.co/2026/01/14/how-local-network-privacy-could-affect-you/)）。
+- **开机自启、最不侵入**：LM Studio Settings（⌘,）勾 **"Run LLM server on login"**——关窗即缩到菜单栏，"last server state is saved and restored"（含 bind 与端口）（[docs](https://lmstudio.ai/docs/app/api/headless)）。它注册的是标准 Login Item（General > Login Items & Extensions），**不是要自己维护的 LaunchAgent**（Studio 本机核实 LM Studio 没落任何 launchd plist）。llmster 守护进程 `lms daemon up` 官方只给 Linux systemd 自启方案，macOS 要自写 LaunchAgent，故不推荐。**LM Link**（`lms link`）本机实测返回 "You do not have access to LM Link… request access"，目前是申请制，不要规划进去。前提：自动登录（见第 3 节）。
+
+## 5. 2026 年双 Mac 直连常见坑
+
+- **睡后掉桥**：Apple 社区 2025-08 案例——两台 Mac Studio Ultra、0.8 m TB5 线、15.6.1，双方 "Self-assigned IP" 却不通，四月起时好时坏，唯一建议是静态 IP（[thread](https://discussions.apple.com/thread/256121423)）；更早案例：睡醒变 self-assigned，重插线恢复（[thread](https://discussions.apple.com/thread/253616706)）。对策：双端永不睡 + 静态 IP；软重插：`networksetup -setnetworkserviceenabled "Thunderbolt Bridge" off` 再 `on`。
+- **合盖即断**：MBP 合盖→睡眠→桥接静默（[MacRumors](https://forums.macrumors.com/threads/mbp-shuts-off-ip-tb-when-the-lid-is-closed.2367200/)）。
+- **服务顺序**：Studio 实测 Ethernet > Thunderbolt Bridge > Wi-Fi。只要桥的 Router 留空就不会抢默认路由；要改用 Network > "⋯" > Set Service Order 或 `networksetup -ordernetworkservices`（[man](https://keith.github.io/xcode-man-pages/networksetup.8.html)）。
+- **Bonjour `.local`**：mDNS 跑在所有接口上，`macbook.local` 可能解析到 Wi-Fi 地址而非桥（此为机制推断，无一手文档）；**一律写桥 IP**。
+- **Stealth mode** 只吞 ping，不影响 SSH/HTTP；"Block all incoming" 仍放行 Bonjour。
+- **Screen Sharing 卡顿**：Standard 模式按网况降分辨率/帧率；走桥用 High Performance 即解。
+- 本次未检索到 Tahoe/27 特有的 Bridge 回归报告。
+
+---
+
+## 一次性设置清单（MacBook 开盖操作，约 15 分钟）
+
+1. 确认线缆：TB 线两端有闪电标；插 MBP 任一 TB5 口 ↔ Studio 背面 TB5 口；**同时接 MagSafe 140 W**。
+2. System Settings > Network > Thunderbolt Bridge > Details… > TCP/IP：Configure IPv4 = Manually，IP `192.168.77.2`，Subnet `255.255.255.0`，Router 留空 > OK。（Studio 端同法设 `192.168.77.1`。）
+3. General > Sharing：打开 **Screen Sharing**（Only these users → 你的账户）和 **Remote Login**（Only these users）。
+4. Battery > Options：打开 "Prevent automatic sleeping on power adapter when the display is off"；"Wake for network access" 任意（对桥无效）。
+5. 终端：`sudo pmset -a disablesleep 1`，然后 `pmset -g | grep SleepDisabled` 应为 1。
+6. Privacy & Security > FileVault：**Turn Off**（等解密完成）；Users & Groups > "Automatically log in as" 选你的账户。【代理建议；是否采纳由用户决定】
+7. LM Studio：Developer 页 > Settings：Serve on Local Network 开、端口 1234、JIT 开；Settings（⌘,）勾 "Run LLM server on login"；点 Start Server；若防火墙弹窗点 Allow。
+8. 回 Studio 验收：`ping 192.168.77.2`、`curl http://192.168.77.2:1234/v1/models`、`ssh-copy-id iason@192.168.77.2`、Screen Sharing.app 连 192.168.77.2 选 High Performance + 1 Virtual Display。
+9. 可选：`brew install iperf3` 双端，MBP `iperf3 -s`，Studio `iperf3 -c 192.168.77.2 -P 4`，记录基线。
+10. 全部通过后合盖，再在 Studio 重复第 8 步——合盖后仍通才算完成。
+
+## 日常操作清单（MacBook 合盖）
+
+- Studio 侧 Energy 开 "Prevent automatic sleeping when the display is off"（本机实测当前未开）。
+- 客户端 Base URL 固定 `http://192.168.77.2:1234/v1`；需要桌面时用 Screen Sharing.app（High Performance），需要命令行用 `ssh iason@192.168.77.2`。
+- 不通时按顺序：① `ping 192.168.77.2`；② Studio 上 Network 看 Thunderbolt Bridge 是否绿灯；③ 拔插 TB 线；④ 仍不通→开盖看是否睡了/是否停在登录页。
+- MBP 保持平放或立架、键盘面不压东西；MagSafe 常接。
+- 重启 MBP 前先在 SSH 里 `sudo shutdown -r now`（FileVault 已关则会自动回到桌面并自启服务）；若保留 FileVault，改用 `sudo fdesetup authrestart`，且断电后必须开盖输密码。
+- 系统升级后复查：Thunderbolt Bridge 服务与手动 IP 是否被重置、`pmset -g` 的 SleepDisabled、Login Items 里 LM Studio 是否仍在。
+# 情报附录 F · 本地中文配音链路（TTS/STT）与 M5 Ultra vs M5 Max 规格（2026-10-12）
+
+> 由检索代理整理，Claude 复核要点。标注约定：**【官方】**= Apple/模型方一手页面；**【实测】**= 第三方可复现测量；**【经验】**= 社区/博客单点观察或推断。
+
+---
+
+## A. 本地中文 TTS / STT
+
+### A1 开源权重 TTS 现状（Apple Silicon 可跑）
+
+| 模型 | 许可（商用/抖音可否） | 中文质量证据 | 零样本克隆 | Mac 路径 | 来源/日期 |
+|---|---|---|---|---|---|
+| **Qwen3-TTS** 0.6B/1.7B（Base/CustomVoice/VoiceDesign） | Apache-2.0 ✅ | Seed-TTS test-zh WER 0.77（官方卡）；另一汇总表 CER 1.22/SIM 77.0；CustomVoice 内置北京话、四川话音色 | ✅ 3 秒参考音 | 官方仓库无 MLX/MPS（上游 MLX PR 至 2026-08 仍未合并【经验】）；**mlx-audio + mlx-community 8bit 转换**可直接跑；1.7B-8bit 约 2–3 GB 内存【经验】 | [HF 卡](https://huggingface.co/Qwen/Qwen3-TTS-12Hz-1.7B-Base)、[GitHub](https://github.com/QwenLM/Qwen3-TTS) 2026-01-22；[mlx-audio](https://github.com/Blaizzy/mlx-audio) |
+| **VoxCPM2**（OpenBMB，2B）**2026 新秀** | Apache-2.0 ✅（明示可商用） | Seed-TTS zh **CER 0.97 / SIM 79.5**，开源里仅次于 Fish S2；30 语种 + 9 种中文方言（粤/川/吴/东北…），48 kHz 输出 | ✅ | 官方 webui 支持 `--device mps`；mlx-community/VoxCPM2-{bf16,8bit,4bit}；llama.cpp-omni Q8 在 M4 Pro Metal RTF≈1.76（慢于实时）【经验】 | [GitHub](https://github.com/OpenBMB/VoxCPM) 2026-04 |
+| **CosyVoice 3**（Fun-CosyVoice3-0.5B-2512） | Apache-2.0 ✅ | zh CER 1.21%（RL 版 0.81%）/SIM 78.0；9 语 + 18 种方言口音 | ✅ | 官方仅 CUDA/Linux，MPS PR 未见合并；**cosyvoice3.rs**（Candle+Metal 预编译 wheel）M1 Pro RTF 0.3–0.5【经验】 | [HF](https://huggingface.co/FunAudioLLM/Fun-CosyVoice3-0.5B-2512) 2025-12；[cosyvoice3.rs](https://github.com/SpenserCai/cosyvoice3.rs) |
+| **IndexTTS-2.5**（B 站，0.8B） | bilibili Model Use License：商用允许但 MAU>1 亿或年收>10 亿需另签；**输出音频被定义为衍生作品**，须保留声明 ⚠️ | IndexTTS2 zh CER 1.03/SIM 76.5；2.5 加拼音控制、语速 0.5–2×、zh/en/ja/es/ar | ✅ | 官方 CUDA；Mac 走 **audio.cpp**（ggml，Metal，`brew tap 0xShug0/audio-cpp`，v0.9.1 2026-10-07） | [GitHub](https://github.com/index-tts/index-tts) 2026-08-10；[LICENSE](https://raw.githubusercontent.com/index-tts/index-tts/main/LICENSE)；[audio.cpp](https://github.com/0xShug0/audio.cpp) |
+| **MOSS-TTS 家族**（复旦，v1.5 8B / Local-Transformer 1.7B,4B / TTSD 对话 / Nano 0.1B） | Apache-2.0 ✅ | zh CER 1.37（8B）/1.44（1.7B），SIM 79.6；31 语 | ✅ | 官方 README 2026-05-06 宣布支持 mlx-audio | [GitHub](https://github.com/OpenMOSS/MOSS-TTS) 2026-02-10 起 |
+| **OmniVoice**（k2-fsa）**2026 新秀** | Apache-2.0 ✅ | HF 榜单评为「多语强」；600+ 语，中文拼音控制/方言设计；无 zh 分数 | ✅ 3–10 s | 官方支持 `device_map="mps"`；mlx-community/OmniVoice-bf16 | [GitHub](https://github.com/k2-fsa/OmniVoice) ~2026-04 |
+| **LongCat-AudioDiT**（美团 1B/3.5B） | MIT ✅ | zh CER 1.09 / **SIM 0.818（最高）** | ✅ | 官方 CUDA；在 mlx-audio 支持列表 | [GitHub](https://github.com/meituan-longcat/LongCat-AudioDiT) ~2026-03 |
+| **Kokoro-82M v1.1-zh** | Apache-2.0 ✅ | 100 位中文专业音库说话人；无公开 zh 评测；英文榜第一（Open TTS Leaderboard） | ❌ | mlx-audio，`pip install misaki[zh]`，音色 `zf_xiaobei/zm_yunxi` | [HF](https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh) 2025-02-26 |
+| **Chatterbox Multilingual V3**（0.5B） | MIT ✅（输出带水印） | 23 语含 zh；无 zh 分数 | ✅ | mlx-community/chatterbox-multilingual-v3 | [HF](https://huggingface.co/ResembleAI/chatterbox) |
+| Fish Audio **S2-Pro**（4B+0.4B） | Fish Audio Research License：**非商用**，商用另签 ❌ | zh Tier-1，CER 0.54（最佳） | ✅ | audio.cpp 有 GGUF | [博客](https://fish.audio/blog/what-we-mean-by-open-source-for-s2/) 2026-03-12 |
+| F5-TTS（f5-tts-mlx） | 权重 CC-BY-NC-4.0（Emilia 数据）❌ | zh CER 1.53 | ✅ | MLX 原生 | [HF](https://huggingface.co/SWivid/F5-TTS) |
+| Spark-TTS 0.5B | 权重 **CC-BY-NC-SA-4.0**（已从 Apache 改）❌ | zh CER 1.54 / SIM 66 | ✅ | mlx-community/Spark-TTS-0.5B-bf16 | [HF](https://huggingface.co/SparkAudio/Spark-TTS-0.5B) |
+| VibeVoice（微软） | MIT 但「仅研究」；**TTS-1.5B 代码已于 2025-09-05 下架**，Realtime-0.5B 无中文音色 | — | — | — | [GitHub](https://github.com/microsoft/VibeVoice) |
+| Dia 1.6B | Apache-2.0 | **仅英文** | ✅ | — | [GitHub](https://github.com/nari-labs/dia) |
+| 其他 2026 新品 | Breeze TTS 2（2026-08-25 权重，Artificial Analysis 开源榜第一 1220，**非商用**，台湾国语向）；Higgs TTS 3（~4B，研究许可+「创作者可带署名变现」条款，中文「生产级」档）；GLM-TTS（2025-12-11，zh CER 0.89，权重许可未写明） | | | | [Cartesia 榜](https://www.cartesia.ai/learn/open-source-tts) 2026-10-09；[HF Open TTS Leaderboard](https://huggingface.co/blog/open-tts-leaderboard) 2026-09-30 |
+
+要点：
+- **9–10 月没有新的可商用中文克隆模型**；最新一波（VoxCPM2/OmniVoice/MOSS-TTS/LongCat）集中在 2–6 月。
+- Mac 统一入口是 **mlx-audio**（MIT）：TTS/STT 共一个 CLI，自带 `/v1/audio/speech`、`/v1/audio/transcriptions` 服务器。
+- M 系列 RTF 几乎无人公布：仅 cosyvoice3.rs（M1 Pro 0.3–0.5）、Qwen3-TTS-1.7B-8bit 在 M2 mini 约 1000 字符/分钟【经验】。在 M5 Ultra 上应显著快于实时，但**需自测**。
+
+### A2 LM Studio 0.4.x 音频能力【本机核实】
+- 本机 **LM Studio 0.4.26+4**；`~/.lmstudio/audio` 与 `~/.lmstudio/transcriptions` 均为**空目录**（2026-10-11 创建）。
+- `lms runtime ls` 显示已装并选中 **`executorch-asr-mac-arm64-apple-metal-advsimd@0.0.8`**（PTE 格式）——LM Studio 确实内置了一个 ASR 引擎。
+- 官方文档：Bionic → **Voice Input** 用 **Voxtral（Mistral）本地转写**，开关在 Settings → Voice → Auto load voice model；**没有 TTS**。[docs](https://lmstudio.ai/docs/bionic/voice-input)
+- OpenAI 兼容接口文档只列 `/v1/models, responses, decisions, chat/completions, embeddings, completions`，**无 `/v1/audio/*`**。[docs](https://lmstudio.ai/docs/developer/openai-compat)；[bug #1715](https://github.com/lmstudio-ai/lmstudio-bug-tracker/issues/1715)（2026-03-31 开，仍 open）2026-08 评论：`/v1/audio/speech` 返回 "Unexpected endpoint"。
+- 应用包内有 `v1/audio/transcriptions|speech|translations` 字串与 Whisper/Parakeet/Voxtral/Qwen3-ASR 代码（大部分来自捆绑的 transformers 库）——说明在铺路，但**当前对外不可用**。结论：LM Studio 不能当字幕/配音引擎，只能语音输入。
+
+### A3 中文 STT（出 SRT）
+| 方案 | 中文精度证据 | 时间戳 | Mac 路径 |
+|---|---|---|---|
+| **Qwen3-ASR-1.7B**（Apache-2.0，2026-01-29，30 语 + 22 中文方言） | 【官方表】WenetSpeech 4.97/5.88 vs Whisper-large-v3 9.86/19.11；Fleurs-zh 2.41 vs 4.09；KeSpeech 方言 5.10 vs 28.79；粤语 Fleurs-yue 3.98 vs 9.18 | 需配 **Qwen3-ForcedAligner-0.6B**（字级，≤5 分钟/段）；[issue #197](https://github.com/QwenLM/Qwen3-ASR/issues/197) 报告中文偶现零时长字段 ⚠️ | mlx-audio：`mlx-community/Qwen3-ASR-1.7B-8bit` + `Qwen3-ForcedAligner-0.6B-8bit`；[qwen3-asr-mlx](https://pypi.org/project/qwen3-asr-mlx/) 0.2.0（无时间戳） |
+| **Apple SpeechTranscriber**（macOS 26+） | 无公开中文指标；7 月探针：30 区域含 zh-CN/zh-TW/zh-HK/yue-CN，已装 zh-CN/zh-TW【本机】 | 句级 SRT；词级仅 JSON | **yap**（`brew install yap`）：`--locale zh-CN --srt --max-length N`；Apple 无官方 CLI。英文 34 分钟视频 45 秒【实测 MacStories】 |
+| WhisperKit / whisper.cpp / mlx-whisper（large-v3-turbo） | Whisper-large-v3 中文明显落后 Qwen3-ASR（见上表） | 词级（`-ml 1` / `word_timestamps=True`） | `brew install whisperkit-cli`（macOS 14+）；mlx-whisper `-f srt` |
+| Parakeet-MLX v3 | **25 种欧洲语言，无中文** ❌ | — | — |
+| SenseVoice-Small / Paraformer | CER 7.81%【自报】 | Mac 上时间戳未验证 | CoreML 转换 / OminiX Rust-MLX 18–75× 实时 |
+
+---
+
+## B. M5 Ultra（Mac Studio）vs M5 Max（MacBook Pro）
+
+### B1 官方规格【官方】
+- **Mac Studio M5 Ultra**：2026-08-25 发布/预订，09-22 到货，512GB 版 10 月末。基础 30 核 CPU（10 super+20 performance）/64 核 GPU/96GB；顶配 **36 核 CPU/80 核 GPU/32 核 Neural Engine**（本机即此），**1.2TB/s**（维基列 1,228.8 GB/s），96/256/512GB；每个 GPU 核内置 Neural Accelerator；UltraFusion 四芯（>4.4TB/s 芯间）；**6× Thunderbolt 5（120Gb/s，前 2 后 4）**、10GbE、HDMI 2.1、8 屏；最大持续功耗 480W；3.6 kg。美区 $5,499 起。[newsroom](https://www.apple.com/newsroom/2026/08/apple-introduces-new-mac-studio-with-m5-max-and-m5-ultra/)、[specs](https://www.apple.com/mac-studio/specs/)、[M5 Ultra 芯片稿](https://www.apple.com/newsroom/2026/08/apple-introduces-m6-and-m5-ultra-for-a-big-leap-in-performance-and-ai-compute/)
+- **国行价格**：Apple 中国页面价格为 JS 渲染，本轮未抓到 RMB 数字，**未核实**；美区 36c/80c/256GB/2TB 配置为 $11,299（Engadget），80 核 GPU 单项差价未见公开。
+- **16″ MacBook Pro M5 Max**（2026-03-03 发布，维基/MacRumors）：18 核 CPU，**40 核 GPU → 614GB/s**（32 核版 460GB/s），48/64/128GB，16 核 NE，3× TB5，140W 适配器。[specs](https://www.apple.com/macbook-pro/specs/)
+- Apple 宣称：M5 Ultra LM Studio 提示处理 **4×** M3 Ultra、文生图 4.3×、峰值 AI GPU 算力 4.5×；M5 Max 提示处理 3.9× M4 Max。
+
+### B2 LLM 推理对比
+- **Apple MLX 神经加速器博客**（2025-11-19，M5 vs M4 基础款）【官方】：TTFT 提速 3.33–4.06×（Qwen3-14B-4bit 4.06×），**解码仅 1.19–1.27×**（受带宽限制）。[链接](https://machinelearning.apple.com/research/exploring-llms-mlx-m5)
+- **MacStories**（2026-09-21，macOS 27.0，oMLX）【实测】：M5 Ultra vs M3 Ultra —— Qwen3.8-Flash-Next 解码 108 vs 70 t/s（+54%），16K 预填充 2,887 vs 1,143；Qwen3.8-27B 6K 预填/解码 1,701/48 vs 414/31，RTX 5090 为 3,031/59。[链接](https://www.macstories.net/stories/m5-ultra-mac-studio-review-the-dream-mac-for-local-ai-agents/)
+- **Tom's Hardware**（llama.cpp Q4_K_M，Qwen3.8-27B）【实测】：M5 Ultra 46.3 vs **M4 Max 22.7** vs DGX Spark 11.8 t/s；128K 上下文 30.1 vs 9.0 vs 7.7。
+- **Ars Technica**（LM Studio 4bit Qwen3.8-27B）【实测】：M5 Ultra 略超 50 t/s，**M5 Max ≈31 t/s → 1.6×**；汇总站另记 70B Q8 14.2 vs 7.4（1.9×）、4K 预填 1,487 vs 954（1.56×）【二手】。[Context Studios 汇总](https://www.contextstudios.ai/blog/mac-studio-m5-ultra-local-ai-guide) 2026-09-24
+- 文生图：**无 Ultra-vs-Max 直接实测**，仅 Apple 对老芯片的倍数。
+
+### B3 Thunderbolt 5：Mac 互联与充电
+- 【官方】Apple：多台 Mac Studio 可经 **Thunderbolt 5 + RDMA** 组集群形成共享内存池，4 机「AI 推理最高 3×」。MLX 文档：**macOS 26.2 起**支持 RDMA over Thunderbolt，JACCL 后端、全互联拓扑，`ibv_devices` 应见 `rdma_en2`。[MLX distributed](https://ml-explore.github.io/mlx/build/html/usage/distributed.html)；EXO 称 4× M5 Ultra 聚合 ~4.8TB/s【合作方】。
+- **充电**：Apple 未公布 Mac Studio 每口输出功率；Thunderbolt 规范对外设最低 15W；Apple 支持文档只说「可用 USB-C 充电线为笔记本充电」（指充电器）。**推断：Studio 给 MBP 最多涓流，不要指望替代 140W 适配器**【经验/推断】。[Apple 端口说明](https://support.apple.com/en-us/109523)
+
+### B4 散热与噪音
+- 【官方】Apple 功耗表：M5 Ultra（36c/80c/512GB）**空载 9W、满载 385W、1314 BTU/h**；M5 Max Studio 7W/200W。[HT213100](https://support.apple.com/en-us/HT213100)
+- 【实测/评测】Engadget（09-21）：仅在 4K 游戏时听到风扇；MacStories：机身温热但「明显比 5090 机静」，日常听不到；Tom's：基本安静「但风扇会露头」；PetaPixel（10-05）：重负载下风扇「基本不会让你察觉」。**无人做数小时持续 GPU 压测**，长时视频生成/批量 TTS 的噪音仍属未知。
+
+---
+
+## (A) 推荐链路（全本地、许可可发布）
+
+**TTS 主选 VoxCPM2-8bit（Apache-2.0，开源中文 CER 最佳、可克隆、带方言），备选 Qwen3-TTS-1.7B-Base-8bit（更轻、3 秒克隆）；统一走 mlx-audio。** 注意本机默认 Python 是 3.14——若 mlx-audio 在 3.14 装不上，用 uv 自管一个 3.13（`uv venv --python 3.13`，不动 Homebrew 的 Python、也不重装被故意卸掉的 3.12），这是一个需要拍板的点。
+```bash
+brew install yap
+uv venv --python 3.13 ~/.venvs/voice && source ~/.venvs/voice/bin/activate
+uv pip install -U mlx-audio
+# 配音（克隆则加 --ref_audio ref.wav；参数以 --help 为准，Base 版 Python API 已确认 ref_audio）
+python -m mlx_audio.tts.generate --model mlx-community/VoxCPM2-8bit \
+  --text "这里放你的中文解说段落。" --file_prefix narration
+python -m mlx_audio.tts.generate --model mlx-community/Qwen3-TTS-12Hz-1.7B-Base-8bit \
+  --lang_code Chinese --ref_audio ref.wav --text "……" --file_prefix narration_q
+# 字幕 A（最快，Apple 引擎）：
+yap transcribe --locale zh-CN --srt --max-length 18 -o out.srt final_video.mp4
+# 字幕 B（最准，Qwen3-ASR + 字级对齐，Python）：
+python - <<'PY'
+from mlx_audio.stt.utils import load
+asr = load("mlx-community/Qwen3-ASR-1.7B-8bit"); r = asr.generate("narration.wav", language="Chinese")
+al = load("mlx-community/Qwen3-ForcedAligner-0.6B-8bit"); print(al.generate("narration.wav", text=r.text, language="Chinese"))
+PY
+```
+中英混排用 B 路径（Qwen3-ASR 自动识别语种）；A 路径遇中英混排需分别指定 locale。避开 Fish S2/F5/Spark/Breeze/Higgs 等非商用权重——抖音一旦开通收益即属商用。
+
+## (B) 规格对比与理论倍数
+
+| | Mac Studio **M5 Ultra**（80 核/96GB） | 16″ MBP **M5 Max**（40 核/48GB） | 理论比 Ultra/Max |
+|---|---|---|---|
+| CPU | 36 核（12S+24P） | 18 核（6S+12P） | 2.0× |
+| GPU 核（每核 Neural Accelerator） | 80 | 40 | **2.0×**（文生图/预填充/TTFT 上限） |
+| Neural Engine | 32 核 | 16 核 | 2.0× |
+| 内存带宽 | 1.2 TB/s | 614 GB/s | **1.95×**（LLM 解码 t/s 上限） |
+| 统一内存 | 96 GB | 48 GB | 2.0× |
+| Thunderbolt 5 | 6 口 | 3 口 | — |
+| 满载功耗【官方】 | 385 W（512GB 配置） | 140 W 适配器上限 | — |
+| 实测 LLM 解码比 | — | — | **1.6–1.9×**（Ars/汇总） |
+| 实测预填充比 | — | — | ~1.5–2×（二手） |
+
+预期：解码应落在 1.6–1.9×（带宽上限 1.95×，UltraFusion 跨芯开销吃掉一部分）；预填充与文生图接近 2×，低于 2× 即为正常，高于 2× 多半是 MBP 端热限频所致。
+
+**本轮未能核实**：国行 RMB 价格、80 核 GPU 升级差价、Tom's Hardware/PetaPixel 的具体功耗与 dB 数值（页面被拦截）、各 TTS 在 M5 的 RTF。
+# 两机交互指南：把 MacBook Pro 变成 Mac Studio 的「常驻算力节点」
+
+- **日期：** 2026-10-12 v3（22:40 更新：MBP 已完成设置并实测连通；「固定 IP」方案在本机被 sing-box TUN 劫持，改为链路本地地址 + Bonjour 名字，见第三节第 4 步）
+- **读者：** 炘宝本人。先讲原理与因果链，再给可照做的步骤。
+- **一句话结论：** 一条雷雳 5 数据线 + MBP 自己的 MagSafe 电源 + 三个系统开关（远程登录、屏幕共享、合盖不睡），MBP 就能合盖常驻；我在主机上通过 SSH 全权操作它，你需要看画面时用「屏幕共享」开一个窗口。
+
+---
+
+## 一、概念地图：这根线到底能做什么、不能做什么
+
+两台 Mac 之间的关系有四层，每一层各自独立，混在一起就会产生「线接上了为什么没反应」的困惑。
+
+| 层 | 它是什么 | 靠什么实现 | 这根雷雳线负责吗 |
+|---|---|---|---|
+| ① 物理层 | 供电 + 高速数据通道 | 雷雳 5 线（80 Gb/s 对称） | **只负责数据**。台式机雷雳口按规范只需给配件 ≥15 W，撑不起 16 吋 MBP 的 140 W，所以 **MBP 必须插自己的 MagSafe** |
+| ② 网络层 | 两台 Mac 之间的一条「虚拟网线」 | macOS 自动建立的 **Thunderbolt Bridge（雷雳网桥，bridge0）**，走 IP | 是。之后所有的 SSH、屏幕共享、模型服务都跑在这上面 |
+| ②′ 网络层-高速档 | 绕过 IP 协议栈的直接内存访问 | **RDMA over Thunderbolt**（macOS 26.2 起，仅雷雳 5 机型；两台都符合） | 是，但它只给「两机并联跑一个模型」用；做普通副机**不需要**，而且它要求把雷雳网桥设为「不活跃」——两者是互斥的两种工作模式（见第五节） |
+| ③ 控制层 | 谁来操作 MBP | **SSH（远程登录）** 给我用；**屏幕共享** 给你看画面 | 走网络层。不需要开盖、不需要外接显示器 |
+| ④ 服务层 | MBP 提供什么算力 | LM Studio 服务端 / ComfyUI / 集群软件（MLX distributed、exo） | 走网络层。主机上的软件通过 `http://IasonMacBook-Pro.local:端口` 调用 |
+
+**三件雷雳线不会替你做的事（10-11 那天 Codex 已经替你踩过）：**
+1. 它不会把 MBP 的屏幕或键盘「借」给主机，反过来也不会。显示和输入永远是各自的。
+2. 它不会让 MBP 自动变成主机的「外接显卡」。两台机器的统一内存物理隔离，要「合起来用」必须靠软件在两边各跑一个进程，通过网络层交换数据。
+3. 它不会给 MBP 充电，也**不能隔着线把睡着的 MBP 叫醒**（Apple 技术说明 TN3205 原话：Thunderbolt 不支持 Wake-on-LAN）。
+
+**一个必须先建立的直觉：** 机内统一内存带宽是 M5 Ultra 1.2 TB/s、M5 Max 614 GB/s（Apple 官方数）；雷雳网桥 IP 模式我今晚实测 **62 Gbit/s（7.8 GB/s，单条 TCP 流，双向一致；4 流合计 66 Gbit/s）**，已接近雷雳 5 的 80 Gb/s 线速；RDMA 模式社区报告单口持续约 3.5–3.8 GB/s（它的价值是延迟不是带宽）。**和机内带宽仍差两个数量级。** 所以「两台合起来跑一个模型」永远比「一台跑得下的模型」慢，它的价值只在一种情况成立：**这个模型一台装不下。** 这不是缺陷，是物理。
+
+---
+
+## 二、本机实况（我今天 16:50 实测）
+
+| 项目 | Mac Studio（主机） | MacBook Pro（笔记本，依据 7 月摸底 + Codex 10-11 记录） |
+|---|---|---|
+| 芯片 / 内存 | M5 Ultra，36 核 CPU（12 超级 + 24 性能），80 核 GPU，**96 GB** | M5 Max，18 核 CPU，40 核 GPU，**48 GB** |
+| 系统 | macOS 27.0.1 | **27.0.1**（22:25 实测，与主机一致，并联模式的硬条件已满足） |
+| 主机名 | `Mac-Studio.local` | `IasonMacBook-Pro.local` |
+| 雷雳状态 | 6 个雷雳 5 口（插座 1–6），只有 Studio Display 接在插座 4，**其余全部空闲** | 主机上看不到它 |
+| 雷雳网桥 | 16:50 inactive → **22:25 active**，自派 169.254.143.117 | 自派 169.254.73.49，`ssh mbp` 免密通 |
+| RDMA | **enabled**（22:50 复查：`ibv_devices` 列出 rdma_en2/3/4/13） | **enabled** |
+| Wi-Fi 局域网 | 10.0.0.197 | 7 月时是 10.0.0.213；**今天整个 /24 网段扫不到它** |
+| 远程登录（SSH） | 关 | **开**（22:25 实测免密通） |
+| 屏幕共享 | 关 | 未知（大概率关） |
+| 防火墙 | 关 | 关（7 月） |
+| FileVault | 关 | **开**（7 月）——见第三节第 6 条 |
+| 睡眠策略 | `sleep 1`：**闲置 1 分钟就睡**，此刻靠 Key2「常亮」与 Claude 应用的断言撑着 | **SleepDisabled=1**（你已经做了），合盖不睡 |
+| SSH 密钥 | `~/.ssh/id_ed25519` 存在（随迁移助理带过来） | 同一把钥匙（迁移前的原件） |
+
+**22:25 更新：** 你做完一次性设置后，主机上雷雳链路显示 80 Gb/s、`ssh mbp` 免密直达、MBP 已是 macOS 27.0.1、RDMA 已开、合盖不睡已生效、FileVault 保留。10.0.0.242 就是它的 Wi-Fi 地址。
+
+**主机自己也有一个要改的点：** 它闲置 1 分钟就睡。跑长任务（下载 100 GB 模型、夜里跑基准）时只要我不在线，它就会睡过去。解决：系统设置 → 节能 → 打开「显示器关闭时防止自动进入睡眠」（或由我执行 `sudo pmset -c sleep 0`，需要你的密码）。
+
+---
+
+## 三、一次性设置（需要开盖，约 15 分钟，只做一次）
+
+做完这一节，以后 MBP 就可以合盖放在旁边，不用再碰。
+
+**第 1 步 · 供电与线缆**
+- MBP 插上自己的 140 W MagSafe 电源。
+- 确认两台 Mac 之间那根线是 **雷雳线**（线头上有闪电标志和数字 4 或 5；Apple 的 Thunderbolt 5 Pro 连接线最稳）。随机附送的 USB-C 充电线只有 USB 2.0，网桥不会起来。
+- 主机端插背面任意一个雷雳口。（将来做并联测试时要避开「紧挨以太网口的那个」，exo 的 README 说那个口不能做 RDMA；现在无所谓。）
+
+**第 2 步 · 开盖登录，打开两个开关**（系统设置 → 通用 → 共享）
+- **远程登录** → 开。允许访问：仅 `iason`。这是我操作它的唯一通道。
+- **屏幕共享** → 开。允许访问：仅 `iason`。这是你看它画面的通道。
+- 不要开「远程管理」——它和屏幕共享互斥，是 Apple Remote Desktop 用的。
+
+**第 3 步 · 合盖不睡**（关键，原理见下）
+- macOS 的规则是：笔记本合盖 = 睡眠，除非接了外接显示器 + 键鼠（所谓「合盖模式」）。「电池 → 选项 → 显示器关闭时防止自动进入睡眠」这个开关只管**闲置睡眠**，管不了**合盖触发的睡眠**（2026-10 多方复测如此，附录 E 第 2 节）。
+- 所以要用系统自带的电源管理命令把「合盖睡眠」也关掉。在 MBP 的终端里执行（需要输入一次密码）：
+
+```bash
+sudo pmset -a disablesleep 1
+```
+
+- 验证：`pmset -g | grep SleepDisabled` 应显示 1。回退：`sudo pmset -a disablesleep 0`。重启后仍保留。
+- 代价要说清楚：它关掉的是**一切**睡眠。拔掉电源它也不睡，会把电池跑空。所以它只适合「永远插着电」的桌面化用法——正好是你现在的用法。散热不用担心：16 吋出风口在转轴和侧面，合盖不堵风道，Apple 也没有任何「合盖降频」的说明。
+- 备选方案（不想动命令时）：买一个 ¥20 的 **HDMI 诱骗头（dummy plug）** 插在 MBP 的 HDMI 口上，系统就认为接了外接显示器，走 Apple 官方的合盖模式，再把上面那个「防止自动进入睡眠」打开即可。更「官方」，但多一个小物件。
+- 「唤醒以供网络访问」对雷雳网桥无效（Apple 明说），开不开都行。整个设计只能是「永不睡」。
+
+**第 4 步 · 网桥地址：什么都不用做（22:40 实测后的更正）**
+- 我在 v2 里写的「手动固定 192.168.77.x」在这台主机上**行不通**：`route get 192.168.77.2` 显示它被本机 sing-box 的 TUN（utun199）接管，流量从 Wi-Fi 出去找不到人。任何不在「局域网自身网段」和「链路本地」之外的私有地址都会被它劫走——这是 TUN 的 `auto_route + strict_route` 的正常行为，不是故障。我不动你的网络栈。
+- 正确做法：让两端保持默认的 DHCP 失败回退，各自自派一个 **169.254.x.x 链路本地地址**（今晚主机 169.254.143.117，MBP 169.254.73.49），内核对链路本地有专门的接口路由，TUN 抢不走。实测 `route get 169.254.73.49 → bridge0`，往返 0.45 ms；对照走 Wi-Fi 的 10.0.0.242 是 49 ms。
+- 名字：Bonjour 把 `IasonMacBook-Pro.local` 解析到网桥地址（我实测优先走了网桥）。日常用名字，脚本里若需要绝对稳定就用当时 `ssh mbp "ipconfig getifaddr bridge0"` 查到的地址。
+- 唯一代价：链路本地地址理论上可能在重启后变化，所以我的脚本一律先解析名字再用。
+- 如果将来你一定要固定 IP，办法是在 sing-box 配置的 tun 段加 `route_exclude_address: ["192.168.77.0/24"]`，那是改你的代理配置，需要你点头后我才做。
+
+**第 5 步 · 让我免密码 SSH 进去**
+两台机器有同一把钥匙（迁移助理带过来的），所以只需在 MBP 上把自己的公钥加进「允许名单」：
+
+```bash
+mkdir -p ~/.ssh && cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys && chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys
+```
+
+然后在主机上我会验证：`ssh mbp uptime`（`mbp` 是我在主机 `~/.ssh/config` 里加的别名，指向 `IasonMacBook-Pro.local`）。22:25 已实测通过。
+别名那一段已经加好（`~/.ssh/config` 末尾、带「Claude 2026-10-12」注释、可整段删除——没碰 zshrc）。
+
+**第 6 步 · FileVault 的取舍（你决定，我给建议）**
+- MBP 开着 FileVault。后果：**它每次重启都会停在开机解锁界面等人敲密码，远程进不去，Touch ID 和网络都帮不上。** 睡眠唤醒不受影响，只有重启才会。
+- 我的建议：**保留 FileVault，接受「重启 = 开一次盖子」。** 理由：它现在是一台放在家里、永远插电、几乎不需要重启的机器，这个代价一年也就几次（系统更新时）。而且有个折中：由我发起的重启可以用 `sudo fdesetup authrestart`，它会把解锁令牌留给**下一次**启动用，重启完直接回到桌面，不用开盖——只是断电或崩溃重启时仍要开盖。
+- 检索代理和 Apple 的集群建议都倾向另一条路：**关掉 FileVault + 打开自动登录**，重启后直达桌面、登录项自启，才算真正无人值守。这台机器不再出门，安全上也说得过去。这是你的决定，我不会主动做。
+
+**第 7 步 · 合上盖子，回到主机验证**
+主机终端里（我来跑）：
+
+```bash
+ping -c 3 IasonMacBook-Pro.local
+```
+
+```bash
+ssh mbp "system_profiler SPHardwareDataType | grep -E 'Chip|Memory'"
+```
+
+两条都通，**合盖之后再跑一遍**，仍然通才算一次性设置完成。
+
+---
+
+## 四、日常使用（合盖状态）
+
+### 你会用到的
+| 想做什么 | 怎么做 |
+|---|---|
+| 看 MBP 的画面 | 打开「屏幕共享」应用（聚焦搜索 Screen Sharing），地址填 `IasonMacBook-Pro.local`，连接类型选 **高性能**、显示器选 **1 个虚拟显示器**。合盖的 MBP 等同无头机，系统会给它造一个虚拟屏，60 fps |
+| 看它是否在线 | 访达 → 侧栏「网络」里有没有 IasonMacBook-Pro；或直接问我 |
+| 让它重启 | 先想一下第三节第 6 条：保留 FileVault 时，由我用 `fdesetup authrestart` 重启才不用开盖 |
+
+### 我会用到的（你不需要记）
+- 所有操作走 `ssh mbp '<命令>'`；文件来回走 `rsync`/`scp`，网桥上 GB/s 级。
+- 起模型服务（在 MBP 上）：
+
+```bash
+ssh mbp "lms server start --bind 0.0.0.0 --port 1234 --cors && lms load qwen/qwen3.5-9b --gpu max --context-length 32768 --identifier sidecar -y"
+```
+
+- `--bind 0.0.0.0` 是「允许局域网访问」，不加这个主机就连不上；`--cors` 是给浏览器插件（沉浸式翻译）用的。
+- 主机侧验证：`curl http://IasonMacBook-Pro.local:1234/v1/models`
+- 不会做的事：不建 LaunchAgent、不开登录项、不 `brew services`。LM Studio 自己有「登录时运行 LLM 服务」的开关（设置 ⌘, → Run LLM server on login），它注册的是标准登录项、会记住上次的端口与绑定——你愿意的话在 MBP 的 LM Studio 里手动勾，我不替你勾。
+
+### 主机上的应用怎么用上 MBP 的模型
+- **沉浸式翻译**：设置 → 翻译服务 → 自定义 OpenAI 兼容接口 → API 地址填 `http://IasonMacBook-Pro.local:1234/v1`，模型名填 `sidecar`，Key 随便填。今天就能用，不需要改任何代码。
+- **Iason Capture**：它的「本机 Qwen」路线是 Codex 写死的 `Qwen3.5-9B-MLX-8bit` 本机加载（`AppConfiguration.swift` 第 9 行）。要改成调 MBP，需要给它加一个「远程 LM Studio 地址」配置项——Codex 侧的小改动（接口本来就是 OpenAI 兼容的），我可以写实现说明给它。**不在本轮范围。**
+- **LM Link**（LM Studio 官方的跨设备模型共享）：本机实测返回「You do not have access to LM Link」，目前是申请制。不规划进去；`--bind 0.0.0.0` 已经够用。
+
+---
+
+## 五、两机协同的三种模式（这是「144 GB 怎么才有意义」的答案）
+
+| 模式 | 做法 | 什么时候成立 | 代价 |
+|---|---|---|---|
+| **A · 分工**（推荐常态） | MBP 常驻一个 9B 小模型做翻译/OCR 后处理/日常问答；主机的内存全部留给大模型、出图、视频 | 永远成立。主机跑 27B 时 30 GB 没了，再开 Comfy 的 Krea 2 又是 30 GB，96 GB 其实并不宽裕 | 几乎没有。走普通雷雳网桥即可 |
+| **B · 并联**（视频卖点） | 用 MLX distributed（首选）或 exo 把一个 **单机装不下** 的模型切成两段，各装一段，逐 token 通过雷雳交换 | 只对「主机 96 GB 装不下、两台 144 GB 装得下」的模型成立。候选：Qwen3.8-Flash-Next 4-bit（111.5 GB，6B 激活）、Qwen3-235B-A22B 3-bit（103 GB） | **只换容量不换速度**。情报结论（附录 A）：exo 的张量并行是均分，被 48 GB 那台卡死，反而跑不了比主机单机更大的模型；真正能用满 144 GB 的是流水线并行，它不提速且受慢机牵制。社区唯一一组 Ultra+Max 实测：双机 ≈ 慢的那台单机的速度 |
+| **C · 流水线** | 主机出图/渲染视频时，MBP 并行做 TTS 配音、字幕转写、放大 | 做视频素材时成立 | 需要我编排，你不用操心 |
+
+**模式 B 的工作状态和 A 是互斥的：** RDMA 需要把雷雳网桥设为「不活跃」，各雷雳口单独拿地址；两台 macOS 版本号必须一致；两台都要在「隐私与安全性 → 开发者工具」里勾上 RDMA（macOS 27 新做法，不再需要进恢复模式）。所以并联测试是一个「切换到 B 模式 → 测 → 切回 A 模式」的过程，我来切，但每次切都需要一次管理员授权。
+
+**我的判断：** 视频里 A 和 B 都要有，但讲法不同。A 是「笔记本退居二线但没浪费」；B 是「两台 Mac 真能当一台用吗」——结论即便是「能跑、很慢、但跑起来了一个单机永远跑不了的模型」也是好内容，因为做这个实测的人极少，而且这正是 144 GB 这个数字唯一诚实的意义。
+
+---
+
+## 六、故障排查速查
+
+| 症状 | 最可能原因 | 处理 |
+|---|---|---|
+| 主机 `system_profiler SPThunderboltDataType` 看不到 MBP（今天就是这样） | MBP 在睡眠 / 线不是雷雳线 / 没插紧 | 开盖唤醒；换线；换口 |
+| 网桥显示「自分配 IP」但 ping 不通 | 睡过一次后网桥没重新协商（Apple 社区 2025–26 多例） | 两端永不睡；软重插：`networksetup -setnetworkserviceenabled "Thunderbolt Bridge" off` 再 `on`；再不行拔插线 |
+| `.local` 名字解析到 10.0.0.x（往返几十毫秒） | Bonjour 挑了 Wi-Fi 那条记录 | 用 `ssh mbp "ipconfig getifaddr bridge0"` 取网桥地址直接用 |
+| MBP 睡了叫不醒 | `disablesleep` 没生效或被系统更新重置 | 重跑第三节第 3 步；雷雳不支持网络唤醒，只能开盖按键 |
+| 屏幕共享连上是黑屏 | 没选「1 个虚拟显示器」 | 断开，重连时选高性能 + 虚拟显示器 |
+| 主机 Wi-Fi 突然不能上网 | 网桥上误填了路由器地址 | 清空网桥的「路由器」字段 |
+| 模型服务连不上 | 没加 `--bind 0.0.0.0`，或 MBP 的 LM Studio 没起 | `ssh mbp lms server status` |
+| 主机半夜自己睡了 | 主机 `sleep 1` 的默认策略 | 节能 → 显示器关闭时防止自动进入睡眠 |
+| 并联模式 RDMA 报 errno 22 | 网桥没设「不活跃」，或链路抽风 | 设不活跃；拔插线（exo/MLX 社区通行做法） |
+
+---
+
+## 七、关于「要不要卖 MBP」，这份指南只负责一半
+
+这份指南解决「怎么用」。「值不值得留」由测试数据回答，见《02-方案可行性研究》第 3 节的留卖决策矩阵。先说我的倾向：**留。** 理由不是算力——48 GB 的笔记本做「分工模式」的从机其实有点浪费——而是你自己说的两条：外出需求 + AC+ 到 2029-06-09。卖掉它省下的钱买不回「随时能带走的一整套本地 AI 环境」。但这只是倾向，等数据。
+# 方案可行性研究：「克宝接管两台 Mac」抖音测试系列
+
+- **日期：** 2026-10-12
+- **性质：** 纲要 + 情报结论 + 我的判断。**本轮不实施任何测试**；具体实施等你看完《03-确认清单》回一句话。
+- **证据来源：** 本机实测（16:50–17:00）、六份情报附录（`情报附录/A–F`，每条结论都带一手链接）、7 月的视频报告与机器摸底。
+
+---
+
+## 0. 结论先行
+
+**你的方案整体成立，五个环节都做得出来，而且比你预想的更有料。** 我建议改三处：
+
+1. **「M5 Ultra vs M5 Max」别做主线，做每一段结尾的一张「同题对照卡」。** 原因是物理：Ultra 的 GPU 核是 Max 的 2 倍、内存带宽 1.2 TB/s 对 614 GB/s（1.95×）。所以 LLM 出字速度最多快 1.95×，社区实测 1.6–1.9×；出图接近 2×。「快一倍」这个数字本身没有戏剧性，观众看不出 30 秒和 15 秒的区别。**真正有戏剧性的是容量三级跳：** 笔记本能跑的（9B/27B）→ 只有主机能跑的（60–70 GB 级）→ 两台并联才能跑的（110 GB 级）。主线叙事改成这个。
+2. **「两台合起来 144 GB」要诚实地讲：只换容量，不换速度。** 情报附录 A 的铁证：exo 的张量并行是均分权重，被 48 GB 那台卡死，反而跑不了比主机单机更大的模型；真正能用满 144 GB 的是流水线并行，它不提速、还受慢机牵制；唯一一组 Ultra+Max 公开实测，双机速度 ≈ 慢的那台单机。**这恰恰是没人讲清楚的内容**——"两台 Mac 能当一台用吗"的诚实答案是"能装下更大的模型，但别指望更快"。
+3. **视频生成段不是"确认有没有变化"，是"变了，而且变得值得重测"。** MiniMax H3 是开放权重（8 月放出，33B，本地只能 768p，2K 是云端独有），Draw Things 10-08 刚给 M5 Ultra 做了专项优化；LTX-2.5 蒸馏版有 M5 Ultra 公开数据（720p 5 秒带音频约 1.5–2 分钟）；PyTorch 2.14（9 月）把 MLX 的 M5 注意力内核移到了 MPS，而本机 Comfy 还停在 2.10。所以视频段有三个镜头：复跑 7 月那条 Wan2.2（"三个月前 5 分钟，现在几分钟"）、LTX-2.5 出一条带声音的 5 秒片、H3 本地出片。
+
+**视频的一句话定位：** 一个 AI 接管了两台 Mac，把它们的本地 AI 能力测了一遍，再亲手剪出这条视频。
+
+**形式建议：做成 5 集系列，每集 60–120 秒，而不是一条长片。** 每一段都是完整的钩子（两机交互 / 三级容量 / 壁纸 / 视频生成 / 鹈鹕投票），抖音奖励更新频率；你那条粗糙的开箱能爆，说明账号此刻有流量窗口，系列化是接住它的方式。
+
+---
+
+## 1. 你的构想逐条评估
+
+| 你的设想 | 评估 | 调整 |
+|---|---|---|
+| 对比对象 = M5 Ultra vs M5 Max | 成立，但上限 2×，不够戏剧 | 降为对照卡；主线改「三级容量」 |
+| LLM：Qwen3.8-27B 8bit + Qwen3.5-9B，无审查模型不上镜 | 成立。27B 是 dense、Apache 2.0、262K 上下文、原生看图、思考分 low/medium/xhigh 三档 | 加一档「只有主机能跑」：gpt-oss-120b（63 GB）或 Qwen3.5-122B-A10B（~70 GB）；27B 加一个「扔进去一整本书」的 50K 上下文镜头，M5 的神经加速器主要体现在预填充（Apple 自己的数：TTFT 快 3–4×，解码只快 1.2×） |
+| exo 多机 | exo 存在且活跃（v1.0.71 四月发布，main 分支 10-12 当天还在提交），但对 Ultra+Max 异构组合它的张量并行无益 | **首选 MLX 原生分布式**（0.32.3，流水线模式，RDMA over TB5，唯一在 macOS 27 上有人跑通的路径）；exo 做备选；目标模型 **Qwen3.8-Flash-Next 4bit（111.5 GB，6B 激活）** |
+| Comfy 图像：主流模型、壁纸级质量 | 成立。本机现存上镜可用的只有 Krea 2 Turbo 和 waiIllustrious；Z-Image Turbo 和 FLUX.2 klein 被你删了（三条工作流现在指向不存在的文件） | 补下 **Z-Image Turbo**（12 GB，Apache，Mac 最快）+ **Qwen-Image-2.1**（33 GB，原生 2K 直出，开源画质天花板，研究许可）；Krea 2 Turbo 用现有的。2K 壁纸：Qwen 2.1 直出，其余 944×2048 → 1.53× 放大 |
+| 视频：确认 Mac 生态变化 + H3 | 变了（见结论 3）。H3 可本地跑，但 ComfyUI 路线要先装社区 Metal 内核节点，Draw Things 路线零配置 | 三个镜头：Wan2.2 复跑（当时 vs 现在）、LTX-2.5 蒸馏版、H3（Draw Things） |
+| Local Agent：Bionic / DeepSeek Harness / 鹈鹕 | 全部存在：Bionic 是 LM Studio 家的 agent 应用（1.1.8 与 LM Studio 0.4.26 刚能共存，有已知回归）；DeepSeek Harness 是 `dsh`（npm 包，Web UI，支持自定义 OpenAI 兼容端点，能指向本机 LM Studio）；deepseek-flash = DeepSeek-V4.1-Flash（9 月 10 日，552B MoE，一张鹈鹕不到 5 分钱） | 鹈鹕四方对照照做：本地 27B（两台各跑，用 low/medium 档——Simon 实测 xhigh 档 21 分钟）、deepseek-flash（dsh 代理版 + 裸 API 版）、双机 Flash-Next、**我的那张已经画好**（`assets/pelican-bicycle-claude.svg`）。Bionic 只做 30 秒露脸，主测 dsh |
+| 配音/图文用两台机器自己的算力 | 成立。TTS 用 VoxCPM2 或 Qwen3-TTS（Apache，中文质量开源第一梯队，MLX 可跑）；字幕用 Qwen3-ASR（中文显著优于 Whisper）或 Apple 自带引擎（`yap`）；LM Studio 本身**不能**做 TTS/字幕 | 图文：我直接出 SVG/HTML 转 PNG；实机画面：你的影石 360 + 我的录屏 |
+| Adobe 全家桶要不要 | 不需要新买。Premiere Pro 2026 已装，足够精修；成品我可以用 ffmpeg 直接剪出 1080×1920 | 你想手工润色时再开 Premiere |
+
+---
+
+## 2. 测试矩阵
+
+「估」= 按情报外推，无人公开过这台 80 核 96 GB 机器的实测；「实测」= 他人公开数据。
+
+| 环节 | 模型 / 任务 | 主机 M5 Ultra | 笔记本 M5 Max | 双机 | 记录什么 | 预期 |
+|---|---|---|---|---|---|---|
+| S1-日常档 | Qwen3.5-9B 8bit（翻译/OCR 后处理） | ✓ | ✓（常驻） | — | 出字 t/s、首字延迟、20 条翻译样本质量 vs gpt-4.1-mini | 两台都远超实时阅读速度；这是 MBP「分工模式」的立身之本 |
+| S1-主力档 | Qwen3.8-27B 8bit | ✓ | ✓ | — | 短 prompt t/s；6K 与 50K 上下文的预填充时间；内存峰值；连跑三次看热衰减 | 4bit 实测 Ultra ≈50 / Max ≈31；8bit 估 Ultra 25–30 / Max 18（实测） |
+| S1-独享档 | gpt-oss-120b MXFP4（63 GB）或 Qwen3.5-122B-A10B 4bit | ✓ | ✗（LM Studio 会拒绝加载——这个拒绝画面本身就是镜头） | — | t/s、加载时间 | 估 Ultra 70–100 t/s（M5 Max 128GB 实测 77–85） |
+| S2-并联档 | Qwen3.8-Flash-Next 4bit（111.5 GB） | ✗（装不下，镜头） | ✗ | ✓ MLX 流水线 over RDMA | 能否加载、t/s、拔线/断链行为 | 估 30–45 t/s；无人公开过这套硬件 |
+| S3-图像 | Z-Image Turbo（1024²、944×2048 竖、2048×1152 横） | ✓ | ✓ | — | 秒/张、内存峰值、成品壁纸 | 估 Ultra 3–6 s、Max 6–10 s |
+| S3-图像 | Qwen-Image-2.1（2752×1536、1536×2752 原生 2K） | ✓ bf16 | ✓ int8/GGUF | — | 同上 | 估 Ultra 2K 2–4 分钟（mflux M5 Ultra 1536×864 40 步 36 s） |
+| S3-图像 | Krea 2 Turbo（2048×1152） | ✓ | 勉强（2K 吃紧） | — | 同上 | 本机 7 月 1K 热跑 30 s（M5 Max） |
+| S4-视频 | Wan2.2 TI2V-5B 768×512×49f 24 步，7 月同工作流同种子 | ✓ torch 2.10 → 2.14.1 各跑一次 | （7 月已有：282/343 s） | — | 每步秒数、VAE 解码占比、总时长 | 估 2–3 分钟（7 月 M5 Max 5 分钟） |
+| S4-视频 | LTX-2.5 22B distilled int8，720p×5s 带音频；1080p tiled | ✓ | 720p 试一次 | — | 冷/热态总时长 | 实测 64 核 Ultra 92–122 s；80 核估 75–95 s；1080p 估 3–3.5 分钟 |
+| S4-视频 | MiniMax H3（Draw Things，8-bit + Turbo LoRA），832×512×22f 与 1152×640×73f | ✓ | — | — | 总时长 | 估 20–40 s 与 1.5–3 分钟（由 M4 Pro 外推，未验证） |
+| S5-鹈鹕 | 同一句 prompt：Generate an SVG of a pelican riding a bicycle | 27B low/medium | 27B low/medium | Flash-Next | 耗时、token 数、成图；deepseek-flash 走云端；我的已完成 | 四方（五张）并排，让观众投票 |
+| S6-Agent | dsh 指向本机 27B，做一个真实小任务：写「把 SRT 字幕烧进竖屏视频」的 ffmpeg 包装脚本（成品直接用于本系列） | ✓ | — | — | 轮次、耗时、是否一次跑通 | 这是「本地 coding 能不能用」的诚实样本 |
+| S7-制作 | VoxCPM2 / Qwen3-TTS 配音；Qwen3-ASR 或 yap 字幕；screencapture 录屏；ffmpeg 成片 | ✓ | ✓（可并行跑 TTS） | — | TTS 实时率、字幕错字率 | 全链路不出本机 |
+
+---
+
+## 3. 各环节设计要点
+
+### S1 · LLM 三级容量
+- **方法学：** 两台都用 LM Studio 原生 `/api/v1/chat`（它直接返回 tokens/s 统计，且能按 `reasoning: off|low|medium|high` 控思考档），同一组 prompt、同一上下文长度、同一量化。记录冷加载时间、短 prompt t/s、6K/50K 预填充耗时、连跑三次的衰减（7 月那台连跑第二条就慢了 51%——笔记本的「稳态速度」低于「首条速度」，这是真实的使用差异，要拍）。
+- **上镜画面：** 50K 上下文那一条——把一本书扔进去提问，看两台机器的「读完」时间；M5 的神经加速器就是为这个场景做的（LM Studio 的 MLX 引擎已经是 `nax` 版本，本机核实）。
+- **独享档的拒绝画面：** 在 MBP 上点加载 gpt-oss-120b，LM Studio 的内存护栏会弹「装不下」——这是「为什么要 96 GB」最直观的 3 秒。
+- **可选彩蛋：** LM Studio 0.4.1 起有 Anthropic 兼容接口，`claude --model <本地模型>` 可以让 Claude Code 的外壳跑本地 Qwen。做不做看时间。
+
+### S2 · 并联（最后做，风险最高）
+- **前置：** 两台 macOS 版本号必须完全一致（主机 27.0.1，MBP 迁移前是 26.5.2，大概率要升级 → 重启 → FileVault 开盖）；两台都在「隐私与安全性 → 开发者工具」勾 RDMA；雷雳网桥设「不活跃」；两台都免密 sudo（MLX 的自动配置脚本需要）。
+- **路径：** `uv` 建一个 Python 3.13 环境装 mlx 0.32.3 + mlx-lm 0.32.0（两台同版本），`mlx.distributed_config --backend jaccl --over thunderbolt --auto-setup` 生成 hostfile，先用 `mlx.launch -n 2` 跑一次 all_sum 验链路，再 `mlx_lm.chat --pipeline` 装 Flash-Next。退路一：`--backend ring`（走普通网桥 TCP，不用 RDMA，慢但稳）；退路二：llama.cpp RPC（8 月已支持 Apple RDMA）跑 GGUF。
+- **诚实的预期：** 能跑，30–45 t/s 是我的估计，比 27B 单机可能还快（因为 6B 激活），但预填充会被 MBP 拖慢。断链、errno 22、拔线重插都是已知现象，拍下来就是内容。
+- **切换成本：** 这是一个「切到 B 模式 → 测 → 切回 A 模式」的过程，每次切换要动网络设置，需要你的一次授权；做完我会把网桥恢复成固定 IP 的日常态。
+
+### S3 · 壁纸
+- **交付物：** 6 张可用壁纸——3 张手机（1440×3120，9:19.5）+ 3 张桌面（2560×1440），每张标注模型、机器、耗时。观众看的是图不是秒表，所以**先追质量再记时间**。
+- **尺寸策略：** Qwen-Image-2.1 原生 2K 直出（2752×1536 裁到 2560×1440；1536×2752 裁到 1440×3120 的 9:19.5 版本）；Z-Image / Krea 2 在训练区间内出 944×2048 和 2048×1152，再用本机已有的 4x-UltraSharp 放大后缩回目标尺寸（MPS 上秒级，最稳）。
+- **提示词：** 附录 D 末尾有三条我认可的壁纸提示词（自然语言长段，锁屏留顶部负空间，无文字无人物）；正式跑之前我会再写一组 6 条，覆盖「山林蓝调 / 江南水乡 / 极简静物 / 赛博雨夜 / 宏观自然 / 水墨留白」六种风格，每种风格两台机器各跑一次，同种子。
+- **许可提醒：** Qwen-Image-2.1 是研究许可（非商用）。做视频展示没问题；如果你的抖音开了收益、或想把壁纸当资源发，上镜主图用 Apache 的 Z-Image Turbo（或 FLUX.2 klein 4B）更稳妥。
+- **内存：** 主机 Qwen 2.1 bf16 峰值 46 GB，跑图前要 Eject 掉 LM Studio 的 27B；笔记本只能 int8/GGUF。
+
+### S4 · 视频生成
+- **Wan2.2 复跑是最硬的「当时 vs 现在」：** 同一工作流 JSON、同种子 42/43、同采样配置，只换机器；再把 Comfy 的 venv 从 torch 2.10.0 升到 2.14.1 跑第二次——这是「软件在追赶」的直接证据。升级可回退（`pip install torch==2.10.0`），Comfy Desktop 自己也会在维护时重钉版本。
+- **LTX-2.5：** ComfyUI 官方模板，int8 convrot distilled，`--gpu-only`，1080p 必须 tiled VAE。
+- **H3：** 走 Draw Things（App Store 免费，需要你用 Apple ID 装一次），8-bit + TaoMate 3 步 LoRA，开 TeaCache/Sol Attention。本地只到 768p——视频里说清楚 2K 是云端的。ComfyUI 路线要先装 ComfyUI-AppleSilicon-FP8 社区节点（它的 fp8/int8 Metal 内核恰好要求 macOS 27 + M5，本机正好全满足，7 月那台做不到），作为进阶镜头可选。
+- **笔记本参与度：** 只跑 LTX 720p 一次做对照卡；视频生成是 Studio 的主场，7 月已证明笔记本会热衰减。
+
+### S5 · 鹈鹕
+- 五张并排：27B@Ultra、27B@Max、deepseek-flash、Flash-Next@双机、Claude。统一渲染尺寸、统一底色，标注耗时与 token 数，结尾让观众投票「哪只最像在骑车」。Simon 本人 9 月已经说这个基准作为能力信号在失效，但作为**观众参与**它是满分的。
+- deepseek-flash 跑两次：一次 dsh 代理写文件（agent 形态），一次裸 API（公平对照）。费用几分钱。
+
+### S6 · 本地 coding
+- dsh 的默认模型是 deepseek-flash；加一个自定义 provider 指向 `http://127.0.0.1:1234/v1` 就能换成本机 27B。任务选「写字幕烧录脚本」，产物直接用进 S7，形成闭环。
+- Bionic 只做露脸：打开，Code project 指向同一目录，看它和 LM Studio 能否共存（1.1.8 有已知回归）。不花超过 20 分钟。
+
+### S7 · 制作链
+- **录屏：** `screencapture -V <秒> -x` 由我驱动（需要给运行我的进程「屏幕录制」权限，首次会弹一次）；MBP 合盖无屏，它的过程用主机的屏幕共享窗口来录。
+- **实机：** 你的影石 360 拍物理动作（开盖、插线、合盖、机身特写）。
+- **配音：** VoxCPM2-8bit（Apache，可克隆）；如果你愿意，录 10 秒干净人声我就用你自己的声音；不愿意就用它的预设音色。
+- **字幕：** Qwen3-ASR + 字级对齐出 SRT（中文更准），yap 做备选。
+- **图文：** 标题卡、对照卡、数据卡由我用 SVG/HTML 生成后转 PNG，风格统一。
+- **成片：** ffmpeg 直接出 1080×1920 30fps；你想精修就把素材包丢进 Premiere。每条成片按 Codex 那边的老规矩过 `ffprobe` + 末帧检查。
+
+---
+
+## 4. MBP 留卖决策矩阵
+
+| 问题 | 哪条数据回答它 | 留的条件 | 卖的条件 |
+|---|---|---|---|
+| 分工模式有没有日常价值 | S1-日常档：9B 在 MBP 上的翻译质量与延迟 vs gpt-4.1-mini | 质量够用、延迟 < 1 s 首字 → 每天都在替你省 API 调用 | 质量明显不如云端、或你根本不用 |
+| 并联模式是不是噱头 | S2：Flash-Next 双机 t/s | ≥ 20 t/s → 一个单机永远跑不了的模型变成可用 | < 10 t/s 或根本跑不稳 |
+| 外出需求 | 你自己的判断 | 一年外出 ≥ 3 次需要本地 AI | 几乎不出门 |
+| 经济账 | 二手价你自己去查，我不猜数字；AC+ ¥3,299 可转让给个人买家（Apple 官方政策，Codex 10-10 已核） | — | 二手价高到你心动 |
+
+**我的默认立场：留。** 两项测试都失败且你没有外出需求时再谈卖。另外提醒：卖之前 Codex 那边已经做了一半的「AI 卖 Mac」预告片和验机清单，别重复做。
+
+---
+
+## 5. 执行顺序与时间估算
+
+| 阶段 | 谁 | 内容 | 预计 |
+|---|---|---|---|
+| 0 | 你 | 《01》第三节：MBP 开盖一次性设置；主机节能设置；装 Draw Things；DeepSeek 充 ¥10 | 20 分钟 |
+| 1 | 我 | 工具链：iperf3、mlx 环境、dsh、mlx-audio；模型下载约 300 GB（先测代理带宽再估时长）；两机连通性基线 | 1 小时 + 下载等待 |
+| 2 | 我 | S1 三级容量（两台） | 2–3 小时 |
+| 3 | 我 | S3 壁纸 6 张（两台） | 2–3 小时 |
+| 4 | 我 | S4 三个视频镜头 | 3–4 小时（模型大） |
+| 5 | 我 | S5 鹈鹕 + S6 agent | 1–2 小时 |
+| 6 | 我 + 你一次授权 | S2 并联（RDMA 模式切换、MBP 可能要先升级系统） | 2–3 小时，风险最高 |
+| 7 | 我 → 你 | 脚本、配音、字幕、剪辑；你补实机镜头、审片、发布 | 3–5 小时 |
+
+大约 3–4 个工作段落。顺序上把并联放最后，是因为它要改网络和系统，失败也不影响前面五段的成片。
+
+---
+
+## 6. 风险与未知（按严重度）
+
+1. **RDMA 链路抽风**（errno 22、拔插线才恢复）——社区普遍现象，退路是 ring 模式。
+2. **两台 macOS 版本必须一致**——MBP 大概率要升级到 27.0.1，意味着重启、FileVault 开盖；升级本身由你点。
+3. **MBP 可用显存只有 ~36–38 GB**——跑任何测试前必须退出大内存应用（Codex 记录里有「MBP 常驻 43 GB 桌面应用导致 27B 被拒」的社区案例）。
+4. **Comfy venv 升 torch 2.14.1 可能破坏现有工作流**——可回退；只在复跑 Wan2.2 时做 A/B，做完由你决定留哪个版本。
+5. **下载量约 300 GB**——通过本机代理，速度未知；先下 1 GB 测速再定计划。硬盘有 3.1 TB 空闲，不是问题。
+6. **H3 在 Mac 上仍是分钟级**——不要期待云端那种 30 秒出片；视频里讲清楚。
+7. **笔记本热衰减**——每项测试跑冷/热两次并同时上镜，这不是缺陷是内容。
+8. **Bionic 1.1.8 与 LM Studio 0.4.26 共存有已知回归**——Bionic 放最后、限时。
+9. **许可**：Qwen-Image-2.1 非商用；Qwen3.8-Flash-Next 是 qwen-community-1.0（个人用无限制）；Krea 2 社区许可（年收 <$1M 免费）；LTX-2.5 社区许可（<$10M 免费）；H3 社区许可（大陆可用）。做视频全部没问题，卖壁纸只用 Apache 那两个。
+10. **主机闲置 1 分钟就睡**——跑长任务前必须改节能设置，否则半夜下载会中断。
+
+---
+
+## 7. 系列草案（5 集，每集一个钩子）
+
+| 集 | 钩子 | 核心镜头 | 结尾对照卡 |
+|---|---|---|---|
+| E1 一根线，两台 Mac | 「笔记本合上盖子，变成了主机的一块外置大脑」 | 开盖设置 → 合盖 → 主机上屏幕共享出现它 → 沉浸式翻译走笔记本 | 两台机器的规格表 |
+| E2 三级容量 | 「同一个模型，笔记本和主机差多少？以及笔记本根本装不下的那个」 | 27B 并排出字；50K 上下文「读书」；MBP 的「装不下」弹窗 | t/s 与首字时间 |
+| E3 六张壁纸 | 「这台机器几秒钟出一张 2K 壁纸，而且能用」 | 三个模型六张图逐张揭晓；手机上真实设为锁屏 | 秒/张（两台） |
+| E4 视频生成 | 「三个月前我放弃了 Mac 跑视频，今天回来复仇」 | 7 月的 5 分钟 vs 现在；LTX 带声音 5 秒片；H3 本地出片 | 当时 vs 现在 |
+| E5 鹈鹕投票 | 「五个 AI 画同一只骑车的鹈鹕，你投谁」 | 五张并排揭晓 + 双机并联跑 111 GB 模型的现场 | 耗时/费用表 |
+
+---
+
+## 8. 本轮改动声明
+
+本轮**只新建了** `DUAL-MAC-TEST-2026-10/` 这一套文件（三份正文 + 六份附录 + 我的鹈鹕 SVG/PNG）。没有改动任何系统设置、没有安装任何软件、没有下载任何模型、没有碰 MBP、没有动 Comfy/LM Studio 的任何文件。`~/.codex` 只读。

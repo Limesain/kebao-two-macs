@@ -1,0 +1,162 @@
+{
+ "L": [
+  {
+   "turn": 1,
+   "prompt": "我想十二月去香港玩三天，主要想吃东西和逛街，帮我先列个大方向。",
+   "wall": 12.72679999999702,
+   "stats": {
+    "input_tokens": 31,
+    "total_output_tokens": 379,
+    "reasoning_output_tokens": 0,
+    "tokens_per_second": 28.69019479990219,
+    "time_to_first_token_seconds": 0.43
+   },
+   "tokens": 352
+  },
+  {
+   "turn": 2,
+   "prompt": "第一天安排在尖沙咀和旺角，具体怎么走？",
+   "wall": 12.277400000002235,
+   "stats": {
+    "input_tokens": 436,
+    "total_output_tokens": 379,
+    "reasoning_output_tokens": 0,
+    "tokens_per_second": 30.20824759239444,
+    "time_to_first_token_seconds": 0.115
+   },
+   "tokens": 367
+  },
+  {
+   "turn": 3,
+   "prompt": "我不吃辣，把你刚才提到的店里辣的去掉，再补两家。",
+   "wall": 12.309599999997765,
+   "stats": {
+    "input_tokens": 845,
+    "total_output_tokens": 379,
+    "reasoning_output_tokens": 0,
+    "tokens_per_second": 29.80785022171128,
+    "time_to_first_token_seconds": 0.117
+   },
+   "tokens": 363
+  },
+  {
+   "turn": 4,
+   "prompt": "第二天想去离岛，南丫岛和长洲二选一，给我理由。",
+   "wall": 12.269300000000745,
+   "stats": {
+    "input_tokens": 1255,
+    "total_output_tokens": 379,
+    "reasoning_output_tokens": 0,
+    "tokens_per_second": 30.397891094818355,
+    "time_to_first_token_seconds": 0.116
+   },
+   "tokens": 369
+  },
+  {
+   "turn": 5,
+   "prompt": "把这三天压缩成一个表格，只要地点和时间段。",
+   "wall": 6.4475,
+   "stats": {
+    "input_tokens": 1659,
+    "total_output_tokens": 198,
+    "reasoning_output_tokens": 0,
+    "tokens_per_second": 31.34686144068998,
+    "time_to_first_token_seconds": 0.117
+   },
+   "tokens": 173
+  },
+  {
+   "turn": 6,
+   "prompt": "最后用一句话总结这趟行程的风格。",
+   "wall": 1.1213000000007451,
+   "stats": {
+    "input_tokens": 1879,
+    "total_output_tokens": 32,
+    "reasoning_output_tokens": 0,
+    "tokens_per_second": 32.28089625386504,
+    "time_to_first_token_seconds": 0.117
+   },
+   "tokens": 31
+  }
+ ],
+ "R": [
+  {
+   "turn": 1,
+   "prompt": "我想十二月去香港玩三天，主要想吃东西和逛街，帮我先列个大方向。",
+   "wall": 24.309,
+   "stats": {
+    "input_tokens": 31,
+    "total_output_tokens": 379,
+    "reasoning_output_tokens": 0,
+    "tokens_per_second": 15.209284786525325,
+    "time_to_first_token_seconds": 0.416
+   },
+   "tokens": 363
+  },
+  {
+   "turn": 2,
+   "prompt": "第一天安排在尖沙咀和旺角，具体怎么走？",
+   "wall": 23.765199999999254,
+   "stats": {
+    "input_tokens": 436,
+    "total_output_tokens": 379,
+    "reasoning_output_tokens": 0,
+    "tokens_per_second": 15.152808605087928,
+    "time_to_first_token_seconds": 0.324
+   },
+   "tokens": 355
+  },
+  {
+   "turn": 3,
+   "prompt": "我不吃辣，把你刚才提到的店里辣的去掉，再补两家。",
+   "wall": 24.37110000000149,
+   "stats": {
+    "input_tokens": 843,
+    "total_output_tokens": 379,
+    "reasoning_output_tokens": 0,
+    "tokens_per_second": 15.484817115251897,
+    "time_to_first_token_seconds": 1.173
+   },
+   "tokens": 359
+  },
+  {
+   "turn": 4,
+   "prompt": "第二天想去离岛，南丫岛和长洲二选一，给我理由。",
+   "wall": 13.134699999999254,
+   "stats": {
+    "input_tokens": 1253,
+    "total_output_tokens": 209,
+    "reasoning_output_tokens": 0,
+    "tokens_per_second": 16.336483035714675,
+    "time_to_first_token_seconds": 0.327
+   },
+   "tokens": 202
+  },
+  {
+   "turn": 5,
+   "prompt": "把这三天压缩成一个表格，只要地点和时间段。",
+   "wall": 23.77389999999851,
+   "stats": {
+    "input_tokens": 1486,
+    "total_output_tokens": 379,
+    "reasoning_output_tokens": 0,
+    "tokens_per_second": 14.294858118199276,
+    "time_to_first_token_seconds": 0.326
+   },
+   "tokens": 335
+  },
+  {
+   "turn": 6,
+   "prompt": "最后用一句话总结这趟行程的风格。",
+   "wall": 2.6185,
+   "stats": {
+    "input_tokens": 1888,
+    "total_output_tokens": 39,
+    "reasoning_output_tokens": 0,
+    "tokens_per_second": 17.0852859849311,
+    "time_to_first_token_seconds": 0.323
+   },
+   "tokens": 38
+  }
+ ]
+}
