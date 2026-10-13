@@ -13,11 +13,20 @@
  "scenes": [
   {
    "type": "video",
+   "src": "assets/captures/s2/hook.mp4",
+   "segs": [
+    "s0h",
+    "s0r"
+   ],
+   "label": "开场：你分得出来吗"
+  },
+  {
+   "type": "video",
    "src": "assets/captures/s2/t0-s2-title.mp4",
    "segs": [
     "s0a"
    ],
-   "label": "开场"
+   "label": "片名"
   },
   {
    "type": "video",
@@ -288,5 +297,9 @@
    "hold": 3,
    "label": "片尾"
   }
- ]
+ ],
+ "width": 3840,
+ "height": 2160,
+ "preset": "medium",
+ "crf": 18
 }

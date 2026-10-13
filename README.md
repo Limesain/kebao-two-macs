@@ -40,7 +40,7 @@
 | 项目 | 结果 |
 |---|---|
 | 一张 2K 文生图 | Z-Image 主机 36 s / 笔记本 81 s；Krea 2 主机 57 s / 笔记本 181 s；Qwen-Image 2.1（25 步）主机 108 s；云端往返 Seedream 61 s · Grok 70 s · GPT-Image 21 s |
-| 两机同题同种子（Z-Image 2048×1152） | 主机 21.1 s · 笔记本 43.6 s · 图相同 |
+| 两机同题同种子（Z-Image 2048×1152，含模型加载） | 主机 23.7 s · 笔记本 52.8 s · 图相同（热启动时 21.1 / 43.6 s） |
 | 中文海报文字 | Qwen-Image 2.1 全对；Z-Image 对；Krea 2 写错字；云端三家全对 |
 | 云端安全过滤 | 动漫题英文提示词「wind lifting her skirt」被 xAI / OpenAI 拒绝，本地三家与 Seedream 正常出图；改写后补跑 |
 | 超分 | 4x-UltraSharp 1024×1280 → 4096×5120：MPS 上 7 s 但输出整幅条纹伪影（疑似 pixel_shuffle 在 MPS 的问题），改 `--cpu` 实例跑 45 s 才正确 |
@@ -67,7 +67,7 @@
 
 ## 制作说明
 
-- 画面：不操作任何 App 界面，数据全走接口，画面是自绘网页经 Playwright 无头录制
+- 画面：不操作任何 App 界面，数据全走接口，画面是自绘网页经 Playwright 无头录制；EP.02 起成片为 4K（视口 3840×2160 + CSS zoom 2，Playwright 的录像本身不会放大视口）
 - 配音：MiniMax speech-2.8-hd（声线 junlang_nanyou，API）；配乐：MiniMax-Music3 在 Mac Studio 上用 mlx-audio 本地生成
 - 视频成片与音频不在仓库里（体积与版权）；模型权重请去各自的 Hugging Face 仓库下载
 

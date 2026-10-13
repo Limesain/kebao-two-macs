@@ -10,8 +10,11 @@ ap.add_argument('--max',type=int,default=300); ap.add_argument('--tail',type=flo
 a=ap.parse_args(); out=pathlib.Path(a.out); tmp=out.parent/('_rec_'+out.stem); tmp.mkdir(parents=True,exist_ok=True)
 with sync_playwright() as p:
     b=p.chromium.launch(args=['--autoplay-policy=no-user-gesture-required'])
-    ctx=b.new_context(viewport={'width':a.w,'height':a.h},device_scale_factor=a.scale,record_video_dir=str(tmp),record_video_size={'width':a.w*a.scale,'height':a.h*a.scale})
-    pg=ctx.new_page(); pg.goto(a.url); t0=time.time()
+    # Playwright 的录像不会放大视口：要 4K 就把视口开到 w*scale，再用 CSS zoom 把 1920×1080 的页面放大 scale 倍
+    ctx=b.new_context(viewport={'width':a.w*a.scale,'height':a.h*a.scale},device_scale_factor=1,record_video_dir=str(tmp),record_video_size={'width':a.w*a.scale,'height':a.h*a.scale})
+    pg=ctx.new_page()
+    if a.scale>1: pg.add_init_script("document.addEventListener('DOMContentLoaded',()=>{document.documentElement.style.zoom='%d';});" % a.scale)
+    pg.goto(a.url); t0=time.time()
     while time.time()-t0<a.max:
         if pg.title()=='DONE': break
         time.sleep(0.5)
@@ -20,7 +23,7 @@ with sync_playwright() as p:
     try: log=pg.evaluate('window.__log||null')
     except Exception: pass
     ctx.close(); b.close()
-webm=next(tmp.glob('*.webm'))
+webm=max(tmp.glob('*.webm'), key=lambda f: f.stat().st_size)  # 同名目录里可能残留被杀掉的 0 字节录像
 subprocess.run(['ffmpeg','-v','error','-y','-i',str(webm),'-c:v','libx264','-preset','medium','-crf','16','-pix_fmt','yuv420p','-r','30','-movflags','+faststart',str(out)],check=True)
 shutil.rmtree(tmp,ignore_errors=True)
 dur=subprocess.run(['ffprobe','-v','error','-show_entries','format=duration','-of','csv=p=0',str(out)],capture_output=True,text=True).stdout.strip()

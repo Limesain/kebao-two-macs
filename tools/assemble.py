@@ -6,6 +6,7 @@ import json, subprocess, sys, pathlib, re
 R = pathlib.Path(__file__).resolve().parent.parent
 cfg = json.load(open(sys.argv[1], encoding="utf-8")); out = sys.argv[2]
 GAP, LEAD, TAIL, XF = cfg.get("gap", .45), cfg.get("lead", .35), cfg.get("tail", .7), cfg.get("xfade", .6)
+OW, OH = int(cfg.get("width", 1920)), int(cfg.get("height", 1080)); SUBSCALE = max(1, round(OW / 1920))
 def dur(p): return float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(p)]))
 texts = {l.split("|", 1)[0]: l.split("|", 1)[1].strip() for l in open(R / cfg.get("segments", "script/S1-tts-segments.txt"), encoding="utf-8") if "|" in l and not l.startswith("#")}
 seg_path = lambda s: R / cfg.get("voice_dir", "assets/voice2") / f"seg_{s}_000.wav"
@@ -41,12 +42,12 @@ for k, sc in enumerate(scenes):
     D = sdur[k]
     if sc["type"] == "image":
         inputs += ["-loop", "1", "-framerate", "30", "-t", f"{D:.3f}", "-i", str(R / sc["src"])]
-        vf.append(f"[{k}:v]scale=1920:1080,fps=30,trim=duration={D:.3f},setpts=PTS-STARTPTS,setsar=1,format=yuv420p[v{k}]")
+        vf.append(f"[{k}:v]scale={OW}:{OH},fps=30,trim=duration={D:.3f},setpts=PTS-STARTPTS,setsar=1,format=yuv420p[v{k}]")
     else:
         src = R / sc["src"]; st = sc.get("start", 0); sp = sc.get("speed", 1.0); clip = (dur(src) - st) / sp
         inputs += ["-ss", f"{st}", "-i", str(src)]
         pad = max(0.0, D - clip + 0.05)
-        vf.append(f"[{k}:v]setpts=PTS/{sp},scale=1920:1080,fps=30,tpad=stop_mode=clone:stop_duration={pad:.3f},trim=duration={D:.3f},setpts=PTS-STARTPTS,setsar=1,format=yuv420p[v{k}]")
+        vf.append(f"[{k}:v]setpts=PTS/{sp},scale={OW}:{OH},fps=30,tpad=stop_mode=clone:stop_duration={pad:.3f},trim=duration={D:.3f},setpts=PTS-STARTPTS,setsar=1,format=yuv420p[v{k}]")
 # xfade 链
 chain = "[v0]"; off = 0.0
 for k in range(1, len(scenes)):
@@ -56,7 +57,7 @@ for _start, _p in audio: inputs += ["-i", str(_p)]
 # 字幕：每句一张透明 PNG，按时间叠加
 subdir = R / cfg.get("subs_dir", "assets/captures/v2/_subs"); cues = [{"i": i, "text": x} for i, (_, _, x) in enumerate(subs)]
 (subdir.parent / "_cues.json").write_text(json.dumps(cues, ensure_ascii=False), encoding="utf-8")
-subprocess.run(["/Users/iason/.local/share/uv/tools/playwright/bin/python", str(R / "scripts/sub_png.py"), str(subdir.parent / "_cues.json"), str(subdir)], check=True)
+subprocess.run(["/Users/iason/.local/share/uv/tools/playwright/bin/python", str(R / "scripts/sub_png.py"), str(subdir.parent / "_cues.json"), str(subdir), str(SUBSCALE)], check=True)
 nsc = len(scenes); naud = len(audio)
 for i, (a, b, _) in enumerate(subs):
     inputs += ["-loop", "1", "-framerate", "30", "-t", f"{b - a + 0.1:.3f}", "-i", str(subdir / f"cue_{i:03d}.png")]
@@ -92,7 +93,7 @@ if music:
     af.append(f"[voice][bgm]amix=inputs=2:normalize=0:dropout_transition=0,apad=whole_dur={total:.3f},atrim=duration={total:.3f}[aout]")
 else:
     af.append("".join(f"[a{j}]" for j in range(len(audio))) + f"amix=inputs={len(audio)}:normalize=0:dropout_transition=0,volume={cfg.get('gain', 2.2)},alimiter=limit=0.95,apad=whole_dur={total:.3f},atrim=duration={total:.3f}[aout]")
-cmd = ["ffmpeg", "-y", "-v", "warning", "-nostats", *inputs, "-filter_complex", ";".join(vf + af), "-map", "[vout]", "-map", "[aout]", "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-r", "30", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", "-t", f"{total:.3f}", out]
+cmd = ["ffmpeg", "-y", "-v", "warning", "-nostats", *inputs, "-filter_complex", ";".join(vf + af), "-map", "[vout]", "-map", "[aout]", "-c:v", "libx264", "-preset", cfg.get("preset", "medium"), "-crf", str(cfg.get("crf", 18)), "-pix_fmt", "yuv420p", "-r", "30", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", "-t", f"{total:.3f}", out]
 print(f"scenes={len(scenes)} total={total:.1f}s subs={len(subs)}"); r = subprocess.run(cmd, capture_output=True, text=True)
 if r.returncode: print("FFMPEG ERROR:", r.stderr[-3000:]); sys.exit(1)
 print("wrote", out)
