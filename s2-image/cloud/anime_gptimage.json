@@ -1,0 +1,33 @@
+{
+ "name": "anime_gptimage",
+ "model": "openai/gpt-image-2.5-flare",
+ "provider": "openrouter",
+ "prompt": "Anime illustration: a young woman in a white summer sailor-style school blouse at a railway crossing as a train rushes past, wind tousling her long hair, towering cumulonimbus clouds and a crystal-clear sky in the distance, Makoto Shinkai style light and ultra-detailed clouds, Japanese anime film still",
+ "aspect_ratio": "3:4",
+ "resolution": null,
+ "size": null,
+ "refs": [],
+ "wall_s": 23.6,
+ "cost_usd": 0.049215,
+ "usage": {
+  "prompt_tokens": 69,
+  "completion_tokens": 1629,
+  "total_tokens": 1698,
+  "cost": 0.049215,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.049215,
+   "upstream_inference_prompt_cost": 0.000345,
+   "upstream_inference_completions_cost": 0.04887
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 1629
+  }
+ },
+ "file": "s2/cloud/anime_gptimage.png",
+ "when": "2026-10-13 22:05:26"
+}

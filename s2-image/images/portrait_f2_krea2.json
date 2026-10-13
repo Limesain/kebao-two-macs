@@ -1,0 +1,22 @@
+{
+ "name": "portrait_f2_krea2",
+ "engine": "krea2",
+ "model": "Krea 2 Turbo",
+ "file": "krea2_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen3vl_4b_heretic_int8",
+ "sampler": "euler",
+ "scheduler": "simple",
+ "steps": 8,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 1408,
+ "height": 1760,
+ "prompt": "一位颜值出众的中国女性，五官精致，高定黑色丝绒礼服，珍珠耳饰，湿发后梳造型，蝴蝶光，深灰色背景，顶级时尚杂志封面质感，皮肤质感真实、睫毛与发丝细节锐利",
+ "negative": "",
+ "wall_s": 170.3,
+ "machine": "MacBook Pro M5 Max 48GB",
+ "server": "http://10.0.0.242:8188",
+ "when": "2026-10-13 21:52:22"
+}

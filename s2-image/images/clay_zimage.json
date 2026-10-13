@@ -1,0 +1,23 @@
+{
+ "name": "clay_zimage",
+ "engine": "zimage",
+ "model": "Z-Image Turbo",
+ "file": "z_image_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen_3_4b",
+ "shift": 3,
+ "sampler": "res_multistep",
+ "scheduler": "simple",
+ "steps": 9,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 1536,
+ "height": 1536,
+ "prompt": "黏土动画风格的 3D 渲染：一只戴圆框眼镜的小熊坐在木桌前，用一台小小的银色电脑画画，桌上摆着彩色颜料罐和画笔，柔和的工作室灯光，黏土材质上可见指纹痕迹，定格动画的温暖质感，可爱而精致",
+ "negative": "",
+ "wall_s": 62.4,
+ "machine": "MacBook Pro M5 Max 48GB",
+ "server": "http://10.0.0.242:8188",
+ "when": "2026-10-13 21:43:01"
+}

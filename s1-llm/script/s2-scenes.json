@@ -1,0 +1,292 @@
+{
+ "gap": 0.45,
+ "lead": 0.5,
+ "tail": 0.8,
+ "xfade": 0.6,
+ "gain": 2.2,
+ "music_gain": 0.16,
+ "music": "assets/music/bgm_bed.wav",
+ "music_mode": "transitions",
+ "voice_dir": "assets/voice-s2",
+ "segments": "script/S2-tts-segments.txt",
+ "subs_dir": "assets/captures/s2/_subs",
+ "scenes": [
+  {
+   "type": "video",
+   "src": "assets/captures/s2/t0-s2-title.mp4",
+   "segs": [
+    "s0a"
+   ],
+   "label": "开场"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/c-s2-players.mp4",
+   "segs": [
+    "s0b"
+   ],
+   "label": "六位选手"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/duel-zimage-city.mp4",
+   "segs": [
+    "s1a"
+   ],
+   "start": 6,
+   "speed": 1.6,
+   "label": "两台机器同题同种子"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/g-portrait.mp4",
+   "segs": [
+    "s2a"
+   ],
+   "label": "人像 · 自然光"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/g-portrait_f2.mp4",
+   "segs": [
+    "s2b"
+   ],
+   "label": "人像 · 时尚棚拍"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/g-portrait_m.mp4",
+   "segs": [
+    "s2c"
+   ],
+   "label": "人像 · 黑白男性"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/live-city-qwen.mp4",
+   "segs": [
+    "s3a"
+   ],
+   "start": 3,
+   "speed": 7,
+   "label": "出图过程 · Qwen-Image 2.1"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/g-city.mp4",
+   "segs": [],
+   "hold": 5,
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/g-poster.mp4",
+   "segs": [
+    "s3b"
+   ],
+   "label": "中文海报"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/g-anime.mp4",
+   "segs": [
+    "s4a"
+   ],
+   "label": "多风格"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/g-concept.mp4",
+   "segs": [],
+   "hold": 4.5,
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/g-clay.mp4",
+   "segs": [],
+   "hold": 4.5,
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/g-ink.mp4",
+   "segs": [],
+   "hold": 4.5,
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/g-interior.mp4",
+   "segs": [
+    "s4b"
+   ],
+   "label": "生活向"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/g-food.mp4",
+   "segs": [],
+   "hold": 4.5,
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/g-product.mp4",
+   "segs": [],
+   "hold": 4.5,
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/g-landscape.mp4",
+   "segs": [],
+   "hold": 4.5,
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/c-s2-moderation.mp4",
+   "segs": [
+    "s4c"
+   ],
+   "label": "被云端判了违规的一道题"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/cmp-edit_shirt.mp4",
+   "segs": [
+    "s5a"
+   ],
+   "label": "指令修图"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/cmp-edit_winter.mp4",
+   "segs": [],
+   "hold": 3,
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/cmp-edit_remove.mp4",
+   "segs": [],
+   "hold": 3,
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/live-edit-poster.mp4",
+   "segs": [
+    "s5b"
+   ],
+   "start": 3,
+   "speed": 7,
+   "label": "改海报文字"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/cmp-edit_poster.mp4",
+   "segs": [],
+   "hold": 4,
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/cmp-inpaint_fireworks.mp4",
+   "segs": [
+    "s5c"
+   ],
+   "label": "局部重绘"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/cmp-inpaint_jacket.mp4",
+   "segs": [],
+   "hold": 3,
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/cmp-upscale.mp4",
+   "segs": [
+    "s5d"
+   ],
+   "label": "超分"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/g-storyboard.mp4",
+   "segs": [
+    "s6a"
+   ],
+   "label": "连续镜头 · 分镜格"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/g-shots.mp4",
+   "segs": [
+    "s6b"
+   ],
+   "label": "连续镜头 · 逐张编辑"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/live-flipbook-03.mp4",
+   "segs": [
+    "s6c"
+   ],
+   "start": 3,
+   "speed": 7,
+   "label": "逐帧动图 · 过程"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/fb-local-vs-seedream.mp4",
+   "segs": [
+    "s6d"
+   ],
+   "label": "逐帧动图 · 本地 vs 云端"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/c-s2chart-time.mp4",
+   "segs": [
+    "s7a"
+   ],
+   "label": "耗时"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/c-s2chart-cost.mp4",
+   "segs": [
+    "s7b"
+   ],
+   "label": "花费与仓库"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/c-s2-howto.mp4",
+   "segs": [],
+   "hold": 5,
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/c-s2-quote.mp4",
+   "segs": [
+    "s8a"
+   ],
+   "label": "幕后"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/c-s2-end.mp4",
+   "segs": [
+    "s8b"
+   ],
+   "hold": 3,
+   "label": "片尾"
+  }
+ ]
+}

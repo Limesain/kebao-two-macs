@@ -1,0 +1,23 @@
+{
+ "name": "food_zimage",
+ "engine": "zimage",
+ "model": "Z-Image Turbo",
+ "file": "z_image_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen_3_4b",
+ "shift": 3,
+ "sampler": "res_multistep",
+ "scheduler": "simple",
+ "steps": 9,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 1792,
+ "height": 1792,
+ "prompt": "一碗热气腾腾的重庆小面，红油汤底，青菜与花生碎，筷子正挑起面条，搪瓷碗放在旧木桌上，窗边自然光，浅景深，食物摄影，诱人的质感与蒸汽",
+ "negative": "",
+ "wall_s": 112.6,
+ "machine": "MacBook Pro M5 Max 48GB",
+ "server": "http://10.0.0.242:8188",
+ "when": "2026-10-13 21:47:04"
+}

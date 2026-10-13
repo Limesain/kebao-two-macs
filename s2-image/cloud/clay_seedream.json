@@ -1,0 +1,33 @@
+{
+ "name": "clay_seedream",
+ "model": "bytedance-seed/seedream-5-0-pro",
+ "provider": "openrouter",
+ "prompt": "黏土动画风格的 3D 渲染：一只戴圆框眼镜的小熊坐在木桌前，用一台小小的银色电脑画画，桌上摆着彩色颜料罐和画笔，柔和的工作室灯光，黏土材质上可见指纹痕迹，定格动画的温暖质感，可爱而精致",
+ "aspect_ratio": "1:1",
+ "resolution": "2K",
+ "size": null,
+ "refs": [],
+ "wall_s": 72.3,
+ "cost_usd": 0.09,
+ "usage": {
+  "prompt_tokens": 89,
+  "completion_tokens": 16384,
+  "total_tokens": 16473,
+  "cost": 0.09,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.09,
+   "upstream_inference_prompt_cost": 0,
+   "upstream_inference_completions_cost": 0.09
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 16384
+  }
+ },
+ "file": "s2/cloud/clay_seedream.jpg",
+ "when": "2026-10-13 21:39:51"
+}

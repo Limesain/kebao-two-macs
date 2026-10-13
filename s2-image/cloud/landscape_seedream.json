@@ -1,0 +1,33 @@
+{
+ "name": "landscape_seedream",
+ "model": "bytedance-seed/seedream-5-0-pro",
+ "provider": "openrouter",
+ "prompt": "黎明时分的喀纳斯湖，薄雾在湖面流动，金色的秋季白桦林，远处雪山顶被第一束阳光染成粉色，长焦压缩的层次感，风光摄影，大画幅相机的细腻质感",
+ "aspect_ratio": "16:9",
+ "resolution": "2K",
+ "size": null,
+ "refs": [],
+ "wall_s": 47.0,
+ "cost_usd": 0.045,
+ "usage": {
+  "prompt_tokens": 67,
+  "completion_tokens": 9216,
+  "total_tokens": 9283,
+  "cost": 0.045,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.045,
+   "upstream_inference_prompt_cost": 0,
+   "upstream_inference_completions_cost": 0.045
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 9216
+  }
+ },
+ "file": "s2/cloud/landscape_seedream.jpg",
+ "when": "2026-10-13 21:48:04"
+}

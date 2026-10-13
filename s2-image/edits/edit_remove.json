@@ -1,0 +1,25 @@
+{
+ "name": "edit_remove",
+ "engine": "qwen_edit",
+ "model": "Qwen-Image 2.1（指令编辑）",
+ "file": "qwen_image_2.1_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen3vl_8b_int8",
+ "refs": [
+  "s2/images/food_qwen.png"
+ ],
+ "sampler": "euler",
+ "scheduler": "simple",
+ "steps": 25,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 1280,
+ "height": 1280,
+ "prompt": "去掉画面里的筷子和被挑起的面条，碗里的面、汤和配菜自然完整，其他一切保持不变",
+ "negative": "",
+ "wall_s": 117.2,
+ "machine": "Mac Studio M5 Ultra 96GB",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-13 22:25:17"
+}

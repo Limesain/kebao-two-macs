@@ -1,0 +1,39 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"><style>
+.page{padding:64px 110px 50px}
+.q{font-family:"Songti SC",serif;font-size:40px;margin:18px 0 6px}
+.chat{display:grid;grid-template-columns:1fr 1fr;gap:0 72px;margin-top:30px;flex:1;align-content:start}
+.who{font-size:12.5px;letter-spacing:.42em;color:var(--mut);margin-bottom:12px}
+.who b{font-family:ui-serif,"New York","Songti SC",serif;font-weight:400;font-size:22px;letter-spacing:.08em;color:var(--ink);margin-right:14px}
+.who.x b{color:var(--gold)}.who.k b{color:var(--slate)}
+.say{font-family:"Songti SC",serif;font-size:22px;line-height:1.85;color:var(--ink);margin:0 0 26px;padding-left:22px;border-left:1px solid var(--rule)}
+.say em{font-style:normal;color:var(--gold)}
+.col.k .say{border-left-color:rgba(143,163,184,.45)}
+.tally{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-top:1px solid var(--rule);margin-top:6px;padding-top:18px}
+.tally div{padding:0 32px;border-left:1px solid var(--rule)}.tally div:first-child{border-left:0;padding-left:0}
+.tally .t{font-size:12px;letter-spacing:.36em;color:var(--mut);margin-bottom:8px}.tally .n{font-family:ui-serif,"New York",serif;font-size:44px;line-height:1;color:var(--ink)}.tally .n small{font-size:13px;color:var(--mut);letter-spacing:.3em;margin-left:8px;font-family:"PingFang SC"}
+</style></head><body><div class="page">
+<div class="kicker">克宝 · 实测 · 出图 · 幕后对话</div><div class="q">这一集是怎么定下来的</div><p class="lead">主人提了六条想法，让我评估「合理性和可实现性大于 80% 就直接做成品」——然后去吃宵夜了</p>
+<div class="chat">
+ <div class="col x">
+  <div class="who x"><b>炘宝</b>主人 · 抖音 @Iason</div>
+  <p class="say">人像男女都做，<em>俊男靓女，颜值爆表的那种</em>。水墨风格可有可无，我个人不太感兴趣……分镜可以更多的连续画面，手搓一个动图，看看一致性能力。</p>
+  <p class="say">还是之前的想法，重实际效果——那么逻辑上就是<em>图片要多，内容要丰富</em>。修图、超分、局部重绘也可以作为素材。</p>
+  <p class="say">以上——<em>我吃宵夜，吃完洗澡，辛苦克宝～</em>（这句可以拿去吐槽我。）</p>
+  <p class="say" style="font-size:19px;color:var(--mut)">（看到两家云端把动漫题判了违规）<em>这也是素材。</em></p>
+ </div>
+ <div class="col k">
+  <div class="who k"><b>克宝</b>Claude Fable 5.1 · 思考强度最高</div>
+  <p class="say">六条都过了 80%，所以这集没有再来回确认，直接开工。水墨降级成「多风格」里的一张，男女人像各加一组，动图做了十二帧。</p>
+  <p class="say">主人去吃宵夜的这一个多小时里，两台 Mac 和三家云端接口没停过：<em>本地出了几十张，云端花了三美元</em>，然后我给自己配音、剪片。宵夜好吃吗？</p>
+ </div>
+</div>
+<div class="tally">
+ <div><div class="t">本地出图</div><div class="n" id="n1">—<small>张</small></div></div>
+ <div><div class="t">云端出图</div><div class="n" id="n2">—<small>张</small></div></div>
+ <div><div class="t">云端花费</div><div class="n" id="n3">—<small>美元</small></div></div>
+ <div><div class="t">主人出力</div><div class="n">0<small>宵夜一顿</small></div></div>
+</div>
+<div class="foot"><span>对话节录自 2026-10-13 晚的工作记录</span><span class="sig">克宝 = Claude Fable 5.1 · 思考强度最高 · 实测</span></div></div>
+<script src="_anim.js"></script><script>
+fetch('../s2/manifest.json?'+Date.now()).then(r=>r.json()).then(M=>{const loc=M.items.filter(i=>i.where==='local').length, cl=M.items.filter(i=>i.where==='cloud'), cost=cl.reduce((a,i)=>a+(+i.cost_usd||0),0); document.getElementById('n1').innerHTML=loc+'<small>张</small>'; document.getElementById('n2').innerHTML=cl.length+'<small>张</small>'; document.getElementById('n3').innerHTML=cost.toFixed(2)+'<small>美元</small>';}).catch(()=>{});
+</script></body></html>

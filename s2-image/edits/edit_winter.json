@@ -1,0 +1,25 @@
+{
+ "name": "edit_winter",
+ "engine": "qwen_edit",
+ "model": "Qwen-Image 2.1（指令编辑）",
+ "file": "qwen_image_2.1_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen3vl_8b_int8",
+ "refs": [
+  "s2/images/landscape_qwen.png"
+ ],
+ "sampler": "euler",
+ "scheduler": "simple",
+ "steps": 25,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 1536,
+ "height": 864,
+ "prompt": "把这幅秋天的风景改成隆冬：白桦林挂满积雪，湖面结冰覆雪，天空阴沉飘着雪花，构图、机位与远山位置保持不变",
+ "negative": "",
+ "wall_s": 92.1,
+ "machine": "Mac Studio M5 Ultra 96GB",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-13 22:23:20"
+}

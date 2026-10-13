@@ -1,0 +1,22 @@
+{
+ "name": "product_krea2",
+ "engine": "krea2",
+ "model": "Krea 2 Turbo",
+ "file": "krea2_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen3vl_4b_heretic_int8",
+ "sampler": "euler",
+ "scheduler": "simple",
+ "steps": 8,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 1408,
+ "height": 1760,
+ "prompt": "商业静物摄影：一支琥珀色玻璃香水瓶，黑色磨砂瓶盖，放在深色大理石台面上，一束侧光在瓶身打出折射的光斑，台面上几滴水珠，纯黑背景，高端广告大片质感",
+ "negative": "",
+ "wall_s": 171.2,
+ "machine": "MacBook Pro M5 Max 48GB",
+ "server": "http://10.0.0.242:8188",
+ "when": "2026-10-13 22:15:30"
+}

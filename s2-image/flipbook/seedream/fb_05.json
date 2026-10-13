@@ -1,0 +1,36 @@
+{
+ "name": "fb_05",
+ "model": "bytedance-seed/seedream-5-0-pro",
+ "provider": "openrouter",
+ "prompt": "这是同一镜头的连续两帧。图1 是人物与场景的基准，图2 是上一帧。请输出下一帧：画面右侧街角走出一只橘猫，她看着它。机位、焦段、灯光、色调、人物的面容与衣着必须与图1 完全一致，变化只发生在动作上。",
+ "aspect_ratio": "16:9",
+ "resolution": "2K",
+ "size": null,
+ "refs": [
+  "s2/flipbook/seedream/fb_00.jpg",
+  "s2/flipbook/seedream/fb_04.jpg"
+ ],
+ "wall_s": 77.4,
+ "cost_usd": 0.048,
+ "usage": {
+  "prompt_tokens": 95,
+  "completion_tokens": 9216,
+  "total_tokens": 9311,
+  "cost": 0.048,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.048,
+   "upstream_inference_prompt_cost": 0.003,
+   "upstream_inference_completions_cost": 0.045
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 9216
+  }
+ },
+ "file": "s2/flipbook/seedream/fb_05.jpg",
+ "when": "2026-10-13 21:54:29"
+}

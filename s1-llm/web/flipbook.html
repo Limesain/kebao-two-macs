@@ -1,0 +1,36 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><link rel="stylesheet" href="cards16/_base.css"><style>
+.page{padding:46px 90px 36px}
+.hd{display:flex;justify-content:space-between;align-items:flex-end;gap:40px}
+.title{font-family:"Songti SC",serif;font-size:34px;margin:8px 0 0;white-space:nowrap}
+.sub{font-family:"Songti SC",serif;font-size:15px;line-height:1.6;color:var(--mut);max-width:960px;text-align:right}
+.stage{flex:1;min-height:0;margin-top:14px;display:flex;flex-direction:column;gap:12px}
+.panes{flex:1;min-height:0;display:grid;gap:26px}
+.pane{display:flex;flex-direction:column;min-height:0}.pane .im{flex:1;min-height:0;position:relative;border:1px solid var(--rule);background:#111;overflow:hidden}
+.pane .im img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .18s linear}.pane .im img.on{opacity:1}
+.pane .cap{display:flex;justify-content:space-between;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--mut);letter-spacing:.06em;margin-top:8px}.pane .cap b{font-family:ui-serif,"New York",serif;font-weight:400;font-size:17px;color:var(--ink);margin-right:10px}
+.pane .cap .n{font-family:ui-serif,"New York",serif;font-size:17px;color:var(--gold)}
+.strip{display:flex;gap:6px;height:88px}.strip div{flex:1;border:1px solid var(--rule);background:#111;overflow:hidden;opacity:.45;transition:opacity .2s}.strip div.on{opacity:1;border-color:var(--gold)}.strip img{width:100%;height:100%;object-fit:cover}
+.motion{font-family:"Songti SC",serif;font-size:16px;color:var(--ink);height:24px;white-space:nowrap;overflow:hidden}.motion i{font-style:normal;color:var(--gold);margin-right:12px;font-size:12px;letter-spacing:.3em}
+</style></head><body><div class="page">
+<div class="hd"><div><div class="kicker" id="k">克宝 · 实测 · 逐帧动图 · 同一角色能撑几帧</div><div class="title" id="t"></div></div><div class="sub" id="sub"></div></div>
+<div class="stage"><div class="motion" id="mo"></div><div class="panes" id="panes"></div><div class="strip" id="strip"></div></div>
+<div class="foot"><span id="f">本地：每帧 = 基准帧 + 一句动作（单图参考）· 云端：每帧 = 基准帧 + 上一帧 + 一句动作（多图参考）· 没有视频模型 · 2026-10-13</span><span class="sig">克宝 = Claude Fable 5.1 · 思考强度最高 · 实测</span></div></div>
+<script>
+const q=new URLSearchParams(location.search); const el=id=>document.getElementById(id); window.__log={}; const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+el('t').textContent=q.get('title')||''; el('sub').textContent=q.get('sub')||''; if(q.get('kicker'))el('k').textContent=q.get('kicker'); if(q.get('foot'))el('f').textContent=q.get('foot');
+const fps=+(q.get('fps')||3), loops=+(q.get('loops')||2), hold=+(q.get('hold')||2.5)*1000;
+const probe=u=>new Promise(r=>{const i=new Image(); i.onload=()=>r(u); i.onerror=()=>r(null); i.src=u;});
+async function frames(dir,n){ const out=[]; for(let i=0;i<(n||16);i++){ const k=String(i).padStart(2,'0'); let u=await probe(`${dir}/fb_${k}.png`); if(!u) u=await probe(`${dir}/fb_${k}.jpg`); if(!u) break; out.push(u);} return out; }
+(async()=>{
+ let M=null; try{ M=await (await fetch('s2/manifest.json?'+Date.now())).json(); }catch(e){}
+ const motions=M?['基准帧：撑伞站在便利店门口，看向镜头',...M.flipbook.motions_zh]:[];
+ const dirs=[[q.get('dir')||'s2/flipbook/local',q.get('label1')||'Qwen-Image 2.1 · 本地',+q.get('n')||0]]; if(q.get('dir2')) dirs.push([q.get('dir2'),q.get('label2')||'Seedream 5.0 Pro · 云端',+q.get('n2')||0]);
+ const sets=[]; for(const [d,l,n] of dirs){ sets.push({label:l, fr:await frames(d,n)}); }
+ const panes=el('panes'); panes.style.gridTemplateColumns=`repeat(${sets.length},1fr)`;
+ sets.forEach((s,si)=>{ const p=document.createElement('div'); p.className='pane'; p.innerHTML=`<div class="im">${s.fr.map(u=>`<img src="${u}">`).join('')}</div><div class="cap"><span><b>${s.label}</b>${s.fr.length} 帧</span><span class="n" id="n${si}">1 / ${s.fr.length}</span></div>`; panes.appendChild(p); s.imgs=[...p.querySelectorAll('img')]; });
+ const strip=el('strip'); const main=sets[0]; main.fr.forEach(u=>{const d=document.createElement('div'); d.innerHTML=`<img src="${u}">`; strip.appendChild(d);}); const cells=[...strip.children];
+ const N=Math.max(...sets.map(s=>s.fr.length)); await sleep(500);
+ for(let L=0;L<loops;L++){ for(let i=0;i<N;i++){ sets.forEach((s,si)=>{ const j=Math.min(i,s.fr.length-1); s.imgs.forEach((im,k)=>im.classList.toggle('on',k===j)); el('n'+si).textContent=(j+1)+' / '+s.fr.length; }); cells.forEach((c,k)=>c.classList.toggle('on',k===Math.min(i,cells.length-1))); el('mo').innerHTML=`<i>第 ${i+1} 帧</i>${motions[i]||''}`; await sleep(1000/fps); } if(L<loops-1) await sleep(600); }
+ await sleep(hold); document.title='DONE';
+})();
+</script></body></html>

@@ -1,0 +1,41 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><link rel="stylesheet" href="cards16/_base.css"><style>
+.page{padding:50px 90px 42px}
+.top{display:flex;justify-content:space-between;align-items:flex-end}.title{font-family:"Songti SC",serif;font-size:34px;margin:10px 0 0}
+.prompt{font-family:"Songti SC",serif;font-size:15.5px;line-height:1.6;color:var(--mut);margin:10px 0 0;max-width:1400px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.body{display:grid;grid-template-columns:1fr 1fr;gap:34px;margin-top:18px;flex:1;min-height:0}
+.side{display:flex;flex-direction:column;min-height:0}
+.hd{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--rule);padding-bottom:8px}
+.hd .nm{font-family:"Songti SC",serif;font-size:21px;color:var(--ink)}.hd .sp{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--mut);letter-spacing:.04em}
+.canvas{flex:1;min-height:0;margin-top:12px;border:1px solid var(--rule);background:#111;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}.canvas img{max-width:100%;max-height:100%;object-fit:contain;display:none}
+.canvas .ph{font-family:"Songti SC",serif;font-size:19px;color:var(--dim);letter-spacing:.2em}
+.row{display:grid;grid-template-columns:1fr auto auto;gap:22px;align-items:end;margin-top:12px}
+.bar{height:2px;background:rgba(255,255,255,.1)}.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .25s}
+.big{font-family:ui-serif,"New York",serif;font-size:44px;line-height:1}.big small{font-size:12px;letter-spacing:.3em;color:var(--mut);margin-left:8px;font-family:system-ui}
+.st{font-size:11px;letter-spacing:.3em;color:var(--mut);margin-bottom:6px}
+.verdict{position:absolute;left:0;right:0;bottom:0;text-align:center;font-family:"Songti SC",serif;font-size:22px;color:var(--gold);opacity:0;transition:opacity .8s;letter-spacing:.1em}
+</style></head><body><div class="page">
+<div class="top"><div><div class="kicker" id="k">克宝 · 实测 · 同题同种子 · 两台机器</div><div class="title" id="t"></div><div class="prompt" id="pr"></div></div></div>
+<div class="body">
+ <div class="side"><div class="hd"><span class="nm" id="ln"></span><span class="sp" id="ls"></span></div><div class="canvas"><div class="ph" id="lph">等待</div><img id="limg"></div>
+  <div class="row"><div><div class="st" id="lst">进度</div><div class="bar"><i id="lbar"></i></div></div><div><div class="st">步数</div><div class="big" id="lstep">0<small>/0</small></div></div><div><div class="st">耗时</div><div class="big" id="lel">0.0<small>秒</small></div></div></div></div>
+ <div class="side"><div class="hd"><span class="nm" id="rn"></span><span class="sp" id="rs"></span></div><div class="canvas"><div class="ph" id="rph">等待</div><img id="rimg"></div>
+  <div class="row"><div><div class="st" id="rst">进度</div><div class="bar"><i id="rbar"></i></div></div><div><div class="st">步数</div><div class="big" id="rstep">0<small>/0</small></div></div><div><div class="st">耗时</div><div class="big" id="rel">0.0<small>秒</small></div></div></div></div>
+</div>
+<div class="foot"><span id="f">无头 ComfyUI 0.39.2 · MPS · 两台机器各自本地出图，数据经 WebSocket 实时读取 · 2026-10-13</span><span class="sig">克宝 = Claude Fable 5.1 · 思考强度最高 · 实测</span></div></div>
+<script>
+const q=new URLSearchParams(location.search); const el=id=>document.getElementById(id);
+el('t').textContent=q.get('title')||''; el('pr').textContent=q.get('prompt')||''; if(q.get('kicker'))el('k').textContent=q.get('kicker');
+el('ln').textContent=q.get('lname')||'Mac Studio · M5 Ultra · 96 GB'; el('rn').textContent=q.get('rname')||'MacBook Pro · M5 Max · 48 GB'; el('ls').textContent=q.get('lspec')||''; el('rs').textContent=q.get('rspec')||'';
+const maxWait=+(q.get('max')||600); window.__log={}; const sides={L:{server:q.get('l')||'127.0.0.1:8199',cid:q.get('lc')||'duelL',p:'l'},R:{server:q.get('r')||'10.0.0.242:8188',cid:q.get('rc')||'duelR',p:'r'}};
+let finished=0;
+for(const s of Object.values(sides)){ s.t0=null; s.done=false; s.max=0;
+ const tick=()=>{ if(s.t0&&!s.done) el(s.p+'el').innerHTML=((Date.now()-s.t0)/1000).toFixed(1)+'<small>秒</small>'; if(!s.done) requestAnimationFrame(tick); }; requestAnimationFrame(tick);
+ const ws=new WebSocket(`ws://${s.server}/ws?clientId=${s.cid}`);
+ ws.onmessage=ev=>{ if(typeof ev.data!=='string') return; const m=JSON.parse(ev.data); const d=m.data||{};
+  if(m.type==='execution_start'){ s.t0=Date.now(); el(s.p+'ph').textContent='模型加载中'; el(s.p+'st').textContent='开始'; }
+  if(m.type==='progress'){ if(!s.t0)s.t0=Date.now(); s.max=d.max; el(s.p+'bar').style.width=(100*d.value/d.max)+'%'; el(s.p+'step').innerHTML=d.value+'<small>/'+d.max+'</small>'; el(s.p+'ph').textContent='正在出图'; el(s.p+'st').textContent='采样中'; }
+  if(m.type==='executed'&&d.output&&d.output.images){ const im=d.output.images[0]; const img=el(s.p+'img'); img.src=`http://${s.server}/view?filename=${encodeURIComponent(im.filename)}&subfolder=${encodeURIComponent(im.subfolder||'')}&type=${im.type||'output'}`; img.onload=()=>{el(s.p+'ph').style.display='none'; img.style.display='block';}; }
+  if(m.type==='execution_success'||m.type==='execution_error'){ s.done=true; s.wall=(Date.now()-s.t0)/1000; el(s.p+'el').innerHTML=s.wall.toFixed(1)+'<small>秒</small>'; el(s.p+'st').textContent=m.type==='execution_success'?'完成':'出错'; window.__log[s.p]={wall:s.wall,steps:s.max}; finished++; if(finished===2) setTimeout(()=>{document.title='DONE';},4500); } };
+}
+setTimeout(()=>{document.title='DONE';}, maxWait*1000);
+</script></body></html>

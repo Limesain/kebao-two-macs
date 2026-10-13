@@ -1,0 +1,33 @@
+{
+ "name": "interior_seedream",
+ "model": "bytedance-seed/seedream-5-0-pro",
+ "provider": "openrouter",
+ "prompt": "极简日式侘寂风客厅，清水混凝土墙面，低矮的原木家具与亚麻坐垫，落地窗外是雨中的庭院和一棵红枫，建筑摄影，正面平视，自然漫射光，室内设计杂志级别的图片",
+ "aspect_ratio": "3:2",
+ "resolution": "2K",
+ "size": null,
+ "refs": [],
+ "wall_s": 50.2,
+ "cost_usd": 0.09,
+ "usage": {
+  "prompt_tokens": 74,
+  "completion_tokens": 10928,
+  "total_tokens": 11002,
+  "cost": 0.09,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.09,
+   "upstream_inference_prompt_cost": 0,
+   "upstream_inference_completions_cost": 0.09
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 10928
+  }
+ },
+ "file": "s2/cloud/interior_seedream.jpg",
+ "when": "2026-10-13 21:42:27"
+}

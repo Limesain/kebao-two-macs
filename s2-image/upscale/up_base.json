@@ -1,0 +1,23 @@
+{
+ "name": "up_base",
+ "engine": "zimage",
+ "model": "Z-Image Turbo",
+ "file": "z_image_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen_3_4b",
+ "shift": 3,
+ "sampler": "res_multistep",
+ "scheduler": "simple",
+ "steps": 9,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 1024,
+ "height": 1280,
+ "prompt": "一只蜂鸟悬停在红色朱槿花前的微距照片，羽毛的虹彩与细小羽枝清晰可见，花蕊上有水珠，背景柔和虚化，高速快门凝固翅膀",
+ "negative": "",
+ "wall_s": 11.8,
+ "machine": "Mac Studio M5 Ultra 96GB",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-13 22:26:03"
+}

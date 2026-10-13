@@ -1,0 +1,22 @@
+{
+ "name": "anime_krea2",
+ "engine": "krea2",
+ "model": "Krea 2 Turbo",
+ "file": "krea2_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen3vl_4b_heretic_int8",
+ "sampler": "euler",
+ "scheduler": "simple",
+ "steps": 8,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 1536,
+ "height": 2048,
+ "prompt": "动漫插画：穿夏季校服的少女站在铁道口，电车呼啸驶过带起风，裙摆和长发飞扬，远处是巨大的积雨云和通透的蓝天，新海诚式的光影与极致细节的云，日系动画电影截帧质感",
+ "negative": "",
+ "wall_s": 197.7,
+ "machine": "MacBook Pro M5 Max 48GB",
+ "server": "http://10.0.0.242:8188",
+ "when": "2026-10-13 22:00:37"
+}

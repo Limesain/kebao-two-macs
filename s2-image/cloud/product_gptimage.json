@@ -1,0 +1,33 @@
+{
+ "name": "product_gptimage",
+ "model": "openai/gpt-image-2.5-flare",
+ "provider": "openrouter",
+ "prompt": "Commercial still life: an amber glass perfume bottle with a matte black cap on a dark marble surface, a single side light casting refracted highlights through the glass, a few water droplets on the surface, pure black background, high-end advertising campaign look",
+ "aspect_ratio": "3:4",
+ "resolution": null,
+ "size": null,
+ "refs": [],
+ "wall_s": 21.6,
+ "cost_usd": 0.049145,
+ "usage": {
+  "prompt_tokens": 55,
+  "completion_tokens": 1629,
+  "total_tokens": 1684,
+  "cost": 0.049145,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.049145,
+   "upstream_inference_prompt_cost": 0.000275,
+   "upstream_inference_completions_cost": 0.04887
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 1629
+  }
+ },
+ "file": "s2/cloud/product_gptimage.png",
+ "when": "2026-10-13 22:06:40"
+}

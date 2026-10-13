@@ -1,0 +1,46 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><link rel="stylesheet" href="cards16/_base.css"><style>
+.page{padding:64px 110px 50px}
+.chart{flex:1;min-height:0;margin-top:18px}svg{width:100%;height:100%}
+.lbl{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;fill:#8d8f95;letter-spacing:.1em}.nm{font-family:"Songti SC",serif;font-size:19px;fill:#ece7df}.nm2{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;fill:#8d8f95;letter-spacing:.08em}
+.val{font-family:ui-serif,"New York",serif;font-size:24px;fill:#ece7df}.val.g{fill:#c8a96e}
+.grid{stroke:rgba(255,255,255,.07)}.axis{stroke:rgba(255,255,255,.16)}
+body.anim .page>*{opacity:0;animation:rise .9s cubic-bezier(.2,.7,.2,1) forwards}body.anim .page>*:nth-child(1){animation-delay:.2s}body.anim .page>*:nth-child(2){animation-delay:.45s}body.anim .page>*:nth-child(3){animation-delay:.7s}body.anim .page>*:nth-child(4){animation-delay:.9s}body.anim .page>*:nth-child(5){animation-delay:1.1s}@keyframes rise{to{opacity:1}}
+body.anim rect.bar{transform-origin:left center;transform:scaleX(0);animation:grow 1.6s cubic-bezier(.2,.7,.2,1) forwards}@keyframes grow{to{transform:scaleX(1)}}
+body.anim text.val,body.anim text.nm2.late{opacity:0;animation:fadein .6s forwards}@keyframes fadein{to{opacity:1}}
+.legend{display:flex;gap:36px;font-size:13px;letter-spacing:.2em;color:#8d8f95;margin-top:14px}.legend i{display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-right:10px}
+</style></head><body><div class="page">
+<div class="kicker" id="kicker">克宝 · 实测 · 出图 · 数据</div><h1 id="h1"></h1><p class="lead" id="lead"></p><div class="legend" id="legend"></div>
+<div class="chart"><svg id="svg" viewBox="0 0 1700 640" preserveAspectRatio="none"></svg></div>
+<div class="foot"><span id="env">同一提示词 · 同一种子 · 本地 无头 ComfyUI 0.39.2 / MPS · 云端 OpenRouter · 2026-10-13</span><span class="sig">克宝 = Claude Fable 5.1 · 思考强度最高 · 实测</span></div></div>
+<script>
+const q=new URLSearchParams(location.search), type=q.get('type')||'time', NS='http://www.w3.org/2000/svg'; const ANIM=q.get('anim')==='1'; if(ANIM) document.body.classList.add('anim');
+const svg=document.getElementById('svg'); const W=1700,H=640; function el(n,a,txt){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;svg.appendChild(e);return e;}
+function legend(items){document.getElementById('legend').innerHTML=items.map(([c,t])=>`<span><i style="background:${c}"></i>${t}</span>`).join('');}
+const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0; const mp=i=>(i.width*i.height/1e6);
+function hbars(rows,unit,fmt){ const L=420,Rr=120,T=20,B=40; const n=rows.length; const max=Math.max(...rows.map(r=>r.v))*1.3; const bh=Math.min(54,(H-T-B)/n*0.62), gap=(H-T-B)/n;
+  for(let i=0;i<=4;i++){const x=L+(W-L-Rr)*i/4; el('line',{x1:x,y1:T,x2:x,y2:H-B,class:i?'grid':'axis'}); el('text',{x,y:H-B+24,class:'lbl','text-anchor':'middle'},fmt(max*i/4));}
+  el('text',{x:W-Rr,y:H-B+46,class:'lbl','text-anchor':'end'},unit);
+  rows.forEach((r,i)=>{ const y=T+gap*i+(gap-bh)/2; el('text',{x:L-26,y:y+bh/2-4,class:'nm','text-anchor':'end'},r.name); el('text',{x:L-26,y:y+bh/2+16,class:'nm2','text-anchor':'end'},r.sub||''); const w=(W-L-Rr)*r.v/max; const b=el('rect',{x:L,y,width:Math.max(2,w),height:bh,fill:r.c,opacity:.9,class:'bar'}); b.style.animationDelay=(1.4+i*.12)+'s'; const t=el('text',{x:L+w+16,y:y+bh/2+9,class:'val'+(r.gold?' g':'')},fmt(r.v)+(r.tail?('  '+r.tail):'')); t.style.animationDelay=(2.6+i*.12)+'s'; if(r.note){const t2=el('text',{x:L+w+16+ (fmt(r.v).length+ (r.tail||'').length)*14+40,y:y+bh/2+6,class:'nm2 late'},r.note); t2.style.animationDelay=(2.8+i*.12)+'s';} });
+}
+(async()=>{
+ const M=await (await fetch('s2/manifest.json?'+Date.now())).json(); const I=M.items;
+ const G='#c8a96e', S='#8fa3b8', D='#5c5f66';
+ if(type==='time'){
+   document.getElementById('h1').textContent='一张 2K 图要等多久'; document.getElementById('lead').textContent='文生图全部题目的平均单张耗时（含模型已在内存中的热启动）· 本地按机器分开 · 云端为接口往返时间 · 单位：秒';
+   const loc=(eng,mac)=>I.filter(i=>i.kind==='t2i'&&i.engine===eng&&mac.test(i.machine||'')&&i.width*i.height>=1.5e6); const cl=eng=>I.filter(i=>i.kind==='cloud'&&i.engine===eng);
+   const rows=[]; const add=(name,sub,arr,c,gold)=>{ if(!arr.length) return; const m=avg(arr.map(mp)); rows.push({name,sub,v:avg(arr.map(i=>i.wall_s)),c,gold,tail:`· ${arr.length} 张`+(m>0.5?` · 平均 ${m.toFixed(1)} MP`:'')}); };
+   add('Z-Image Turbo','主机 · Mac Studio',loc('zimage',/Studio/),G,true); add('Z-Image Turbo','笔记本 · MacBook Pro',loc('zimage',/MacBook/),S);
+   add('Krea 2 Turbo','主机',loc('krea2',/Studio/),G,true); add('Krea 2 Turbo','笔记本',loc('krea2',/MacBook/),S);
+   add('Qwen-Image 2.1','主机 · 25 步',loc('qwen',/Studio/),G,true);
+   add('Seedream 5.0 Pro','云端 · OpenRouter',cl('seedream'),D); add('Grok Imagine 2.0','云端',cl('grok'),D); add('GPT-Image 2.5','云端',cl('gptimage'),D);
+   hbars(rows,'秒 / 张',v=>v.toFixed(0)); legend([[G,'MAC STUDIO · M5 ULTRA 96G'],[S,'MACBOOK PRO · M5 MAX 48G（合盖）'],[D,'云端接口']]);
+ } else if(type==='cost'){
+   document.getElementById('h1').textContent='云端一张多少钱'; document.getElementById('lead').textContent='OpenRouter 返回的 usage.cost · 平均每张（2K 或 high）· 本地出图不计电费';
+   const cl=eng=>I.filter(i=>i.kind==='cloud'&&i.engine===eng&&i.cost_usd!=null); const all=I.filter(i=>i.where==='cloud'&&i.cost_usd!=null); const tot=all.reduce((a,i)=>a+(+i.cost_usd),0);
+   const rows=[]; for(const [e,n] of [['seedream','Seedream 5.0 Pro'],['grok','Grok Imagine 2.0'],['gptimage','GPT-Image 2.5 Flare']]){const a=cl(e); if(a.length) rows.push({name:n,sub:`${a.length} 张`,v:avg(a.map(i=>+i.cost_usd)),c:D,tail:'美元 / 张'});}
+   rows.push({name:'本地三模型',sub:`${I.filter(i=>i.where==='local').length} 张`,v:0.0001,c:G,gold:true,tail:'美元 · 只花电'});
+   hbars(rows,'美元 / 张',v=>v<0.001?'0':v.toFixed(3)); legend([[D,`云端本集合计 ${all.length} 张 · $${tot.toFixed(2)}（预算 $10）`],[G,'本地']]);
+ }
+ setTimeout(()=>{document.title='DONE';}, ANIM? +(q.get('dur')||8000): 300);
+})();
+</script></body></html>

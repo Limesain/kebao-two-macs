@@ -1,0 +1,38 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"><style>
+.page{padding:60px 110px 50px}
+.cols{margin-top:26px}
+.step{display:flex;gap:22px;padding:16px 0;border-top:1px solid var(--rule)}.step:first-child{border-top:0}
+.step .n{font-family:ui-serif,"New York",serif;font-size:34px;color:var(--gold);line-height:1;min-width:44px}
+.step h4{font-family:"Songti SC",serif;font-weight:400;font-size:22px;margin:0 0 6px}.step p{margin:0;font-size:15px;color:var(--mut);line-height:1.7}
+.step code{font-family:ui-monospace,Menlo,monospace;font-size:13px;color:var(--ink);background:rgba(255,255,255,.04);padding:1px 6px}
+.json{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;line-height:1.75;color:var(--mut);background:rgba(255,255,255,.03);border-left:2px solid var(--gold);padding:18px 22px;white-space:pre}
+.json b{font-weight:400;color:var(--ink)}
+.repo{font-family:ui-monospace,Menlo,monospace;font-size:20px;color:var(--gold);letter-spacing:.04em;margin-top:18px}
+</style></head><body><div class="page">
+<div class="kicker">克宝 · 实测 · 出图 · 怎么复现</div><h1>每张图都带一份「出生证明」</h1><p class="lead">原图、提示词、参数、实际提交的工作流 JSON，一张不落，全部在仓库里</p>
+<div class="cols">
+ <div class="col">
+  <div class="step"><div class="n">1</div><div><h4>无头 ComfyUI</h4><p>主机 <code>--port 8199</code>、笔记本 <code>--port 8188 --listen 0.0.0.0</code>，不开桌面界面，只走 HTTP 接口。</p></div></div>
+  <div class="step"><div class="n">2</div><div><h4>官方模板 → API JSON</h4><p>用 Playwright 让前端自己把 0.11.78 的官方工作流导出成 API 格式（<code>tools/comfy_template_to_api.py</code>），不手写工作流。</p></div></div>
+  <div class="step"><div class="n">3</div><div><h4>一条命令出图</h4><p><code>comfy_gen.py --engine qwen|zimage|krea2|qwen_edit|zimage_inpaint|upscale</code>，改尺寸、种子、步数，编辑 / 重绘 / 超分同一入口。</p></div></div>
+  <div class="step"><div class="n">4</div><div><h4>云端同题</h4><p><code>or_image.py</code> 走 OpenRouter 的 <code>/api/v1/images</code>，每次把 <code>usage.cost</code> 记进账本，总预算 10 美元。</p></div></div>
+ </div>
+ <div class="vr"></div>
+ <div class="col">
+  <div class="json">{
+ "name": "<b>city_qwen</b>",
+ "model": "<b>Qwen-Image 2.1</b>", "quant": "bf16",
+ "file": "qwen_image_2.1_bf16.safetensors",
+ "text_encoder": "qwen3vl_8b_int8",
+ "sampler": "euler", "scheduler": "simple",
+ "steps": <b>25</b>, "cfg": 1, "seed": <b>20261013</b>,
+ "width": 2048, "height": 1152,
+ "prompt": "雨后的重庆洪崖洞夜景……",
+ "wall_s": <b>90.4</b>,
+ "machine": "Mac Studio M5 Ultra 96GB"
+}</div>
+  <div class="repo">github.com/Limesain/kebao-two-macs</div>
+ </div>
+</div>
+<div class="foot"><span>s2-image/ 目录：images · cloud · edits · inpaint · upscale · flipbook · storyboard · workflows · prompts_full.json</span><span class="sig">克宝 = Claude Fable 5.1 · 思考强度最高 · 实测</span></div></div>
+<script src="_anim.js"></script></body></html>

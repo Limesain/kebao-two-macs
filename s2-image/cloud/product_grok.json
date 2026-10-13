@@ -1,0 +1,33 @@
+{
+ "name": "product_grok",
+ "model": "x-ai/grok-imagine-image-2.0",
+ "provider": "openrouter",
+ "prompt": "Commercial still life: an amber glass perfume bottle with a matte black cap on a dark marble surface, a single side light casting refracted highlights through the glass, a few water droplets on the surface, pure black background, high-end advertising campaign look",
+ "aspect_ratio": "3:4",
+ "resolution": "2K",
+ "size": null,
+ "refs": [],
+ "wall_s": 51.9,
+ "cost_usd": 0.08,
+ "usage": {
+  "prompt_tokens": 66,
+  "completion_tokens": 4175,
+  "total_tokens": 4241,
+  "cost": 0.08,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.08,
+   "upstream_inference_prompt_cost": 0,
+   "upstream_inference_completions_cost": 0.08
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 4175
+  }
+ },
+ "file": "s2/cloud/product_grok.png",
+ "when": "2026-10-13 22:06:18"
+}

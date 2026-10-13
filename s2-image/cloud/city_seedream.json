@@ -1,0 +1,33 @@
+{
+ "name": "city_seedream",
+ "model": "bytedance-seed/seedream-5-0-pro",
+ "provider": "openrouter",
+ "prompt": "雨后的重庆洪崖洞夜景，层叠的山城吊脚楼亮着金色与青色霓虹，长江索道的缆车从画面上方掠过，低角度广角，湿漉漉的石阶倒映着灯火，赛博朋克色调，电影感，极高细节",
+ "aspect_ratio": "16:9",
+ "resolution": "2K",
+ "size": null,
+ "refs": [],
+ "wall_s": 49.3,
+ "cost_usd": 0.045,
+ "usage": {
+  "prompt_tokens": 77,
+  "completion_tokens": 9216,
+  "total_tokens": 9293,
+  "cost": 0.045,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.045,
+   "upstream_inference_prompt_cost": 0,
+   "upstream_inference_completions_cost": 0.045
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 9216
+  }
+ },
+ "file": "s2/cloud/city_seedream.jpg",
+ "when": "2026-10-13 22:02:29"
+}

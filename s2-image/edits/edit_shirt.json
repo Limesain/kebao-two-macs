@@ -1,0 +1,25 @@
+{
+ "name": "edit_shirt",
+ "engine": "qwen_edit",
+ "model": "Qwen-Image 2.1（指令编辑）",
+ "file": "qwen_image_2.1_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen3vl_8b_int8",
+ "refs": [
+  "s2/images/portrait_qwen.png"
+ ],
+ "sampler": "euler",
+ "scheduler": "simple",
+ "steps": 25,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 1152,
+ "height": 1440,
+ "prompt": "把她的亚麻衬衫换成酒红色高领针织衫，其他一切（脸、发型、光线、背景、姿势）保持完全不变",
+ "negative": "",
+ "wall_s": 118.2,
+ "machine": "Mac Studio M5 Ultra 96GB",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-13 22:18:29"
+}

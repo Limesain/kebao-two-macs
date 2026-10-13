@@ -1,0 +1,23 @@
+{
+ "name": "concept_zimage",
+ "engine": "zimage",
+ "model": "Z-Image Turbo",
+ "file": "z_image_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen_3_4b",
+ "shift": 3,
+ "sampler": "res_multistep",
+ "scheduler": "simple",
+ "steps": 9,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 2048,
+ "height": 1152,
+ "prompt": "工业概念设计图：一台在火星表面勘探的六足机器人，磨损的白色与橙色涂装，太阳能板展开，机械细节丰富，背景是红色峡谷和远处的穹顶基地，手绘线稿与写实渲染结合的质感，电影概念艺术",
+ "negative": "",
+ "wall_s": 60.5,
+ "machine": "MacBook Pro M5 Max 48GB",
+ "server": "http://10.0.0.242:8188",
+ "when": "2026-10-13 21:41:59"
+}

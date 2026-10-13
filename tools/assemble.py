@@ -7,7 +7,7 @@ R = pathlib.Path(__file__).resolve().parent.parent
 cfg = json.load(open(sys.argv[1], encoding="utf-8")); out = sys.argv[2]
 GAP, LEAD, TAIL, XF = cfg.get("gap", .45), cfg.get("lead", .35), cfg.get("tail", .7), cfg.get("xfade", .6)
 def dur(p): return float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(p)]))
-texts = {l.split("|", 1)[0]: l.split("|", 1)[1].strip() for l in open(R / "script/S1-tts-segments.txt", encoding="utf-8") if "|" in l and not l.startswith("#")}
+texts = {l.split("|", 1)[0]: l.split("|", 1)[1].strip() for l in open(R / cfg.get("segments", "script/S1-tts-segments.txt"), encoding="utf-8") if "|" in l and not l.startswith("#")}
 seg_path = lambda s: R / cfg.get("voice_dir", "assets/voice2") / f"seg_{s}_000.wav"
 # 时间轴：场景 k 的起点 = 前面场景时长之和 - k*XF
 scenes = cfg["scenes"]; t = 0.0; audio = []; subs = []; sdur = []
@@ -54,9 +54,9 @@ for k in range(1, len(scenes)):
     vf.append(f"{chain}[v{k}]xfade=transition=fade:duration={XF}:offset={off:.3f}[x{k}]"); chain = f"[x{k}]"
 for _start, _p in audio: inputs += ["-i", str(_p)]
 # 字幕：每句一张透明 PNG，按时间叠加
-subdir = R / "assets/captures/v2/_subs"; cues = [{"i": i, "text": x} for i, (_, _, x) in enumerate(subs)]
-(R / "assets/captures/v2/_cues.json").write_text(json.dumps(cues, ensure_ascii=False), encoding="utf-8")
-subprocess.run(["/Users/iason/.local/share/uv/tools/playwright/bin/python", str(R / "scripts/sub_png.py"), str(R / "assets/captures/v2/_cues.json"), str(subdir)], check=True)
+subdir = R / cfg.get("subs_dir", "assets/captures/v2/_subs"); cues = [{"i": i, "text": x} for i, (_, _, x) in enumerate(subs)]
+(subdir.parent / "_cues.json").write_text(json.dumps(cues, ensure_ascii=False), encoding="utf-8")
+subprocess.run(["/Users/iason/.local/share/uv/tools/playwright/bin/python", str(R / "scripts/sub_png.py"), str(subdir.parent / "_cues.json"), str(subdir)], check=True)
 nsc = len(scenes); naud = len(audio)
 for i, (a, b, _) in enumerate(subs):
     inputs += ["-loop", "1", "-framerate", "30", "-t", f"{b - a + 0.1:.3f}", "-i", str(subdir / f"cue_{i:03d}.png")]

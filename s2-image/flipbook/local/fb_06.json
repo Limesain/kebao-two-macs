@@ -1,0 +1,25 @@
+{
+ "name": "fb_06",
+ "engine": "qwen_edit",
+ "model": "Qwen-Image 2.1（指令编辑）",
+ "file": "qwen_image_2.1_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen3vl_8b_int8",
+ "refs": [
+  "s2/flipbook/local/fb_00.png"
+ ],
+ "sampler": "euler",
+ "scheduler": "simple",
+ "steps": 25,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 1280,
+ "height": 704,
+ "prompt": "以图中的人物与场景为基准，输出同一镜头的下一帧：她弯下腰，向橘猫伸出手。机位、焦段、灯光、色调、人物的面容与衣着必须与原图完全一致，变化只发生在动作上。",
+ "negative": "",
+ "wall_s": 51.5,
+ "machine": "Mac Studio M5 Ultra 96GB",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-13 22:12:14"
+}

@@ -1,0 +1,22 @@
+{
+ "name": "portrait_m_krea2",
+ "engine": "krea2",
+ "model": "Krea 2 Turbo",
+ "file": "krea2_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen3vl_4b_heretic_int8",
+ "sampler": "euler",
+ "scheduler": "simple",
+ "steps": 8,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 1408,
+ "height": 1760,
+ "prompt": "一位二十八岁左右、极为英俊的东亚男性，轮廓分明，浓眉深目，短发微卷，深色高领毛衣，黑白棚拍人像，伦勃朗光，眼神有故事，皮肤与胡茬纹理真实，杂志封面级别",
+ "negative": "",
+ "wall_s": 145.8,
+ "machine": "MacBook Pro M5 Max 48GB",
+ "server": "http://10.0.0.242:8188",
+ "when": "2026-10-13 21:54:48"
+}

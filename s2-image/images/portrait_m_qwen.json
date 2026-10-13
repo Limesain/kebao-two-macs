@@ -1,0 +1,23 @@
+{
+ "name": "portrait_m_qwen",
+ "engine": "qwen",
+ "model": "Qwen-Image 2.1",
+ "file": "qwen_image_2.1_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen3vl_8b_int8",
+ "prompt_enhancer": false,
+ "sampler": "euler",
+ "scheduler": "simple",
+ "steps": 25,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 1408,
+ "height": 1760,
+ "prompt": "一位二十八岁左右、极为英俊的东亚男性，轮廓分明，浓眉深目，短发微卷，深色高领毛衣，黑白棚拍人像，伦勃朗光，眼神有故事，皮肤与胡茬纹理真实，杂志封面级别",
+ "negative": "",
+ "wall_s": 75.4,
+ "machine": "Mac Studio M5 Ultra 96GB",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-13 21:40:02"
+}

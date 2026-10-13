@@ -1,0 +1,33 @@
+{
+ "name": "portrait_m_gptimage",
+ "model": "openai/gpt-image-2.5-flare",
+ "provider": "openrouter",
+ "prompt": "An exceptionally handsome East Asian man around 28, chiseled features, strong brows and deep eyes, short wavy hair, dark turtleneck, black-and-white studio portrait, Rembrandt lighting, soulful gaze, realistic skin and stubble texture, magazine cover quality",
+ "aspect_ratio": "3:4",
+ "resolution": null,
+ "size": null,
+ "refs": [],
+ "wall_s": 20.4,
+ "cost_usd": 0.04917,
+ "usage": {
+  "prompt_tokens": 60,
+  "completion_tokens": 1629,
+  "total_tokens": 1689,
+  "cost": 0.04917,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.04917,
+   "upstream_inference_prompt_cost": 0.0003,
+   "upstream_inference_completions_cost": 0.04887
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 1629
+  }
+ },
+ "file": "s2/cloud/portrait_m_gptimage.png",
+ "when": "2026-10-13 22:01:39"
+}

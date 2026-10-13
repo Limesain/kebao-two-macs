@@ -1,0 +1,49 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><link rel="stylesheet" href="cards16/_base.css"><style>
+.page{padding:46px 90px 36px}
+.hd{display:flex;justify-content:space-between;align-items:flex-end;gap:40px}
+.title{font-family:"Songti SC",serif;font-size:34px;margin:8px 0 0;white-space:nowrap}
+.sub{font-family:"Songti SC",serif;font-size:17px;line-height:1.6;color:var(--ink);max-width:980px;text-align:right;border-right:1px solid var(--gold);padding-right:16px}
+.stage{flex:1;min-height:0;margin-top:16px;position:relative;display:flex;align-items:center;justify-content:center}
+.wrap{position:relative;flex:none}.wrap>img{display:block;width:100%;height:100%}
+.wrap .b{position:absolute;inset:0;clip-path:inset(0 100% 0 0)}.wrap .b img{width:100%;height:100%}
+.wrap .edge{position:absolute;top:0;bottom:0;width:2px;background:var(--gold);left:0;opacity:0;box-shadow:0 0 18px rgba(200,169,110,.8)}
+.mask{position:absolute;border:1.5px dashed var(--gold);background:rgba(200,169,110,.14);opacity:0;transition:opacity .6s}.mask span{position:absolute;left:0;top:-24px;font-size:11px;letter-spacing:.3em;color:var(--gold)}
+.tag{position:absolute;bottom:14px;padding:6px 12px;font-family:ui-monospace,Menlo,monospace;font-size:12px;letter-spacing:.14em;background:rgba(13,14,17,.72);border:1px solid var(--rule);color:var(--ink)}.tag.l{left:14px}.tag.r{right:14px;opacity:0}
+.panes{display:grid;grid-template-columns:1fr 1fr;gap:26px;width:100%;height:100%}
+.pane{display:flex;flex-direction:column;min-height:0}.pane .im{flex:1;min-height:0;border:1px solid var(--rule);background:#111;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.pane img{max-width:100%;max-height:100%;object-fit:contain;transition:transform 2.6s cubic-bezier(.4,0,.2,1)}
+.pane .cap{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--mut);letter-spacing:.06em;margin-top:8px}.pane .cap b{font-family:ui-serif,"New York",serif;font-weight:400;font-size:17px;color:var(--ink);margin-right:10px}
+.note{position:absolute;right:0;top:-2px;font-size:12px;letter-spacing:.3em;color:var(--gold);opacity:0;transition:opacity .6s}
+</style></head><body><div class="page">
+<div class="hd"><div><div class="kicker" id="k">克宝 · 实测 · 出图 · 使用场景</div><div class="title" id="t"></div></div><div class="sub" id="sub"></div></div>
+<div class="stage" id="stage"></div>
+<div class="foot"><span id="f"></span><span class="sig">克宝 = Claude Fable 5.1 · 思考强度最高 · 实测</span></div></div>
+<script>
+const q=new URLSearchParams(location.search); const el=id=>document.getElementById(id); window.__log={}; const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+el('t').textContent=q.get('title')||''; el('sub').textContent=q.get('sub')||''; if(q.get('kicker'))el('k').textContent=q.get('kicker');
+const mode=q.get('mode')||'wipe'; const hold=+(q.get('hold')||4)*1000; const stage=el('stage');
+(async()=>{
+ let meta={}; try{ if(q.get('meta')) meta=await (await fetch(q.get('meta'))).json(); }catch(e){}
+ const mline=[meta.model, meta.steps?meta.steps+' 步':'', meta.width?meta.width+'×'+meta.height:'', meta.wall_s!=null?meta.wall_s+' s':'', meta.machine||''].filter(Boolean).join(' · ');
+ el('f').textContent=q.get('foot')||(mline+' · 2026-10-13');
+ const load=u=>new Promise(r=>{const i=new Image(); i.onload=()=>r(i); i.onerror=()=>r(i); i.src=u;});
+ const A=await load(q.get('a')), B=await load(q.get('b'));
+ if(mode==='wipe'){
+   const w=document.createElement('div'); w.className='wrap'; w.innerHTML=`<img src="${q.get('a')}"><div class="b"><img src="${q.get('b')}"></div><div class="edge"></div><div class="tag l">${q.get('ca')||'原图'}</div><div class="tag r">${q.get('cb')||'结果'}</div>`;
+   const sw=stage.clientWidth, sh=stage.clientHeight, ar=A.naturalWidth/A.naturalHeight; let ww=sw, wh=sw/ar; if(wh>sh){wh=sh; ww=sh*ar;} w.style.width=ww+'px'; w.style.height=wh+'px';
+   stage.appendChild(w); await sleep(80);
+   if(q.get('mask')){ const [x,y,mw,mh]=q.get('mask').split(',').map(Number); const m=document.createElement('div'); m.className='mask'; m.style.left=(x*100)+'%'; m.style.top=(y*100)+'%'; m.style.width=(mw*100)+'%'; m.style.height=(mh*100)+'%'; m.innerHTML='<span>蒙版 · 只重画这里</span>'; w.appendChild(m); await sleep(700); m.style.opacity=1; await sleep(1600); m.style.opacity=0; }
+   else await sleep(1800);
+   const b=w.querySelector('.b'), e=w.querySelector('.edge'); e.style.opacity=1; const T=1700, t0=performance.now();
+   await new Promise(res=>{ const f=t=>{ const p=Math.min(1,(t-t0)/T); const ease=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2; b.style.clipPath=`inset(0 ${(1-ease)*100}% 0 0)`; e.style.left=(ease*100)+'%'; if(p<1) requestAnimationFrame(f); else res(); }; requestAnimationFrame(f); });
+   await sleep(200); e.style.opacity=0; w.querySelector('.tag.r').style.opacity=1; await sleep(hold);
+ } else {
+   const cx=+(q.get('cx')||0.5), cy=+(q.get('cy')||0.45), z=+(q.get('z')||3.5);
+   const p=document.createElement('div'); p.className='panes'; p.innerHTML=`<div class="pane"><div class="im"><img id="ia" src="${q.get('a')}"></div><div class="cap"><b>${q.get('ca')||'原图'}</b>${A.naturalWidth}×${A.naturalHeight}</div></div><div class="pane"><div class="im"><img id="ib" src="${q.get('b')}"></div><div class="cap"><b>${q.get('cb')||'结果'}</b>${B.naturalWidth}×${B.naturalHeight}${meta.wall_s!=null?' · '+meta.wall_s+' s':''}</div></div><div class="note" id="note">局部放大 ×${z} · 同一区域</div>`;
+   stage.appendChild(p); await sleep(1600);
+   for(const id of ['ia','ib']){ const im=el(id); im.style.transformOrigin=`${cx*100}% ${cy*100}%`; im.style.transform=`scale(${z})`; }
+   await sleep(900); el('note').style.opacity=1; await sleep(2000+hold);
+ }
+ document.title='DONE';
+})();
+</script></body></html>

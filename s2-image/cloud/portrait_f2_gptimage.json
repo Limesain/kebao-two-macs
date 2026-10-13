@@ -1,0 +1,33 @@
+{
+ "name": "portrait_f2_gptimage",
+ "model": "openai/gpt-image-2.5-flare",
+ "provider": "openrouter",
+ "prompt": "A strikingly beautiful Chinese woman with refined features, haute-couture black velvet gown, pearl earrings, slicked-back wet hair, butterfly lighting, dark grey backdrop, top fashion magazine cover finish, realistic skin texture, razor-sharp lashes and hair detail",
+ "aspect_ratio": "3:4",
+ "resolution": null,
+ "size": null,
+ "refs": [],
+ "wall_s": 19.0,
+ "cost_usd": 0.049155,
+ "usage": {
+  "prompt_tokens": 57,
+  "completion_tokens": 1629,
+  "total_tokens": 1686,
+  "cost": 0.049155,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.049155,
+   "upstream_inference_prompt_cost": 0.000285,
+   "upstream_inference_completions_cost": 0.04887
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 1629
+  }
+ },
+ "file": "s2/cloud/portrait_f2_gptimage.png",
+ "when": "2026-10-13 21:59:20"
+}

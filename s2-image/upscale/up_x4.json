@@ -1,0 +1,27 @@
+{
+ "name": "up_x4",
+ "engine": "upscale",
+ "model": "超分 4x-UltraSharp.pth",
+ "file": "4x-UltraSharp.pth",
+ "quant": "fp32",
+ "ref": "s2/upscale/up_base.png",
+ "ref_size": [
+  1024,
+  1280
+ ],
+ "down": null,
+ "sampler": null,
+ "scheduler": null,
+ "steps": null,
+ "cfg": null,
+ "seed": null,
+ "denoise": null,
+ "width": 4096,
+ "height": 5120,
+ "prompt": "",
+ "negative": "",
+ "wall_s": 45.3,
+ "machine": "Mac Studio M5 Ultra 96GB",
+ "server": "http://127.0.0.1:8201",
+ "when": "2026-10-13 22:49:56"
+}

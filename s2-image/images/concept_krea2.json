@@ -1,0 +1,22 @@
+{
+ "name": "concept_krea2",
+ "engine": "krea2",
+ "model": "Krea 2 Turbo",
+ "file": "krea2_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen3vl_4b_heretic_int8",
+ "sampler": "euler",
+ "scheduler": "simple",
+ "steps": 8,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 2048,
+ "height": 1152,
+ "prompt": "工业概念设计图：一台在火星表面勘探的六足机器人，磨损的白色与橙色涂装，太阳能板展开，机械细节丰富，背景是红色峡谷和远处的穹顶基地，手绘线稿与写实渲染结合的质感，电影概念艺术",
+ "negative": "",
+ "wall_s": 177.6,
+ "machine": "MacBook Pro M5 Max 48GB",
+ "server": "http://10.0.0.242:8188",
+ "when": "2026-10-13 22:03:53"
+}

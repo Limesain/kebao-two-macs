@@ -1,0 +1,23 @@
+{
+ "name": "landscape_zimage",
+ "engine": "zimage",
+ "model": "Z-Image Turbo",
+ "file": "z_image_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen_3_4b",
+ "shift": 3,
+ "sampler": "res_multistep",
+ "scheduler": "simple",
+ "steps": 9,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 2048,
+ "height": 1152,
+ "prompt": "黎明时分的喀纳斯湖，薄雾在湖面流动，金色的秋季白桦林，远处雪山顶被第一束阳光染成粉色，长焦压缩的层次感，风光摄影，大画幅相机的细腻质感",
+ "negative": "",
+ "wall_s": 71.4,
+ "machine": "MacBook Pro M5 Max 48GB",
+ "server": "http://10.0.0.242:8188",
+ "when": "2026-10-13 21:49:32"
+}

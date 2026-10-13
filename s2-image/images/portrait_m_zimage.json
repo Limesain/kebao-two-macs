@@ -1,0 +1,23 @@
+{
+ "name": "portrait_m_zimage",
+ "engine": "zimage",
+ "model": "Z-Image Turbo",
+ "file": "z_image_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen_3_4b",
+ "shift": 3,
+ "sampler": "res_multistep",
+ "scheduler": "simple",
+ "steps": 9,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 1408,
+ "height": 1760,
+ "prompt": "一位二十八岁左右、极为英俊的东亚男性，轮廓分明，浓眉深目，短发微卷，深色高领毛衣，黑白棚拍人像，伦勃朗光，眼神有故事，皮肤与胡茬纹理真实，杂志封面级别",
+ "negative": "",
+ "wall_s": 58.4,
+ "machine": "MacBook Pro M5 Max 48GB",
+ "server": "http://10.0.0.242:8188",
+ "when": "2026-10-13 21:39:20"
+}

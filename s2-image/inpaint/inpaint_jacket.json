@@ -1,0 +1,32 @@
+{
+ "name": "inpaint_jacket",
+ "engine": "zimage_inpaint",
+ "model": "Z-Image Turbo（局部重绘）",
+ "file": "z_image_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen_3_4b",
+ "ref": "s2/images/portrait_qwen.png",
+ "mask": "0,0.56,1,0.44",
+ "mask_px": [
+  0,
+  1164,
+  1664,
+  915
+ ],
+ "mask_blur": 90,
+ "method": "VAEEncode → SetLatentNoiseMask → KSampler(denoise 1.0) → ImageCompositeMasked",
+ "sampler": "res_multistep",
+ "scheduler": "simple",
+ "steps": 9,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 1664,
+ "height": 2080,
+ "prompt": "一位三十岁左右的中国女性站在午后窗边，侧逆光，自然妆，身穿墨绿色丝绒西装外套，内搭白色衬衫，浅景深，85mm 镜头的胶片质感，柔和暖色，真实皮肤纹理",
+ "negative": "",
+ "wall_s": 47.2,
+ "machine": "Mac Studio M5 Ultra 96GB",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-13 22:31:59"
+}

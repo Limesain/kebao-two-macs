@@ -1,0 +1,33 @@
+{
+ "name": "portrait_f2_seedream",
+ "model": "bytedance-seed/seedream-5-0-pro",
+ "provider": "openrouter",
+ "prompt": "一位颜值出众的中国女性，五官精致，高定黑色丝绒礼服，珍珠耳饰，湿发后梳造型，蝴蝶光，深灰色背景，顶级时尚杂志封面质感，皮肤质感真实、睫毛与发丝细节锐利",
+ "aspect_ratio": "4:5",
+ "resolution": "2K",
+ "size": null,
+ "refs": [],
+ "wall_s": 56.5,
+ "cost_usd": 0.09,
+ "usage": {
+  "prompt_tokens": 75,
+  "completion_tokens": 13120,
+  "total_tokens": 13195,
+  "cost": 0.09,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.09,
+   "upstream_inference_prompt_cost": 0,
+   "upstream_inference_completions_cost": 0.09
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 13120
+  }
+ },
+ "file": "s2/cloud/portrait_f2_seedream.jpg",
+ "when": "2026-10-13 21:57:55"
+}

@@ -1,0 +1,33 @@
+{
+ "name": "anime_grok",
+ "model": "x-ai/grok-imagine-image-2.0",
+ "provider": "openrouter",
+ "prompt": "Anime illustration: a young woman in a white summer sailor-style school blouse at a railway crossing as a train rushes past, wind tousling her long hair, towering cumulonimbus clouds and a crystal-clear sky in the distance, Makoto Shinkai style light and ultra-detailed clouds, Japanese anime film still",
+ "aspect_ratio": "3:4",
+ "resolution": "2K",
+ "size": null,
+ "refs": [],
+ "wall_s": 67.5,
+ "cost_usd": 0.08,
+ "usage": {
+  "prompt_tokens": 76,
+  "completion_tokens": 4175,
+  "total_tokens": 4251,
+  "cost": 0.08,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.08,
+   "upstream_inference_prompt_cost": 0,
+   "upstream_inference_completions_cost": 0.08
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 4175
+  }
+ },
+ "file": "s2/cloud/anime_grok.png",
+ "when": "2026-10-13 22:05:02"
+}

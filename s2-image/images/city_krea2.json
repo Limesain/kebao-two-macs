@@ -1,0 +1,22 @@
+{
+ "name": "city_krea2",
+ "engine": "krea2",
+ "model": "Krea 2 Turbo",
+ "file": "krea2_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen3vl_4b_heretic_int8",
+ "sampler": "euler",
+ "scheduler": "simple",
+ "steps": 8,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 2048,
+ "height": 1152,
+ "prompt": "雨后的重庆洪崖洞夜景，层叠的山城吊脚楼亮着金色与青色霓虹，长江索道的缆车从画面上方掠过，低角度广角，湿漉漉的石阶倒映着灯火，赛博朋克色调，电影感，极高细节",
+ "negative": "",
+ "wall_s": 143.1,
+ "machine": "MacBook Pro M5 Max 48GB",
+ "server": "http://10.0.0.242:8188",
+ "when": "2026-10-13 21:57:12"
+}

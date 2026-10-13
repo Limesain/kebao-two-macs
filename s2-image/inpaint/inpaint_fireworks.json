@@ -1,0 +1,32 @@
+{
+ "name": "inpaint_fireworks",
+ "engine": "zimage_inpaint",
+ "model": "Z-Image Turbo（局部重绘）",
+ "file": "z_image_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen_3_4b",
+ "ref": "s2/images/city_qwen.png",
+ "mask": "0,0,1,0.36",
+ "mask_px": [
+  0,
+  0,
+  2048,
+  414
+ ],
+ "mask_blur": 90,
+ "method": "VAEEncode → SetLatentNoiseMask → KSampler(denoise 1.0) → ImageCompositeMasked",
+ "sampler": "res_multistep",
+ "scheduler": "simple",
+ "steps": 9,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 2048,
+ "height": 1152,
+ "prompt": "雨后的重庆洪崖洞夜景，层叠的山城吊脚楼亮着金色与青色霓虹，夜空中几朵巨大的金色与紫色烟花正在绽放，火花拖着长尾，低角度广角，湿漉漉的石阶倒映着灯火与烟花，电影感，极高细节",
+ "negative": "",
+ "wall_s": 24.1,
+ "machine": "Mac Studio M5 Ultra 96GB",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-13 22:31:12"
+}

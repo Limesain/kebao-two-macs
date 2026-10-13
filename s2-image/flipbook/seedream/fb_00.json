@@ -1,0 +1,33 @@
+{
+ "name": "fb_00",
+ "model": "bytedance-seed/seedream-5-0-pro",
+ "provider": "openrouter",
+ "prompt": "电影截帧，35mm 镜头：一位穿深绿雨衣、背着帆布包的年轻女性，短发，撑着透明雨伞站在雨夜东京便利店门口的雨幕里，中景正面，看向镜头，霓虹倒映在湿漉漉的路面，青橙色调，真实胶片质感",
+ "aspect_ratio": "16:9",
+ "resolution": "2K",
+ "size": null,
+ "refs": [],
+ "wall_s": 38.9,
+ "cost_usd": 0.045,
+ "usage": {
+  "prompt_tokens": 87,
+  "completion_tokens": 9216,
+  "total_tokens": 9303,
+  "cost": 0.045,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.045,
+   "upstream_inference_prompt_cost": 0,
+   "upstream_inference_completions_cost": 0.045
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 9216
+  }
+ },
+ "file": "s2/flipbook/seedream/fb_00.jpg",
+ "when": "2026-10-13 21:50:00"
+}

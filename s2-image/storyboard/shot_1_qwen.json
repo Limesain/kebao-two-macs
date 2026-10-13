@@ -1,0 +1,25 @@
+{
+ "name": "shot_1_qwen",
+ "engine": "qwen_edit",
+ "model": "Qwen-Image 2.1（指令编辑）",
+ "file": "qwen_image_2.1_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen3vl_8b_int8",
+ "refs": [
+  "s2/flipbook/local/fb_00.png"
+ ],
+ "sampler": "euler",
+ "scheduler": "simple",
+ "steps": 25,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 1280,
+ "height": 704,
+ "prompt": "以图1 中的人物（外貌、短发、深绿雨衣、帆布包）和雨夜东京街景为基准，生成同一部电影里的新分镜：建立镜头：远景，她撑伞站在十字路口中央，四周是雨中的霓虹与行人。保持同样的色调与打光，人物外貌与衣着必须一致，电影截帧质感。",
+ "negative": "",
+ "wall_s": 57.6,
+ "machine": "Mac Studio M5 Ultra 96GB",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-13 22:27:08"
+}

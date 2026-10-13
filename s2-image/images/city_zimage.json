@@ -1,0 +1,23 @@
+{
+ "name": "city_zimage",
+ "engine": "zimage",
+ "model": "Z-Image Turbo",
+ "file": "z_image_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen_3_4b",
+ "shift": 3,
+ "sampler": "res_multistep",
+ "scheduler": "simple",
+ "steps": 9,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 2048,
+ "height": 1152,
+ "prompt": "雨后的重庆洪崖洞夜景，层叠的山城吊脚楼亮着金色与青色霓虹，长江索道的缆车从画面上方掠过，低角度广角，湿漉漉的石阶倒映着灯火，赛博朋克色调，电影感，极高细节",
+ "negative": "",
+ "wall_s": 21.1,
+ "machine": "Mac Studio M5 Ultra 96GB",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-13 22:32:28"
+}

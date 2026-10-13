@@ -1,0 +1,23 @@
+{
+ "name": "landscape_qwen",
+ "engine": "qwen",
+ "model": "Qwen-Image 2.1",
+ "file": "qwen_image_2.1_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen3vl_8b_int8",
+ "prompt_enhancer": false,
+ "sampler": "euler",
+ "scheduler": "simple",
+ "steps": 25,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 2048,
+ "height": 1152,
+ "prompt": "黎明时分的喀纳斯湖，薄雾在湖面流动，金色的秋季白桦林，远处雪山顶被第一束阳光染成粉色，长焦压缩的层次感，风光摄影，大画幅相机的细腻质感",
+ "negative": "",
+ "wall_s": 81.0,
+ "machine": "Mac Studio M5 Ultra 96GB",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-13 21:57:04"
+}
