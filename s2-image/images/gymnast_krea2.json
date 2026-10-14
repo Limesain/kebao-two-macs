@@ -1,0 +1,22 @@
+{
+ "name": "gymnast_krea2",
+ "engine": "krea2",
+ "model": "Krea 2 Turbo",
+ "file": "krea2_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen3vl_4b_heretic_int8",
+ "sampler": "euler",
+ "scheduler": "simple",
+ "steps": 8,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 2304,
+ "height": 1536,
+ "prompt": "体操馆里一位女子体操运动员在平衡木上做一字马，全身入镜，双臂向两侧平举，手指舒展，肢体比例准确，白色与红色的体操服，高速快门凝固动作，观众席虚化",
+ "negative": "",
+ "wall_s": 76.7,
+ "machine": "Mac Studio M5 Ultra 96GB",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-14 01:01:36"
+}

@@ -1,0 +1,22 @@
+{
+ "name": "hands_krea2",
+ "engine": "krea2",
+ "model": "Krea 2 Turbo",
+ "file": "krea2_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen3vl_4b_heretic_int8",
+ "sampler": "euler",
+ "scheduler": "simple",
+ "steps": 8,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 1536,
+ "height": 1536,
+ "prompt": "特写：一位年轻女性的双手正在编织灰色毛线，两根毛线针交叉，十根手指清晰可数、关节自然，指甲干净，窗边自然光，皮肤纹理真实，浅景深",
+ "negative": "",
+ "wall_s": 50.9,
+ "machine": "Mac Studio M5 Ultra 96GB",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-14 00:56:41"
+}

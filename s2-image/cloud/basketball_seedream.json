@@ -1,0 +1,33 @@
+{
+ "name": "basketball_seedream",
+ "model": "bytedance-seed/seedream-5-0-pro",
+ "provider": "openrouter",
+ "prompt": "篮球比赛中两名球员在篮下跃起争抢篮板球，肢体交错但各自完整，手臂、手指和球的关系清楚，汗水与动作张力，体育馆灯光，观众席虚化，体育摄影",
+ "aspect_ratio": "16:9",
+ "resolution": "2K",
+ "size": null,
+ "refs": [],
+ "wall_s": 43.0,
+ "cost_usd": 0.045,
+ "usage": {
+  "prompt_tokens": 67,
+  "completion_tokens": 9216,
+  "total_tokens": 9283,
+  "cost": 0.045,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.045,
+   "upstream_inference_prompt_cost": 0,
+   "upstream_inference_completions_cost": 0.045
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 9216
+  }
+ },
+ "file": "s2/cloud/basketball_seedream.jpg",
+ "when": "2026-10-14 01:04:18"
+}

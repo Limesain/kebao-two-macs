@@ -1,0 +1,42 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><link rel="stylesheet" href="cards16/_base.css"><script src="models.js"></script><style>
+.page{padding:0}
+.stage{position:absolute;inset:0;overflow:hidden;background:#0d0e11}
+.shot{position:absolute;inset:0;opacity:0}
+.shot img{position:absolute;left:50%;top:50%;width:112%;height:112%;object-fit:cover;transform:translate(-50%,-50%) scale(1);transform-origin:center}
+.shot .lab{position:absolute;left:0;bottom:112px;padding:14px 90px 14px 90px;font-family:ui-serif,"New York",serif;font-size:30px;color:#fff;text-shadow:0 2px 14px rgba(0,0,0,.9);background:linear-gradient(90deg,rgba(0,0,0,.62) 0%,rgba(0,0,0,.45) 55%,rgba(0,0,0,0) 100%)}
+.shot .lab i{font-style:normal;display:block;font-family:"PingFang SC",sans-serif;font-size:12px;letter-spacing:.32em;color:var(--gold);margin-top:8px}
+.wall{position:absolute;inset:0;display:grid;gap:6px;opacity:0;transform-origin:50% 50%}
+.wall div{background:#111;overflow:hidden}.wall img{width:100%;height:100%;object-fit:cover;display:block}
+.title{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-family:"Songti SC",serif;font-size:64px;color:#fff;text-shadow:0 4px 40px rgba(0,0,0,.9);opacity:0;background:rgba(13,14,17,.45)}
+.title small{display:block;font-family:"PingFang SC",sans-serif;font-size:15px;letter-spacing:.5em;color:var(--gold);margin-top:18px}
+.vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 50%,transparent 55%,rgba(0,0,0,.55) 100%)}
+</style></head><body><div class="stage" id="stage"><div class="vig"></div><div class="title" id="title"></div></div>
+<script>
+// 全部动画由 __seek(t) 决定（逐帧截图录制用），参数：items=逗号分隔的 name，dwell 秒，wall 秒
+const q=new URLSearchParams(location.search); const el=id=>document.getElementById(id); window.__log={}; window.__ready=false;
+const dwell=+(q.get('dwell')||2.3), xf=0.6, wallDur=+(q.get('wall')||6), n=+(q.get('n')||8), zoomTo=1.10;
+const ease=p=>p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2; const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+let shots=[], wall=null, T0=0, Twall=0;
+(async()=>{
+ const M=await (await fetch('s2/manifest.json?'+Date.now())).json();
+ const pick=(q.get('items')||'').split(',').filter(Boolean);
+ const loc=M.items.filter(i=>i.kind==='t2i'&&i.where==='local'&&!/^storyboard|^profile/.test(i.name));
+ const sel=pick.length? pick.map(nm=>loc.find(i=>i.name===nm)).filter(Boolean) : loc.slice(0,n);
+ const stage=el('stage');
+ sel.forEach((it,k)=>{ const m=MODELS[it.engine]||{name:it.model}; const s=document.createElement('div'); s.className='shot'; const T=M.themes.concat(M.bodies||[]).find(t=>t.id===it.theme)||{};
+   s.innerHTML=`<img src="${it.file}"><div class="lab">${T.title||it.theme}<i>${m.name} · ${m.params||''} · 本地 · MAC STUDIO · ${it.wall_s} S</i></div>`; stage.insertBefore(s, el('title')); shots.push({el:s, img:s.querySelector('img'), dx:(k%2?1:-1)*2.5, dy:(k%3-1)*1.5}); });
+ // 墙：铺满网格（不够就从头重复）
+ wall=document.createElement('div'); wall.className='wall'; const cols=Math.ceil(Math.sqrt(loc.length*16/9)); const rows=Math.ceil(loc.length/cols); wall.style.gridTemplateColumns=`repeat(${cols},1fr)`; wall.style.gridTemplateRows=`repeat(${rows},1fr)`;
+ for(let i=0;i<cols*rows;i++){const it=loc[i%loc.length]; const d=document.createElement('div'); d.innerHTML=`<img src="${it.file}">`; wall.appendChild(d);} stage.insertBefore(wall, el('title'));
+ el('title').innerHTML=(q.get('title')||`${loc.length} 张 · 全部 Mac 本地出图`)+`<small>${q.get('sub')||'零云端 · 零元 · 同一台 MAC STUDIO'}</small>`;
+ await Promise.all([...document.images].map(i=>i.complete?Promise.resolve():new Promise(r=>{i.onload=i.onerror=r;})));
+ Twall=sel.length*dwell; window.__dur=Twall+wallDur; window.__seek(0); window.__ready=true;
+})();
+window.__seek=function(t){
+ shots.forEach((s,k)=>{ const a=k*dwell, b=a+dwell; let op=0; if(t>=a-xf&&t<b+xf){ op=1; if(t<a) op=clamp((t-(a-xf))/xf,0,1); else if(t>b) op=clamp(1-(t-b)/xf,0,1); }
+   if(k===0&&t<a) op=1; s.el.style.opacity=op; s.el.style.zIndex=op>0?10+k:0;
+   const p=clamp((t-a+xf)/(dwell+2*xf),0,1); const z=1+(zoomTo-1)*p; s.img.style.transform=`translate(calc(-50% + ${s.dx*p}%), calc(-50% + ${s.dy*p}%)) scale(${z})`; });
+ const tw=t-Twall; if(wall){ if(tw<-xf){ wall.style.opacity=0; } else { const p=clamp((tw+xf)/(3.2+xf),0,1); const e=ease(p); wall.style.opacity=clamp((tw+xf)/xf,0,1); wall.style.transform=`scale(${1.9-0.9*e})`; wall.style.zIndex=50; } }
+ const tt=tw-2.6; el('title').style.opacity=clamp(tt/0.8,0,1); el('title').style.zIndex=60;
+};
+</script></body></html>

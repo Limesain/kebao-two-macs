@@ -1,0 +1,313 @@
+{
+ "themes": [
+  {
+   "id": "hands",
+   "title": "手部特写",
+   "results": {
+    "zimage": {
+     "grade": "fail",
+     "votes": {
+      "pass": 0,
+      "minor": 0,
+      "fail": 3
+     },
+     "note": "画面里的手指没法归到两只手上，判 fail。（1）右侧那只手只露出拇指（指甲约在 920,665），另有一个指尖从毛线后面探出来（约 1060,830），其余手指藏在织物后面，这部分合理。（2）下方中间那只手从画面底部伸进来，手腕偏右下，能看到带指甲的拇指（约 740,800），还有一根食指沿左侧往上，指尖塞到织片边缘后面（约 630,780），两指之间的虎口在约 830,1200。（3）左上方另"
+    },
+    "qwen": {
+     "grade": "fail",
+     "votes": {
+      "pass": 0,
+      "minor": 0,
+      "fail": 3
+     },
+     "note": "There are three hands in the frame, but the prompt is one woman's two hands. Right hand (wrist exits the bottom-right): looks fine. You can see the index finger over the needle, the thumb with its nai"
+    },
+    "krea2": {
+     "grade": "minor",
+     "votes": {
+      "pass": 1,
+      "minor": 2,
+      "fail": 0
+     },
+     "note": "Finger count is correct, with no fused or extra digits. Left hand (image left): thumb in front pinching the yarn at the needle tip, nail visible; index finger raised with the working yarn draped over "
+    },
+    "seedream": {
+     "grade": "minor",
+     "votes": {
+      "pass": 1,
+      "minor": 2,
+      "fail": 0
+     },
+     "note": "I counted 10 fingers, 5 on each hand, and checked each one in zoomed crops. Left hand (viewer's left): the index finger is extended with the working yarn wrapped over it, and the thumb presses the lef"
+    },
+    "grok": {
+     "grade": "minor",
+     "votes": {
+      "pass": 0,
+      "minor": 3,
+      "fail": 0
+     },
+     "note": "I checked the full frame and zoomed crops of each hand. Left-side hand: 5 digits, all clear. The top digit arches over the needle crossing at about (990,700), the broad-nailed digit presses along the "
+    },
+    "gptimage": {
+     "grade": "minor",
+     "votes": {
+      "pass": 1,
+      "minor": 2,
+      "fail": 0
+     },
+     "note": "I looked at close crops of both hands and counted 5 digits on each, with no fused or extra fingers and no hand merging into a needle or the yarn. Left hand in the image (her right): a long top digit ("
+    }
+   }
+  },
+  {
+   "id": "gymnast",
+   "title": "平衡木一字马",
+   "results": {
+    "zimage": {
+     "grade": "minor",
+     "votes": {
+      "pass": 0,
+      "minor": 3,
+      "fail": 0
+     },
+     "note": "I found no obvious anatomy errors, but one hand is ambiguous on close inspection. Hands: both hands are seen edge-on, palm down, with the fingers pressed together. The viewer-right hand (her left) sho"
+    },
+    "qwen": {
+     "grade": "pass",
+     "votes": {
+      "pass": 3,
+      "minor": 0,
+      "fail": 0
+     },
+     "note": "Crops checked at about 4x (original is 2304x1536). Left hand (arm out to the left, back of the hand toward the camera): 5 digits. The thumb points up, index and middle sit close together, then ring, a"
+    },
+    "krea2": {
+     "grade": "pass",
+     "votes": {
+      "pass": 3,
+      "minor": 0,
+      "fail": 0
+     },
+     "note": "Checked at zoom. Viewer-left hand (subject's right): a thumb splayed down plus 4 fingers (index, middle, ring, pinky). The pinky is shortest, the order is right and none are fused. Viewer-right hand ("
+    },
+    "seedream": {
+     "grade": "pass",
+     "votes": {
+      "pass": 3,
+      "minor": 0,
+      "fail": 0
+     },
+     "note": "I zoomed into each hand to count fingers. The viewer-left hand (athlete's right) has 5 fingers: 4 fanned upward, with the pinky shortest, plus a separate thumb pointing down. The viewer-right hand (at"
+    },
+    "grok": {
+     "grade": "minor",
+     "votes": {
+      "pass": 0,
+      "minor": 3,
+      "fail": 0
+     },
+     "note": "Hands seen at 5-10x zoom: each hand clearly shows a thumb plus 3 spread fingers, so 4 digits are visible per hand. On the viewer-left hand (her right) a small knuckle bump at the base of the top finge"
+    },
+    "gptimage": {
+     "grade": "pass",
+     "votes": {
+      "pass": 2,
+      "minor": 1,
+      "fail": 0
+     },
+     "note": "Both hands have 5 fingers when zoomed in. The left hand (image left) has the index finger raised and the middle, ring and pinky fingers fanned below it, with the thumb pointing down. The right hand (i"
+    }
+   }
+  },
+  {
+   "id": "crowd",
+   "title": "夜市五人举杯",
+   "results": {
+    "zimage": {
+     "grade": "minor",
+     "votes": {
+      "pass": 0,
+      "minor": 3,
+      "fail": 0
+     },
+     "note": "I counted the fingers on all four hands holding glasses, using close-up crops, and found no wrong counts, fused or extra fingers, or hands melting into glasses. (1) The front-left man's hand (lowest g"
+    },
+    "qwen": {
+     "grade": "minor",
+     "votes": {
+      "pass": 0,
+      "minor": 3,
+      "fail": 0
+     },
+     "note": "All 5 faces are intact and in proportion: left man and far-right man in profile, grey-sweater girl, center girl behind her cup, and the right-center man. There are 5 cups and each goes with a plausibl"
+    },
+    "krea2": {
+     "grade": "minor",
+     "votes": {
+      "pass": 0,
+      "minor": 2,
+      "fail": 1
+     },
+     "note": "碰杯中心有明显的肢体错误：黑T男生（右二）伸出的左前臂（显示坐标约 1100-1240, 550-580）一直延伸到右前杯（右侧女生手里那杯）的杯口就断了，没有手。透过杯子上半段的半透明部分，看不到后面有手的轮廓。他的前臂和右侧女生（右一）伸出的右臂汇进同一只手（约 1100, 590），看起来像两条胳膊共用一只手。五个人只举起 4 个杯子，黑T男生没有杯子，这也印证他那只手是缺失的。所有能看到的"
+    },
+    "seedream": {
+     "grade": "pass",
+     "votes": {
+      "pass": 2,
+      "minor": 1,
+      "fail": 0
+     },
+     "note": "Five people, five glasses, and each glass is held by exactly one hand, so no hand is unaccounted for and none merges into a glass.\n\nHand by hand, left to right:\n- Front-left man (right hand, on the fr"
+    },
+    "grok": {
+     "grade": "minor",
+     "votes": {
+      "pass": 0,
+      "minor": 3,
+      "fail": 0
+     },
+     "note": "I checked all five hands holding glasses in close crops. None has a wrong finger count, fused fingers, extra fingers, or a hand merging with its glass. Left man (glass 1): 4 fingers wrap the front of "
+    },
+    "gptimage": {
+     "grade": "fail",
+     "votes": {
+      "pass": 0,
+      "minor": 1,
+      "fail": 2
+     },
+     "note": "Hand-by-hand count, using 3-4x crops: 1) Green-jacket man, front left: four fingers wrap glass 2, thumb hidden. Clean. 2) Centre hoodie man: index, middle and ring fingers wrap the tall glass 1, thumb"
+    }
+   }
+  },
+  {
+   "id": "guzheng",
+   "title": "古筝双手",
+   "results": {
+    "zimage": {
+     "grade": "minor",
+     "votes": {
+      "pass": 0,
+      "minor": 3,
+      "fail": 0
+     },
+     "note": "The anatomy is mostly sound; it misses a pass only because of a small ambiguity in one hand.\n\n- **Her right hand (viewer's left):** four fingers show cleanly, with the back of the hand to the viewer. "
+    },
+    "qwen": {
+     "grade": "minor",
+     "votes": {
+      "pass": 0,
+      "minor": 3,
+      "fail": 0
+     },
+     "note": "I zoomed into both hands to count fingers. Neither hand has a wrong finger count, fused fingers or extra fingers. Her right hand (viewer's left) shows the back of the hand with 4 fingers reaching for "
+    },
+    "krea2": {
+     "grade": "minor",
+     "votes": {
+      "pass": 0,
+      "minor": 3,
+      "fail": 0
+     },
+     "note": "Grade: minor. Both hands have 5 digits, with no fused or extra fingers. Her left hand (viewer's right, original pixels about 1575-1840 x 830-1080) is clean: the thumb is tucked on the inner side and f"
+    },
+    "seedream": {
+     "grade": "minor",
+     "votes": {
+      "pass": 0,
+      "minor": 3,
+      "fail": 0
+     },
+     "note": "Finger count: 5 on each hand. The pick hand (her right hand, image left at about x400-620, y350-550) shows a curled bare pinky, a bare ring finger, a middle finger with tape, an index finger with tape"
+    },
+    "grok": {
+     "grade": "minor",
+     "votes": {
+      "pass": 1,
+      "minor": 2,
+      "fail": 0
+     },
+     "note": "Pass on anatomy. I counted the fingers on 2x crops of each hand.\n\nHer left hand (image right) has the correct five digits: a thumb plus index, middle, ring and little finger. Thumb, index, middle and "
+    },
+    "gptimage": {
+     "grade": "minor",
+     "votes": {
+      "pass": 0,
+      "minor": 3,
+      "fail": 0
+     },
+     "note": "Her left hand (image right, about x1020-1170, y520-620) shows 5 digits clearly: thumb, index, middle, ring and pinky, with natural curl and correct joint bends. Her right hand (image left, the one wea"
+    }
+   }
+  },
+  {
+   "id": "basketball",
+   "title": "篮板争抢",
+   "results": {
+    "zimage": {
+     "grade": "minor",
+     "votes": {
+      "pass": 0,
+      "minor": 3,
+      "fail": 0
+     },
+     "note": "I counted the fingers on each hand. Blue player's right hand on the ball, back of hand facing the camera: 4 digits spread across the ball, and the 5th is reasonably hidden behind it. No extra digits, "
+    },
+    "qwen": {
+     "grade": "minor",
+     "votes": {
+      "pass": 0,
+      "minor": 3,
+      "fail": 0
+     },
+     "note": "I found four hands and four arms for the two players, and each arm traces back to a shoulder. Left player (#33, seen from behind): his near left arm runs diagonally to a dark hand on the ball. That ha"
+    },
+    "krea2": {
+     "grade": "minor",
+     "votes": {
+      "pass": 0,
+      "minor": 3,
+      "fail": 0
+     },
+     "note": "Checked each hand on zoomed crops. Blue player's taped right hand, shown from the back on the ball, has 5 digits: four fingers spread on the ball and the thumb sticking out to the left above the wrist"
+    },
+    "seedream": {
+     "grade": "minor",
+     "votes": {
+      "pass": 0,
+      "minor": 3,
+      "fail": 0
+     },
+     "note": "Four hands are visible, two per player, and every finger count holds up. (1) The white #2x player's right hand palms the ball with the back of the hand to the camera: thumb on the left plus 4 fingers,"
+    },
+    "grok": {
+     "grade": "minor",
+     "votes": {
+      "pass": 0,
+      "minor": 2,
+      "fail": 1
+     },
+     "note": "Fingers: no wrong count, though several are hidden. The light-skinned hand on top of the ball shows 4 fingers draped over it, with the thumb hidden behind the ball. The dark hand under the ball shows "
+    },
+    "gptimage": {
+     "grade": "minor",
+     "votes": {
+      "pass": 0,
+      "minor": 3,
+      "fail": 0
+     },
+     "note": "Finger counts are fine. The Wolves #5 raised left hand shows its back to the camera with 4 digits spread across the ball: the index, middle and ring fingers plus the thumb on the right, and the pinky "
+    }
+   }
+  }
+ ],
+ "verdict": "乍看过得去，细看还不行。严格通过：Krea2 1、Qwen 1、Z-Image 0；云端 Seedream 2、GPT 1、Grok 0，<em>差距不大</em>。本地硬伤全在织毛衣：Z-Image、Qwen <em>多长出一只手</em>。篮球、古筝六个模型无一满分。",
+ "narration": "本地三个模型一共十五张，严格通过的只有两张；云端十五张，也才三张，差距没想象中大。本地最稳的是 Krea2，一张硬伤都没有。最离谱的是织毛衣那张：Z-Image 和 Qwen 都给她多画了一只手。",
+ "highlights": [
+  "严格通过：本地 2/15，云端 3/15；硬伤 2 比 1",
+  "Krea2 本地最稳：零硬伤，体操图满分",
+  "织毛衣翻车：Z-Image、Qwen 都多出一只手",
+  "每格仅 1 张图、3 票评审，属单次抽样"
+ ],
+ "judges": "3 × Claude Opus 5.5 视觉评审（三种检查视角），多数票"
+}

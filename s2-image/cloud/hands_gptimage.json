@@ -1,0 +1,33 @@
+{
+ "name": "hands_gptimage",
+ "model": "openai/gpt-image-2.5-flare",
+ "provider": "openrouter",
+ "prompt": "Close-up: a young woman's two hands knitting grey wool, two needles crossing, all ten fingers clearly visible with natural joints, clean nails, window daylight, realistic skin texture, shallow depth of field",
+ "aspect_ratio": "1:1",
+ "resolution": null,
+ "size": null,
+ "refs": [],
+ "wall_s": 49.9,
+ "cost_usd": 0.052905,
+ "usage": {
+  "prompt_tokens": 45,
+  "completion_tokens": 1756,
+  "total_tokens": 1801,
+  "cost": 0.052905,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.052905,
+   "upstream_inference_prompt_cost": 0.000225,
+   "upstream_inference_completions_cost": 0.05268
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 1756
+  }
+ },
+ "file": "s2/cloud/hands_gptimage.png",
+ "when": "2026-10-14 00:56:54"
+}

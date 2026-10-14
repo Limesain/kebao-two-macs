@@ -1,0 +1,23 @@
+{
+ "name": "crowd_zimage",
+ "engine": "zimage",
+ "model": "Z-Image Turbo",
+ "file": "z_image_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen_3_4b",
+ "shift": 3,
+ "sampler": "res_multistep",
+ "scheduler": "simple",
+ "steps": 9,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 2048,
+ "height": 1152,
+ "prompt": "夜市烧烤摊前，五个年轻人围坐一张小桌举杯碰杯，每个人的脸、手和杯子都清晰可见，桌上烤串与啤酒瓶杂乱，暖黄灯泡与烟雾，背景人来人往，环境复杂但人物不变形",
+ "negative": "",
+ "wall_s": 32.2,
+ "machine": "Mac Studio M5 Ultra 96GB",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-14 01:03:35"
+}

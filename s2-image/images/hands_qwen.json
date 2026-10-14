@@ -1,0 +1,23 @@
+{
+ "name": "hands_qwen",
+ "engine": "qwen",
+ "model": "Qwen-Image 2.1",
+ "file": "qwen_image_2.1_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen3vl_8b_int8",
+ "prompt_enhancer": false,
+ "sampler": "euler",
+ "scheduler": "simple",
+ "steps": 25,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 1536,
+ "height": 1536,
+ "prompt": "特写：一位年轻女性的双手正在编织灰色毛线，两根毛线针交叉，十根手指清晰可数、关节自然，指甲干净，窗边自然光，皮肤纹理真实，浅景深",
+ "negative": "",
+ "wall_s": 73.1,
+ "machine": "Mac Studio M5 Ultra 96GB",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-14 00:55:25"
+}

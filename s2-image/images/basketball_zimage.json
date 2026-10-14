@@ -1,0 +1,23 @@
+{
+ "name": "basketball_zimage",
+ "engine": "zimage",
+ "model": "Z-Image Turbo",
+ "file": "z_image_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen_3_4b",
+ "shift": 3,
+ "sampler": "res_multistep",
+ "scheduler": "simple",
+ "steps": 9,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 2048,
+ "height": 1152,
+ "prompt": "篮球比赛中两名球员在篮下跃起争抢篮板球，肢体交错但各自完整，手臂、手指和球的关系清楚，汗水与动作张力，体育馆灯光，观众席虚化，体育摄影",
+ "negative": "",
+ "wall_s": 32.3,
+ "machine": "Mac Studio M5 Ultra 96GB",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-14 01:11:19"
+}

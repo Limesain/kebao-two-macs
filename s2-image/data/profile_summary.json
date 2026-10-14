@@ -1,0 +1,43 @@
+{
+ "window": {
+  "start": "01:25:19",
+  "end": "01:28:29"
+ },
+ "idle_wired_gb": 41.5,
+ "models": {
+  "zimage": {
+   "start": "01:25:27",
+   "end": "01:26:03",
+   "wall_s": 35.9,
+   "gpu_w_peak": 156.0,
+   "gpu_w_avg": 50.0,
+   "pkg_w_peak": 157.0,
+   "gpu_temp_peak": 73.0,
+   "fan_peak": 2508,
+   "wired_peak_gb": 40.4
+  },
+  "krea2": {
+   "start": "01:26:03",
+   "end": "01:26:57",
+   "wall_s": 53.7,
+   "gpu_w_peak": 164.0,
+   "gpu_w_avg": 85.0,
+   "pkg_w_peak": 166.0,
+   "gpu_temp_peak": 85.0,
+   "fan_peak": 2505,
+   "wired_peak_gb": 55.4
+  },
+  "qwen": {
+   "start": "01:26:57",
+   "end": "01:28:21",
+   "wall_s": 84.5,
+   "gpu_w_peak": 161.0,
+   "gpu_w_avg": 108.0,
+   "pkg_w_peak": 163.0,
+   "gpu_temp_peak": 84.0,
+   "fan_peak": 2506,
+   "wired_peak_gb": 41.8
+  }
+ },
+ "verdict": "三个模型里最吃内存的也只用到 <em>55 GB</em>，96 GB 里还剩 41 GB：出图的同时再跑一个 27B 的大语言模型（29.5 GB）绰绰有余。GPU 功耗峰值 164 W、温度 85 ℃，风扇最高 2508 rpm——桌上听不见。"
+}

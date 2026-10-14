@@ -35,18 +35,20 @@
 
 ## EP.02 出图 · 结果摘要（2026-10-13 实测）
 
-本地三个模型（Z-Image Turbo bf16 12.3 GB · Qwen-Image 2.1 bf16 14.2 GB · Krea 2 Turbo bf16 26.3 GB，无头 ComfyUI 0.39.2 / MPS，官方模板 0.11.78）对云端三家（Seedream 5.0 Pro · Grok Imagine Image 2.0 · GPT-Image 2.5 Flare，经 OpenRouter），十三组题同一提示词、同一种子 20261013；另有指令编辑 × 4、局部重绘 × 2、超分 × 1、逐帧动图（本地 12 帧 / Seedream 8 帧）、逐张分镜 × 5、两机同题同种子。
+本地三个开源模型（Z-Image Turbo 6B bf16 12.3 GB · Qwen-Image 2.1 ≈7B bf16 14.2 GB · Krea 2 Turbo ≈13B bf16 26.3 GB，无头 ComfyUI 0.39.2 / MPS，官方模板 0.11.78，全部在 Mac Studio 上出图）对云端三家（Seedream 5.0 Pro · Grok Imagine Image 2.0 · GPT-Image 2.5 Flare，经 OpenRouter），十三组题 + 五组躯体 / 复杂环境测试，同一提示词、同一种子 20261013；另有指令编辑 × 4、局部重绘 × 2、超分 × 1、逐帧动图（本地 12 帧 / Seedream 8 帧）、逐张分镜 × 5、两机同题同种子（笔记本唯一露面处）。
 
 | 项目 | 结果 |
 |---|---|
-| 一张 2K 文生图 | Z-Image 主机 36 s / 笔记本 81 s；Krea 2 主机 57 s / 笔记本 181 s；Qwen-Image 2.1（25 步）主机 108 s；云端往返 Seedream 61 s · Grok 70 s · GPT-Image 21 s |
-| 两机同题同种子（Z-Image 2048×1152，含模型加载） | 主机 23.7 s · 笔记本 52.8 s · 图相同（热启动时 21.1 / 43.6 s） |
+| 一张 2K 文生图（主机） | Z-Image 36 s；Krea 2 54 s；Qwen-Image 2.1（25 步）110 s；云端往返 Seedream 61 s · Grok 70 s · GPT-Image 21 s |
+| 两机同题同种子（Z-Image 2048×1152，含模型加载） | 主机 29.2 s · 笔记本 54.7 s · 图相同（热启动时 21.1 / 43.6 s） |
 | 中文海报文字 | Qwen-Image 2.1 全对；Z-Image 对；Krea 2 写错字；云端三家全对 |
 | 云端安全过滤 | 动漫题英文提示词「wind lifting her skirt」被 xAI / OpenAI 拒绝，本地三家与 Seedream 正常出图；改写后补跑 |
 | 超分 | 4x-UltraSharp 1024×1280 → 4096×5120：MPS 上 7 s 但输出整幅条纹伪影（疑似 pixel_shuffle 在 MPS 的问题），改 `--cpu` 实例跑 45 s 才正确 |
-| 云端花费 | 2.92（含两次误重跑约 0.23） 美元 / 40 张（预算 10 美元），账单 `s2-image/cloud/_spend.jsonl` |
+| 出图时的功耗 / 温度 / 内存（主机，同一张 2048×1152） | Z-Image GPU 峰值 156 W · 73 ℃ · 系统 wired 40.4 GB；Krea 2 164 W · 85 ℃ · 55.4 GB；Qwen 161 W · 84 ℃ · 41.8 GB；风扇最高 2508 rpm（数据 `s2-image/data/`） |
+| 躯体与复杂环境（手指 / 一字马 / 夜市五人 / 古筝 / 篮板） | 三位独立视觉评审逐张判定，结果见 `s2-image/bodies_verdict.json` 与成片卡片 |
+| 云端花费 | 3.65 美元 / 55 张（预算 10 美元），账单 `s2-image/cloud/_spend.jsonl` |
 
-每张图旁边都有同名 `.json`（模型、量化、编码器、采样器、步数、cfg、种子、尺寸、提示词、耗时、机器）和 `.api.json`（实际提交 ComfyUI 的工作流）。目录：`s2-image/images`（文生图）· `cloud`（云端）· `edits`（指令编辑）· `inpaint`（局部重绘，蒙版比例在 json 里）· `upscale` · `flipbook/{local,seedream}`（逐帧动图）· `storyboard`（逐张分镜）· `duel`（笔记本那张同种子图）· `workflows`（模板转出的 API JSON）· `prompts_full.json`（全部提示词与任务定义）· `manifest.json`。
+每张图旁边都有同名 `.json`（模型、量化、编码器、采样器、步数、cfg、种子、尺寸、提示词、耗时、机器）和 `.api.json`（实际提交 ComfyUI 的工作流）。目录：`s2-image/images`（文生图，含 5 组躯体测试）· `profile`（功耗剖面三张）· `data`（功耗 / 温度 / 内存 CSV 与汇总）· `cloud`（云端）· `edits`（指令编辑）· `inpaint`（局部重绘，蒙版比例在 json 里）· `upscale` · `flipbook/{local,seedream}`（逐帧动图）· `storyboard`（逐张分镜）· `duel`（笔记本那张同种子图）· `workflows`（模板转出的 API JSON）· `prompts_full.json`（全部提示词与任务定义）· `manifest.json` · `covers`（横 4:3 / 竖 3:4 封面）· `发布文案.md`（标题、简介、章节）。
 
 ## 目录
 
@@ -55,6 +57,7 @@
 - `s1-llm/cards/` 视频里的所有图卡（1920×1080 PNG）；`s1-llm/web/` 画这些卡片和图表的网页源码
 - `s1-llm/script/` 解说稿与配音分段文案；`s1-llm/text/` 长文测试用的《红楼梦》《三国演义》节选（公版）
 - `s2-image/` EP.02 全部原图、提示词、ComfyUI 工作流（API 格式）、每张图的参数 JSON、云端账单、逐帧动图与分镜
+- `tools/workflows/` 评审用的多代理脚本（躯体测试三视角逐张判定 `bodies_judges.js`、成片逐帧质检 `final_qa.js`，Claude Code Workflow 格式）
 - `tools/` 全部脚本：LM Studio 基准（`llm_bench2.py`）、两机并联（`pipeline_gen.py`）、功耗 / 温度记录、硬件实测、鹈鹕、无头 ComfyUI 出图（`comfy_gen.py`）、OpenRouter 出图、Playwright 录屏与卡片渲染、ffmpeg 成片拼装（`assemble.py`）
 
 ## 怎么复现

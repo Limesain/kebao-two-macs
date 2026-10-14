@@ -34,15 +34,15 @@ const mode=q.get('mode')||'wipe'; const hold=+(q.get('hold')||4)*1000; const sta
    stage.appendChild(w); await sleep(80);
    if(q.get('mask')){ const [x,y,mw,mh]=q.get('mask').split(',').map(Number); const m=document.createElement('div'); m.className='mask'; m.style.left=(x*100)+'%'; m.style.top=(y*100)+'%'; m.style.width=(mw*100)+'%'; m.style.height=(mh*100)+'%'; m.innerHTML='<span>蒙版 · 只重画这里</span>'; w.appendChild(m); await sleep(700); m.style.opacity=1; await sleep(1600); m.style.opacity=0; }
    else await sleep(1800);
-   const b=w.querySelector('.b'), e=w.querySelector('.edge'); e.style.opacity=1; const T=1700, t0=performance.now();
+   const b=w.querySelector('.b'), e=w.querySelector('.edge'); e.style.opacity=1; w.querySelector('.tag.l').style.opacity=0; const T=1700, t0=performance.now();
    await new Promise(res=>{ const f=t=>{ const p=Math.min(1,(t-t0)/T); const ease=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2; b.style.clipPath=`inset(0 ${(1-ease)*100}% 0 0)`; e.style.left=(ease*100)+'%'; if(p<1) requestAnimationFrame(f); else res(); }; requestAnimationFrame(f); });
-   await sleep(200); e.style.opacity=0; w.querySelector('.tag.r').style.opacity=1; await sleep(hold);
+   await sleep(200); e.style.opacity=0; w.querySelector('.tag.l').style.opacity=1; w.querySelector('.tag.r').style.opacity=1; await sleep(hold);
  } else {
    const cx=+(q.get('cx')||0.5), cy=+(q.get('cy')||0.45), z=+(q.get('z')||3.5);
-   const p=document.createElement('div'); p.className='panes'; p.innerHTML=`<div class="pane"><div class="im"><img id="ia" src="${q.get('a')}"></div><div class="cap"><b>${q.get('ca')||'原图'}</b>${A.naturalWidth}×${A.naturalHeight}</div></div><div class="pane"><div class="im"><img id="ib" src="${q.get('b')}"></div><div class="cap"><b>${q.get('cb')||'结果'}</b>${B.naturalWidth}×${B.naturalHeight}${meta.wall_s!=null?' · '+meta.wall_s+' s':''}</div></div><div class="note" id="note">局部放大 ×${z} · 同一区域</div>`;
+   const p=document.createElement('div'); p.className='panes'; p.innerHTML=`<div class="pane"><div class="im"><img id="ia" src="${q.get('a')}"></div><div class="cap"><b>${q.get('ca')||'原图'}</b>${A.naturalWidth}×${A.naturalHeight}</div></div><div class="pane"><div class="im"><img id="ib" src="${q.get('b')}"></div><div class="cap"><b>${q.get('cb')||'结果'}</b>${B.naturalWidth}×${B.naturalHeight}${meta.wall_s!=null?' · '+meta.wall_s+' s':''}</div></div>`; el('sub').textContent=(q.get('sub')||'')+` · 下面两格同步放大 ${z} 倍看同一区域`;
    stage.appendChild(p); await sleep(1600);
    for(const id of ['ia','ib']){ const im=el(id); im.style.transformOrigin=`${cx*100}% ${cy*100}%`; im.style.transform=`scale(${z})`; }
-   await sleep(900); el('note').style.opacity=1; await sleep(2000+hold);
+   await sleep(2900+hold);
  }
  document.title='DONE';
 })();

@@ -240,5 +240,57 @@
    "过肩镜头：她看向橱窗里的一只猫",
    "收尾：她在路灯下走远的背影"
   ]
- }
+ },
+ "bodies": [
+  {
+   "id": "hands",
+   "group": "躯体",
+   "title": "躯体 · 手部特写",
+   "ar": "1:1",
+   "w": 1536,
+   "h": 1536,
+   "zh": "特写：一位年轻女性的双手正在编织灰色毛线，两根毛线针交叉，十根手指清晰可数、关节自然，指甲干净，窗边自然光，皮肤纹理真实，浅景深",
+   "en": "Close-up: a young woman's two hands knitting grey wool, two needles crossing, all ten fingers clearly visible with natural joints, clean nails, window daylight, realistic skin texture, shallow depth of field"
+  },
+  {
+   "id": "gymnast",
+   "group": "躯体",
+   "title": "躯体 · 平衡木一字马",
+   "ar": "3:2",
+   "w": 2304,
+   "h": 1536,
+   "zh": "体操馆里一位女子体操运动员在平衡木上做一字马，全身入镜，双臂向两侧平举，手指舒展，肢体比例准确，白色与红色的体操服，高速快门凝固动作，观众席虚化",
+   "en": "In a gymnastics hall a female gymnast performs a full split on the balance beam, whole body in frame, arms extended to the sides with open fingers, accurate body proportions, white-and-red leotard, high-speed shutter freezing the pose, blurred spectator stands"
+  },
+  {
+   "id": "crowd",
+   "group": "躯体",
+   "title": "躯体 · 夜市五人举杯",
+   "ar": "16:9",
+   "w": 2048,
+   "h": 1152,
+   "zh": "夜市烧烤摊前，五个年轻人围坐一张小桌举杯碰杯，每个人的脸、手和杯子都清晰可见，桌上烤串与啤酒瓶杂乱，暖黄灯泡与烟雾，背景人来人往，环境复杂但人物不变形",
+   "en": "Five young people around a small table at a night-market barbecue stall clinking glasses, every face, hand and glass clearly visible, skewers and beer bottles cluttering the table, warm bulbs and smoke, busy crowd behind, complex scene with no distorted bodies"
+  },
+  {
+   "id": "guzheng",
+   "group": "躯体",
+   "title": "躯体 · 古筝双手",
+   "ar": "3:2",
+   "w": 2304,
+   "h": 1536,
+   "zh": "一位穿淡青色汉服的女性在舞台上演奏古筝，俯拍四分之三视角，双手指法清晰，右手戴义甲，手指数量与弯曲角度正确，筝弦根根分明，暖色舞台追光",
+   "en": "A woman in pale teal hanfu playing the guzheng on stage, three-quarter view from slightly above, both hands clearly visible with correct finger count and natural bends, finger picks on the right hand, every string distinct, warm stage spotlight"
+  },
+  {
+   "id": "basketball",
+   "group": "躯体",
+   "title": "躯体 · 篮板争抢",
+   "ar": "16:9",
+   "w": 2048,
+   "h": 1152,
+   "zh": "篮球比赛中两名球员在篮下跃起争抢篮板球，肢体交错但各自完整，手臂、手指和球的关系清楚，汗水与动作张力，体育馆灯光，观众席虚化，体育摄影",
+   "en": "Two basketball players leaping for a rebound under the hoop, bodies overlapping yet each complete, arms, fingers and ball clearly related, sweat and tension, arena lighting, blurred crowd, sports photography"
+  }
+ ]
 }

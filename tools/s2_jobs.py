@@ -59,4 +59,25 @@ elif lane == "cloud":
     out.append(run(model="bytedance-seed/seedream-5-0-pro", prompt=fb["anchor_zh"], out="fb_00", ar="16:9", res="2K", outdir="s2/flipbook/seedream"))
     for i, m in enumerate(fb["motions_zh"][: fb["seedream_frames"]], 1):
         out.append("CHAIN " + str(i) + "|" + fb["frame_instruction_zh"].format(motion=m))
+elif lane == "studio2":
+    # 躯体测试组（主机三模型）+ 原来笔记本出的 19 张在主机重出 + 功耗剖面三张（新种子，避免缓存）
+    for t in d["bodies"]:
+        for eng in ("qwen", "zimage", "krea2"): out.append(gen(engine=eng, prompt=t["zh"], name=f"{t['id']}_{eng}", w=t["w"], h=t["h"], seed=SEED, outdir="s2/images"))
+    for t in new:
+        if t["id"] != "city": out.append(gen(engine="zimage", prompt=t["zh"], name=f"{t['id']}_zimage", w=t["w"], h=t["h"], seed=SEED, outdir="s2/images"))
+    for t in new: out.append(gen(engine="krea2", prompt=t["zh"], name=f"{t['id']}_krea2", w=t["w"], h=t["h"], seed=SEED, outdir="s2/images"))
+    city = [t for t in d["themes"] if t["id"] == "city"][0]
+    for eng in ("zimage", "krea2", "qwen"): out.append(gen(engine=eng, prompt=city["zh"], name=f"profile_{eng}", w=2048, h=1152, seed=SEED + 1, outdir="s2/profile"))
+elif lane == "cloud2":
+    def run(**kw):
+        parts = ["run"]
+        for k, v in kw.items():
+            if v is None: continue
+            parts.append(f"--{k} " + (" ".join(Q(str(x)) for x in v) if isinstance(v, (list, tuple)) else Q(str(v))))
+        return " ".join(parts)
+    for t in d["bodies"]:
+        ar2 = {"4:5": "3:4"}.get(t["ar"], t["ar"])
+        out.append(run(model="bytedance-seed/seedream-5-0-pro", prompt=t["zh"], out=f"{t['id']}_seedream", ar=t["ar"], res="2K"))
+        out.append(run(model="x-ai/grok-imagine-image-2.0", prompt=t["en"], out=f"{t['id']}_grok", ar=ar2, res="2K", quality="medium"))
+        out.append(run(model="openai/gpt-image-2.5-flare", prompt=t["en"], out=f"{t['id']}_gptimage", ar=ar2, quality="high"))
 print("\n".join(out))

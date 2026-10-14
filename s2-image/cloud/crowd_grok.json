@@ -1,0 +1,33 @@
+{
+ "name": "crowd_grok",
+ "model": "x-ai/grok-imagine-image-2.0",
+ "provider": "openrouter",
+ "prompt": "Five young people around a small table at a night-market barbecue stall clinking glasses, every face, hand and glass clearly visible, skewers and beer bottles cluttering the table, warm bulbs and smoke, busy crowd behind, complex scene with no distorted bodies",
+ "aspect_ratio": "16:9",
+ "resolution": "2K",
+ "size": null,
+ "refs": [],
+ "wall_s": 83.8,
+ "cost_usd": 0.08,
+ "usage": {
+  "prompt_tokens": 65,
+  "completion_tokens": 4175,
+  "total_tokens": 4240,
+  "cost": 0.08,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.08,
+   "upstream_inference_prompt_cost": 0,
+   "upstream_inference_completions_cost": 0.08
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 4175
+  }
+ },
+ "file": "s2/cloud/crowd_grok.png",
+ "when": "2026-10-14 01:00:55"
+}

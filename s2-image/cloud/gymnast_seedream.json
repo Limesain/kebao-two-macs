@@ -1,0 +1,33 @@
+{
+ "name": "gymnast_seedream",
+ "model": "bytedance-seed/seedream-5-0-pro",
+ "provider": "openrouter",
+ "prompt": "体操馆里一位女子体操运动员在平衡木上做一字马，全身入镜，双臂向两侧平举，手指舒展，肢体比例准确，白色与红色的体操服，高速快门凝固动作，观众席虚化",
+ "aspect_ratio": "3:2",
+ "resolution": "2K",
+ "size": null,
+ "refs": [],
+ "wall_s": 30.0,
+ "cost_usd": 0.09,
+ "usage": {
+  "prompt_tokens": 72,
+  "completion_tokens": 10928,
+  "total_tokens": 11000,
+  "cost": 0.09,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.09,
+   "upstream_inference_prompt_cost": 0,
+   "upstream_inference_completions_cost": 0.09
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 10928
+  }
+ },
+ "file": "s2/cloud/gymnast_seedream.jpg",
+ "when": "2026-10-14 00:57:25"
+}

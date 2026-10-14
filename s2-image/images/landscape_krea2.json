@@ -15,8 +15,8 @@
  "height": 1152,
  "prompt": "黎明时分的喀纳斯湖，薄雾在湖面流动，金色的秋季白桦林，远处雪山顶被第一束阳光染成粉色，长焦压缩的层次感，风光摄影，大画幅相机的细腻质感",
  "negative": "",
- "wall_s": 279.7,
- "machine": "MacBook Pro M5 Max 48GB",
- "server": "http://10.0.0.242:8188",
- "when": "2026-10-13 22:20:10"
+ "wall_s": 39.2,
+ "machine": "Mac Studio M5 Ultra 96GB",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-14 01:25:27"
 }

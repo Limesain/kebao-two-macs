@@ -16,13 +16,13 @@
 <div class="foot"><span id="f">无头 ComfyUI 0.39.2 · MPS · 数据经 WebSocket 实时读取 · 2026-10-13</span><span class="sig">克宝 = Claude Fable 5.1 · 思考强度最高 · 实测</span></div></div>
 <script>
 const q=new URLSearchParams(location.search); const cid=q.get('client')||'studio'; const server=q.get('server')||'127.0.0.1:8199'; const maxWait=+(q.get('max')||600);
-document.getElementById('t').textContent=q.get('title')||''; document.getElementById('spec').textContent=q.get('spec')||''; document.getElementById('pr').textContent=q.get('prompt')||''; if(q.get('kicker'))document.getElementById('k').textContent=q.get('kicker');
+document.getElementById('t').textContent=q.get('title')||''; document.getElementById('spec').textContent=q.get('spec')||''; {const m=(q.get('spec')||'').match(/(\d+)\s*步/); if(m) document.getElementById('step').innerHTML='0<small>/ '+m[1]+' 步</small>';} document.getElementById('pr').textContent=q.get('prompt')||''; if(q.get('kicker'))document.getElementById('k').textContent=q.get('kicker');
 window.__log={events:[]}; let t0=null, done=false, maxStep=0; const el=id=>document.getElementById(id);
 const tick=()=>{ if(t0&&!done) el('el').innerHTML=((Date.now()-t0)/1000).toFixed(1)+'<small>秒</small>'; if(!done) requestAnimationFrame(tick); }; requestAnimationFrame(tick);
 const ws=new WebSocket(`ws://${server}/ws?clientId=${cid}`);
 ws.onmessage=async ev=>{ if(typeof ev.data!=='string') return; const m=JSON.parse(ev.data); const d=m.data||{};
   if(m.type==='execution_start'){t0=Date.now(); el('status').textContent='开始'; el('ph').textContent='模型加载中';}
-  if(m.type==='progress'){ if(!t0)t0=Date.now(); maxStep=d.max; el('bar').style.width=(100*d.value/d.max)+'%'; el('step').innerHTML=d.value+'<small>/ '+d.max+' 步</small>'; el('status').textContent='采样中 · '+(d.node||''); el('ph').textContent='正在出图'; }
+  if(m.type==='progress'){ if(!t0)t0=Date.now(); maxStep=d.max; el('bar').style.width=(100*d.value/d.max)+'%'; el('step').innerHTML=d.value+'<small>/ '+d.max+' 步</small>'; el('status').textContent='采样中'; el('ph').textContent='正在出图'; }
   if(m.type==='executed'&&d.output&&d.output.images){ const im=d.output.images[0]; const u=`http://${server}/view?filename=${encodeURIComponent(im.filename)}&subfolder=${encodeURIComponent(im.subfolder||'')}&type=${im.type||'output'}`; const img=el('img'); img.src=u; img.onload=()=>{el('ph').style.display='none'; img.style.display='block';}; }
   if(m.type==='execution_success'){ done=true; el('status').textContent='完成'; window.__log.final={wall:(Date.now()-t0)/1000, steps:maxStep}; setTimeout(()=>{document.title='DONE';}, 3500); }
   if(m.type==='execution_error'){ done=true; el('status').textContent='出错'; setTimeout(()=>{document.title='DONE';}, 1500); } };

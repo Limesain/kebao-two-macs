@@ -6,7 +6,7 @@ import argparse, pathlib, subprocess, time, shutil, json, os
 os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", "/Users/iason/.cache/ms-playwright")
 from playwright.sync_api import sync_playwright
 ap=argparse.ArgumentParser(); ap.add_argument('--url',required=True); ap.add_argument('--out',required=True); ap.add_argument('--w',type=int,default=1920); ap.add_argument('--h',type=int,default=1080)
-ap.add_argument('--max',type=int,default=300); ap.add_argument('--tail',type=float,default=2.5); ap.add_argument('--log',default=None); ap.add_argument('--scale',type=int,default=1)
+ap.add_argument('--max',type=int,default=300); ap.add_argument('--tail',type=float,default=2.5); ap.add_argument('--log',default=None); ap.add_argument('--scale',type=int,default=1); ap.add_argument('--css',default=None)
 a=ap.parse_args(); out=pathlib.Path(a.out); tmp=out.parent/('_rec_'+out.stem); tmp.mkdir(parents=True,exist_ok=True)
 with sync_playwright() as p:
     b=p.chromium.launch(args=['--autoplay-policy=no-user-gesture-required'])
@@ -14,6 +14,7 @@ with sync_playwright() as p:
     ctx=b.new_context(viewport={'width':a.w*a.scale,'height':a.h*a.scale},device_scale_factor=1,record_video_dir=str(tmp),record_video_size={'width':a.w*a.scale,'height':a.h*a.scale})
     pg=ctx.new_page()
     if a.scale>1: pg.add_init_script("document.addEventListener('DOMContentLoaded',()=>{document.documentElement.style.zoom='%d';});" % a.scale)
+    if a.css: pg.add_init_script("document.addEventListener('DOMContentLoaded',()=>{const st=document.createElement('style'); st.textContent=%s; document.head.appendChild(st);});" % json.dumps(a.css))
     pg.goto(a.url); t0=time.time()
     while time.time()-t0<a.max:
         if pg.title()=='DONE': break

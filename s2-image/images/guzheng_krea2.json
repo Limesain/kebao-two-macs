@@ -1,0 +1,22 @@
+{
+ "name": "guzheng_krea2",
+ "engine": "krea2",
+ "model": "Krea 2 Turbo",
+ "file": "krea2_turbo_bf16.safetensors",
+ "quant": "bf16",
+ "text_encoder": "qwen3vl_4b_heretic_int8",
+ "sampler": "euler",
+ "scheduler": "simple",
+ "steps": 8,
+ "cfg": 1,
+ "seed": 20261013,
+ "denoise": 1,
+ "width": 2304,
+ "height": 1536,
+ "prompt": "一位穿淡青色汉服的女性在舞台上演奏古筝，俯拍四分之三视角，双手指法清晰，右手戴义甲，手指数量与弯曲角度正确，筝弦根根分明，暖色舞台追光",
+ "negative": "",
+ "wall_s": 81.1,
+ "machine": "Mac Studio M5 Ultra 96GB",
+ "server": "http://127.0.0.1:8199",
+ "when": "2026-10-14 01:09:22"
+}

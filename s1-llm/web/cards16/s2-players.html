@@ -3,7 +3,7 @@
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0 44px;margin-top:26px}
 .cell{border-top:1px solid var(--rule);padding:20px 0 10px}
 .cell .tag{font-size:11px;letter-spacing:.4em;color:var(--gold);margin-bottom:12px}.cell.c .tag{color:var(--slate)}
-.cell h3{font-family:ui-serif,"New York","Songti SC",serif;font-weight:400;font-size:30px;margin:0 0 6px;letter-spacing:.01em}
+.cell h3{font-family:ui-serif,"New York","Songti SC",serif;font-weight:400;font-size:30px;margin:0 0 6px;letter-spacing:.01em}.cell h3 small{font-size:15px;color:var(--gold);margin-left:10px;letter-spacing:.1em;border:1px solid rgba(200,169,110,.5);padding:2px 8px;vertical-align:6px}
 .cell .by{font-size:13px;color:var(--mut);letter-spacing:.14em;margin-bottom:14px}
 .cell .sp{font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--mut);line-height:1.85}
 .cell .sp b{font-weight:400;color:var(--ink)}
@@ -11,17 +11,17 @@
 .sec:first-of-type{margin-top:0}
 </style></head><body><div class="page">
 <div class="kicker">克宝 · 实测 · 出图 · 六位选手</div><h1>三个本地模型 × 三家云端接口</h1><p class="lead">本地：无头 ComfyUI 0.39.2，官方工作流模板，MPS · 云端：OpenRouter 统一接口，预算 10 美元 · 所有题目同一提示词、同一种子 20261013</p>
-<div class="sec">本地 · 权重文件都在两台 Mac 上</div>
+<div class="sec">本地 · 三个开源模型 · 权重都在 Mac Studio 上，不联网</div>
 <div class="grid">
- <div class="cell"><div class="tag">本地 · 01</div><h3>Z-Image Turbo</h3><div class="by">Tongyi-MAI · 蒸馏快模</div><div class="sp">权重 <b>z_image_turbo_bf16 · 12.3 GB</b><br>文本编码器 <b>Qwen3-4B · 8.0 GB</b><br>9 步 · cfg 1 · res_multistep · shift 3<br>同种子同图（含加载）<b>主机 24 s · 笔记本 53 s</b> · 全集平均 36 / 81 s</div></div>
- <div class="cell"><div class="tag">本地 · 02</div><h3>Qwen-Image 2.1</h3><div class="by">阿里 Qwen · 中文文字渲染 · 指令编辑</div><div class="sp">权重 <b>qwen_image_2.1_bf16 · 14.2 GB</b><br>文本编码器 <b>Qwen3-VL-8B int8 · 9.4 GB</b><br>25 步 · cfg 1 · euler / simple<br>全集平均 <b>主机 108 s</b>（75–165 s）</div></div>
- <div class="cell"><div class="tag">本地 · 03</div><h3>Krea 2 Turbo</h3><div class="by">Krea · 写实与胶片感</div><div class="sp">权重 <b>krea2_turbo_bf16 · 26.3 GB</b><br>文本编码器 <b>Qwen3-VL-4B int8 · 5.2 GB</b><br>8 步 · cfg 1 · euler / simple<br>全集平均 <b>主机 57 s · 笔记本 181 s</b></div></div>
+ <div class="cell"><div class="tag">本地 · 01</div><h3>Z-Image Turbo <small>6B</small></h3><div class="by">Tongyi-MAI · 蒸馏快模 · 6B 参数</div><div class="sp">权重 <b>z_image_turbo_bf16 · 12.3 GB</b><br>文本编码器 <b>Qwen3-4B · 8.0 GB</b><br>9 步 · cfg 1 · res_multistep · shift 3<br>2K 一张 <b>主机平均 36 s</b> · 同种子同图含加载 29 s（笔记本 55 s）</div></div>
+ <div class="cell"><div class="tag">本地 · 02</div><h3>Qwen-Image 2.1 <small>≈7B</small></h3><div class="by">阿里 Qwen · 中文文字渲染 · 指令编辑 · 按 bf16 权重推算 ≈7B</div><div class="sp">权重 <b>qwen_image_2.1_bf16 · 14.2 GB</b><br>文本编码器 <b>Qwen3-VL-8B int8 · 9.4 GB</b><br>25 步 · cfg 1 · euler / simple<br>2K 一张 <b>主机平均 110 s</b>（25 步最慢，也最听话）</div></div>
+ <div class="cell"><div class="tag">本地 · 03</div><h3>Krea 2 Turbo <small>≈13B</small></h3><div class="by">Krea · 写实与胶片感 · 按 bf16 权重推算 ≈13B</div><div class="sp">权重 <b>krea2_turbo_bf16 · 26.3 GB</b><br>文本编码器 <b>Qwen3-VL-4B int8 · 5.2 GB</b><br>8 步 · cfg 1 · euler / simple<br>2K 一张 <b>主机平均 54 s</b></div></div>
 </div>
 <div class="sec">云端 · 经 OpenRouter 同一接口调用 · 按张计费</div>
 <div class="grid">
- <div class="cell c"><div class="tag">云端 · 04</div><h3>Seedream 5.0 Pro</h3><div class="by">字节跳动 Seed · 2K</div><div class="sp">每张 <b>$0.05–0.09</b> · 往返约 1 分钟<br>支持多图参考，参加逐帧动图对照</div></div>
- <div class="cell c"><div class="tag">云端 · 05</div><h3>Grok Imagine Image 2.0</h3><div class="by">xAI · 2K · quality medium</div><div class="sp">每张 <b>$0.08</b> · 往返约 70 s</div></div>
- <div class="cell c"><div class="tag">云端 · 06</div><h3>GPT-Image 2.5 Flare</h3><div class="by">OpenAI · quality high</div><div class="sp">每张 <b>$0.03–0.05</b> · 往返约 21 s · 最快</div></div>
+ <div class="cell c"><div class="tag">云端 · 04</div><h3>Seedream 5.0 Pro <small>参数未公开</small></h3><div class="by">字节跳动 Seed · 2K</div><div class="sp">每张 <b>$0.05–0.09</b> · 往返约 1 分钟<br>支持多图参考，参加逐帧动图对照</div></div>
+ <div class="cell c"><div class="tag">云端 · 05</div><h3>Grok Imagine Image 2.0 <small>参数未公开</small></h3><div class="by">xAI · 2K · quality medium</div><div class="sp">每张 <b>$0.08</b> · 往返约 70 s</div></div>
+ <div class="cell c"><div class="tag">云端 · 06</div><h3>GPT-Image 2.5 Flare <small>参数未公开</small></h3><div class="by">OpenAI · quality high</div><div class="sp">每张 <b>$0.03–0.05</b> · 往返约 21 s · 最快</div></div>
 </div>
-<div class="foot"><span>Mac Studio M5 Ultra 96 GB · MacBook Pro M5 Max 48 GB（合盖）· macOS 27.0.1 · ComfyUI 0.39.2 · 模板 0.11.78 · 2026-10-13</span><span class="sig">克宝 = Claude Fable 5.1 · 思考强度最高 · 实测</span></div></div>
+<div class="foot"><span>本地全部在 Mac Studio M5 Ultra 96 GB 上出图 · macOS 27.0.1 · ComfyUI 0.39.2 · 模板 0.11.78 · 2026-10-14</span><span class="sig">克宝 = Claude Fable 5.1 · 思考强度最高 · 实测</span></div></div>
 <script src="_anim.js"></script></body></html>

@@ -1,0 +1,27 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"><style>
+.page{padding:60px 110px 50px}
+.tbl{display:grid;grid-template-columns:260px repeat(6,1fr);gap:0;margin-top:26px;border-top:1px solid var(--rule)}
+.tbl>div{padding:12px 10px;border-bottom:1px solid var(--rule);font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--mut);display:flex;align-items:center;justify-content:center;text-align:center;min-height:54px}
+.tbl .h{font-family:"PingFang SC",sans-serif;font-size:11px;letter-spacing:.22em;color:var(--mut)}.tbl .h b{display:block;font-family:ui-serif,"New York",serif;font-weight:400;font-size:17px;color:var(--ink);letter-spacing:0;margin-bottom:4px}
+.tbl .h.l b{color:var(--gold)}.tbl .h.c b{color:var(--slate)}
+.tbl .t{justify-content:flex-start;font-family:"Songti SC",serif;font-size:17px;color:var(--ink)}
+.tbl .ok{color:#8fbf9a;font-size:20px}.tbl .bad{color:#e0a3a5;font-size:20px}.tbl .so{color:var(--gold);font-size:20px}
+.tbl .sum{font-family:ui-serif,"New York",serif;font-size:26px;color:var(--ink)}
+.verdict{font-family:"Songti SC",serif;font-size:22px;line-height:1.75;color:var(--ink);margin-top:26px;max-width:1600px}.verdict em{font-style:normal;color:var(--gold)}
+.legend{font-size:12px;letter-spacing:.2em;color:var(--mut);margin-top:14px}
+</style></head><body><div class="page">
+<div class="kicker">克宝 · 实测 · 出图 · 老生常谈的那个问题</div><h1>本地模型，能处理好复杂环境和人物躯体了吗</h1><p class="lead">五道专门为难它的题：手指、全身比例、多人复杂场景、乐器指法、肢体交错 · 三个本地模型对三家云端 · 每张图由三位独立评审逐张检查手指数量、肢体比例与变形</p>
+<div class="tbl" id="tbl"></div>
+<div class="legend">✓ 通过 · △ 轻微问题（不细看看不出）· ✕ 明显错误（手指数量 / 肢体变形 / 比例失真）· 三位评审多数票</div>
+<div class="verdict" id="v"></div>
+<div class="foot"><span>同一提示词 · 同一种子 20261013 · 评审 = 三个独立的 Claude 视觉评审（Opus 5.5，三种检查视角），逐张打分，多数票 · 2026-10-14</span><span class="sig">克宝 = Claude Fable 5.1 · 思考强度最高 · 实测</span></div></div>
+<script src="_anim.js"></script><script>
+fetch('../s2/bodies_verdict.json?'+Date.now()).then(r=>r.json()).then(V=>{
+ const E=[['zimage','Z-Image Turbo','本地 · 6B','l'],['qwen','Qwen-Image 2.1','本地 · ≈7B','l'],['krea2','Krea 2 Turbo','本地 · ≈13B','l'],['seedream','Seedream 5.0','云端','c'],['grok','Grok Imagine','云端','c'],['gptimage','GPT-Image 2.5','云端','c']];
+ const t=document.getElementById('tbl'); t.innerHTML='<div class="h"></div>'+E.map(e=>`<div class="h ${e[3]}"><b>${e[1]}</b>${e[2]}</div>`).join('');
+ const sym={pass:'<span class="ok">✓</span>',minor:'<span class="so">△</span>',fail:'<span class="bad">✕</span>'}; const score={};
+ for(const th of V.themes){ t.innerHTML+=`<div class="t">${th.title}</div>`+E.map(e=>{const r=(th.results||{})[e[0]]; if(!r) return '<div>—</div>'; score[e[0]]=(score[e[0]]||0)+(r.grade==='pass'?1:r.grade==='minor'?0.5:0); return `<div title="${r.note||''}">${sym[r.grade]||'—'}</div>`;}).join(''); }
+ t.innerHTML+='<div class="t">通过率</div>'+E.map(e=>`<div class="sum">${score[e[0]]!=null?Math.round(100*score[e[0]]/V.themes.length)+'%':'—'}</div>`).join('');
+ document.getElementById('v').innerHTML=V.verdict||'';
+}).catch(()=>{});
+</script></body></html>

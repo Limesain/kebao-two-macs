@@ -1,0 +1,33 @@
+{
+ "name": "basketball_grok",
+ "model": "x-ai/grok-imagine-image-2.0",
+ "provider": "openrouter",
+ "prompt": "Two basketball players leaping for a rebound under the hoop, bodies overlapping yet each complete, arms, fingers and ball clearly related, sweat and tension, arena lighting, blurred crowd, sports photography",
+ "aspect_ratio": "16:9",
+ "resolution": "2K",
+ "size": null,
+ "refs": [],
+ "wall_s": 67.2,
+ "cost_usd": 0.08,
+ "usage": {
+  "prompt_tokens": 52,
+  "completion_tokens": 4175,
+  "total_tokens": 4227,
+  "cost": 0.08,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.08,
+   "upstream_inference_prompt_cost": 0,
+   "upstream_inference_completions_cost": 0.08
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 4175
+  }
+ },
+ "file": "s2/cloud/basketball_grok.png",
+ "when": "2026-10-14 01:05:25"
+}

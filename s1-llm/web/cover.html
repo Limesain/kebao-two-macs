@@ -1,0 +1,35 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><style>
+:root{--bg:#0d0e11;--ink:#ece7df;--mut:#9a9ca3;--gold:#c8a96e;--slate:#8fa3b8;--rule:rgba(255,255,255,.16)}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"PingFang SC","Hiragino Sans GB",sans-serif;font-weight:300;overflow:hidden}
+body::before{content:"";position:fixed;inset:0;background:radial-gradient(1100px 700px at 15% 0%,#1d2029 0%,rgba(29,32,41,0) 60%),radial-gradient(900px 700px at 100% 100%,#17181e 0%,rgba(23,24,30,0) 60%)}
+.c{position:relative;width:var(--w);height:var(--h);padding:var(--pad);display:flex;flex-direction:column}
+.kick{font-size:var(--k);letter-spacing:.5em;color:var(--gold)}
+h1{font-family:"Songti SC","STSong",serif;font-weight:400;font-size:var(--t1);line-height:1.12;margin:var(--m1) 0 0;letter-spacing:.02em}
+h1 em{font-style:normal;color:var(--gold)}
+h2{font-family:"Songti SC",serif;font-weight:400;font-size:var(--t2);line-height:1.3;margin:var(--m2) 0 0;color:var(--ink)}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);flex:1;min-height:0;margin-top:var(--m3)}
+.pane{position:relative;min-height:0;border:1px solid var(--rule);background:#111;overflow:hidden}
+.pane img{width:100%;height:100%;object-fit:cover;display:block}
+.pane .tag{position:absolute;left:0;top:0;padding:var(--tp);background:rgba(13,14,17,.82);border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);font-family:ui-serif,"New York",serif;font-size:var(--tag);color:var(--gold);line-height:1}
+.pane .q{position:absolute;right:0;bottom:0;padding:var(--tp);background:rgba(13,14,17,.82);font-size:var(--q);letter-spacing:.3em;color:var(--ink)}
+.foot{display:flex;justify-content:space-between;align-items:center;margin-top:var(--m4);font-size:var(--f);letter-spacing:.18em;color:var(--mut)}
+.foot b{font-weight:400;color:var(--ink)}
+.stamp{position:absolute;right:var(--pad);top:var(--pad);border:1.5px solid var(--gold);color:var(--gold);padding:var(--sp);font-size:var(--s);letter-spacing:.32em;transform:rotate(-4deg);background:rgba(13,14,17,.6)}
+.stamp b{display:block;font-family:ui-serif,"New York",serif;font-size:calc(var(--s)*2.1);letter-spacing:.04em;color:var(--ink);margin-top:.25em}
+body.h{--w:1600px;--h:1200px;--pad:72px;--k:18px;--t1:96px;--m1:18px;--t2:44px;--m2:10px;--m3:34px;--gap:28px;--tp:14px 20px;--tag:46px;--q:16px;--m4:26px;--f:17px;--sp:14px 22px;--s:16px}
+body.v{--w:1200px;--h:1600px;--pad:64px;--k:17px;--t1:92px;--m1:16px;--t2:42px;--m2:10px;--m3:30px;--gap:22px;--tp:12px 18px;--tag:42px;--q:15px;--m4:22px;--f:16px;--sp:12px 20px;--s:15px}
+body.v h1{font-size:88px;line-height:1.14}body.v .foot{flex-direction:column;align-items:flex-start;gap:8px}body.v .stamp{top:calc(var(--pad) + 8px)}
+</style></head><body>
+<div class="c">
+ <div class="kick" id="k">克宝接管两台 MAC · 第二集 · 出图</div>
+ <h1 id="t">本地出图<em> VS </em>云端顶级模型</h1>
+ <h2 id="s">同一句提示词出的两张，哪一张是 Mac 本地画的？</h2>
+ <div class="pair"><div class="pane"><img id="a"><div class="tag">A</div><div class="q" id="qa">本地？云端？</div></div><div class="pane"><img id="b"><div class="tag">B</div><div class="q" id="qb">本地？云端？</div></div></div>
+ <div class="foot"><span id="f1"><b>Mac Studio M5 Ultra 96G</b> · 三个开源模型 × 三家云端 · 90 张本地图 · 4K</span><span id="f2">克宝 = Claude Fable 5.1 · 实测 / 配音 / 剪辑</span></div>
+ <div class="stamp" id="st">什么叫「合理性 80%<br>就直接出成品」<b>EP.02</b></div>
+</div>
+<script>
+const q=new URLSearchParams(location.search); document.body.className=q.get('ar')==='3:4'?'v':'h'; if(q.get('ar')==='3:4'){ document.getElementById('t').innerHTML='本地出图<em> VS </em><br>云端顶级模型'; }
+document.getElementById('a').src=q.get('a')||'s2/images/portrait_krea2.png'; document.getElementById('b').src=q.get('b')||'s2/cloud/portrait_seedream.jpg';
+for(const k of ['k','t','s','f1','f2','st','qa','qb']){ if(q.get(k)) document.getElementById(k).innerHTML=q.get(k); }
+</script></body></html>

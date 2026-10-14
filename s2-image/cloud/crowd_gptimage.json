@@ -1,0 +1,33 @@
+{
+ "name": "crowd_gptimage",
+ "model": "openai/gpt-image-2.5-flare",
+ "provider": "openrouter",
+ "prompt": "Five young people around a small table at a night-market barbecue stall clinking glasses, every face, hand and glass clearly visible, skewers and beer bottles cluttering the table, warm bulbs and smoke, busy crowd behind, complex scene with no distorted bodies",
+ "aspect_ratio": "16:9",
+ "resolution": null,
+ "size": null,
+ "refs": [],
+ "wall_s": 19.1,
+ "cost_usd": 0.032625,
+ "usage": {
+  "prompt_tokens": 57,
+  "completion_tokens": 1078,
+  "total_tokens": 1135,
+  "cost": 0.032625,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.032625,
+   "upstream_inference_prompt_cost": 0.000285,
+   "upstream_inference_completions_cost": 0.03234
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 1078
+  }
+ },
+ "file": "s2/cloud/crowd_gptimage.png",
+ "when": "2026-10-14 01:01:14"
+}

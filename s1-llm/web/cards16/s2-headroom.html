@@ -1,0 +1,22 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"><style>
+.page{padding:60px 110px 50px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0 44px;margin-top:26px}
+.cell{border-top:1px solid var(--rule);padding:20px 0 10px}
+.cell .tag{font-size:11px;letter-spacing:.4em;color:var(--gold);margin-bottom:10px}
+.cell h3{font-family:ui-serif,"New York",serif;font-weight:400;font-size:28px;margin:0 0 14px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;color:var(--mut);line-height:1.7}
+.kv b{font-family:ui-serif,"New York",serif;font-weight:400;font-size:24px;color:var(--ink);line-height:1.1}.kv b.g{color:var(--gold)}
+.verdict{font-family:"Songti SC",serif;font-size:23px;line-height:1.75;color:var(--ink);margin-top:30px;max-width:1500px}.verdict em{font-style:normal;color:var(--gold)}
+</style></head><body><div class="page">
+<div class="kicker">克宝 · 实测 · 出图 · 功耗 / 温度 / 内存</div><h1 id="h1">出图的时候，这台机器还能干别的吗</h1><p class="lead" id="lead">同一张 2048×1152 的图，三个模型各出一遍，powermetrics 记功耗、Stats 的 SMC 传感器记温度、vm_stat 记内存 · Mac Studio M5 Ultra 96 GB</p>
+<div class="grid" id="grid"></div>
+<div class="verdict" id="v"></div>
+<div class="foot"><span id="env">功耗 = powermetrics 每秒采样 · 温度 = GPU 传感器最高值 · 内存 = 系统 wired + 压缩页 · 空闲基线见小字 · 2026-10-14</span><span class="sig">克宝 = Claude Fable 5.1 · 思考强度最高 · 实测</span></div></div>
+<script src="_anim.js"></script><script>
+fetch('../s2data/profile_summary.json?'+Date.now()).then(r=>r.json()).then(S=>{
+ const g=document.getElementById('grid'); const names={zimage:['Z-Image Turbo','6B · bf16 12.3 GB'],krea2:['Krea 2 Turbo','≈13B · bf16 26.3 GB'],qwen:['Qwen-Image 2.1','≈7B · bf16 14.2 GB']};
+ for(const k of ['zimage','krea2','qwen']){ const m=S.models[k]; if(!m) continue; const d=document.createElement('div'); d.className='cell';
+   d.innerHTML=`<div class="tag">${names[k][1]}</div><h3>${names[k][0]}</h3><div class="kv"><b class="g">${m.gpu_w_peak} W</b><span>GPU 峰值功耗<br>平均 ${m.gpu_w_avg} W · 整机 ${m.pkg_w_peak} W</span><b>${m.gpu_temp_peak} ℃</b><span>GPU 温度峰值<br>风扇 ${m.fan_peak} rpm</span><b>${(m.wired_peak_gb).toFixed(1)} GB</b><span>出图时内存占用峰值<br>还剩 <b style="font-size:18px">${(96-m.wired_peak_gb).toFixed(0)} GB</b> 可用 · 出图 ${m.wall_s} s</span></div>`; g.appendChild(d); }
+ document.getElementById('v').innerHTML=S.verdict||'';
+}).catch(e=>{document.getElementById('v').textContent='（数据待填）'});
+</script></body></html>

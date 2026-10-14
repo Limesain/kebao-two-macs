@@ -1,0 +1,33 @@
+{
+ "name": "gymnast_gptimage",
+ "model": "openai/gpt-image-2.5-flare",
+ "provider": "openrouter",
+ "prompt": "In a gymnastics hall a female gymnast performs a full split on the balance beam, whole body in frame, arms extended to the sides with open fingers, accurate body proportions, white-and-red leotard, high-speed shutter freezing the pose, blurred spectator stands",
+ "aspect_ratio": "3:2",
+ "resolution": null,
+ "size": null,
+ "refs": [],
+ "wall_s": 19.2,
+ "cost_usd": 0.041445,
+ "usage": {
+  "prompt_tokens": 57,
+  "completion_tokens": 1372,
+  "total_tokens": 1429,
+  "cost": 0.041445,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.041445,
+   "upstream_inference_prompt_cost": 0.000285,
+   "upstream_inference_completions_cost": 0.04116
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 1372
+  }
+ },
+ "file": "s2/cloud/gymnast_gptimage.png",
+ "when": "2026-10-14 00:58:58"
+}

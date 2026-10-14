@@ -22,11 +22,19 @@
   },
   {
    "type": "video",
-   "src": "assets/captures/s2/t0-s2-title.mp4",
+   "src": "assets/captures/s2/montage.mp4",
    "segs": [
     "s0a"
    ],
-   "label": "片名"
+   "label": "全部本地出图",
+   "hold": 3
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/t0-s2-title.mp4",
+   "segs": [],
+   "label": "片名",
+   "hold": 2.5
   },
   {
    "type": "video",
@@ -42,9 +50,10 @@
    "segs": [
     "s1a"
    ],
-   "start": 6,
-   "speed": 1.6,
-   "label": "两台机器同题同种子"
+   "start": 10,
+   "speed": 2.5,
+   "label": "两台机器同题同种子",
+   "hold": 6
   },
   {
    "type": "video",
@@ -76,9 +85,10 @@
    "segs": [
     "s3a"
    ],
-   "start": 3,
-   "speed": 7,
-   "label": "出图过程 · Qwen-Image 2.1"
+   "start": 54.4,
+   "speed": 4,
+   "label": "出图过程 · Qwen-Image 2.1",
+   "hold": 2
   },
   {
    "type": "video",
@@ -163,6 +173,50 @@
   },
   {
    "type": "video",
+   "src": "assets/captures/s2/g-hands.mp4",
+   "segs": [
+    "s4d"
+   ],
+   "label": "躯体与复杂环境"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/g-gymnast.mp4",
+   "segs": [],
+   "hold": 4.5,
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/g-crowd.mp4",
+   "segs": [],
+   "hold": 4.5,
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/g-guzheng.mp4",
+   "segs": [],
+   "hold": 4.5,
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/g-basketball.mp4",
+   "segs": [],
+   "hold": 4.5,
+   "label": ""
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/c-s2-bodies.mp4",
+   "segs": [
+    "s4e"
+   ],
+   "label": "躯体测试判定"
+  },
+  {
+   "type": "video",
    "src": "assets/captures/s2/cmp-edit_shirt.mp4",
    "segs": [
     "s5a"
@@ -189,9 +243,10 @@
    "segs": [
     "s5b"
    ],
-   "start": 3,
-   "speed": 7,
-   "label": "改海报文字"
+   "start": 136.1,
+   "speed": 4,
+   "label": "改海报文字",
+   "hold": 2
   },
   {
    "type": "video",
@@ -245,9 +300,10 @@
    "segs": [
     "s6c"
    ],
-   "start": 3,
-   "speed": 7,
-   "label": "逐帧动图 · 过程"
+   "start": 49.4,
+   "speed": 4,
+   "label": "逐帧动图 · 过程",
+   "hold": 2
   },
   {
    "type": "video",
@@ -264,6 +320,22 @@
     "s7a"
    ],
    "label": "耗时"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/c-s2chart-power.mp4",
+   "segs": [
+    "s7c"
+   ],
+   "label": "功耗与温度"
+  },
+  {
+   "type": "video",
+   "src": "assets/captures/s2/c-s2-headroom.mp4",
+   "segs": [
+    "s7d"
+   ],
+   "label": "还能干别的吗"
   },
   {
    "type": "video",
@@ -286,7 +358,8 @@
    "segs": [
     "s8a"
    ],
-   "label": "幕后"
+   "label": "幕后",
+   "hold": 0
   },
   {
    "type": "video",

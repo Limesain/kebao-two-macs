@@ -16,6 +16,6 @@ for sub, kind in [("images", "t2i"), ("cloud", "cloud"), ("edits", "edit"), ("in
             m = rec.get("model", ""); eng = "seedream" if "seedream" in m else "grok" if "grok" in m else "gptimage" if "gpt-image" in m else eng
         label, where = ENG.get(eng, (rec.get("model", ""), "local" if kind != "cloud" else "cloud"))
         items.append({"name": name, "kind": kind, "theme": theme, "engine": eng, "model": label, "where": where, "file": str(img.relative_to(R)), "json": str(j.relative_to(R)), "wall_s": rec.get("wall_s"), "cost_usd": rec.get("cost_usd"), "width": rec.get("width"), "height": rec.get("height"), "steps": rec.get("steps"), "seed": rec.get("seed"), "machine": rec.get("machine"), "quant": rec.get("quant"), "model_file": rec.get("file") if kind != "cloud" else rec.get("model"), "prompt": rec.get("prompt")})
-out = {"generated": time.strftime("%Y-%m-%d %H:%M:%S"), "themes": d["themes"], "edits": d["edits"], "inpaints": d["inpaints"], "upscale": d["upscale"], "flipbook": {k: v for k, v in d["flipbook"].items() if k != "frame_instruction_en"}, "shots": d["shots"], "items": items}
+out = {"generated": time.strftime("%Y-%m-%d %H:%M:%S"), "themes": d["themes"], "bodies": d.get("bodies", []), "edits": d["edits"], "inpaints": d["inpaints"], "upscale": d["upscale"], "flipbook": {k: v for k, v in d["flipbook"].items() if k != "frame_instruction_en"}, "shots": d["shots"], "items": items}
 (R / "s2/manifest.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
 print(len(items), "items")

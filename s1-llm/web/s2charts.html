@@ -5,7 +5,9 @@
 .val{font-family:ui-serif,"New York",serif;font-size:24px;fill:#ece7df}.val.g{fill:#c8a96e}
 .grid{stroke:rgba(255,255,255,.07)}.axis{stroke:rgba(255,255,255,.16)}
 body.anim .page>*{opacity:0;animation:rise .9s cubic-bezier(.2,.7,.2,1) forwards}body.anim .page>*:nth-child(1){animation-delay:.2s}body.anim .page>*:nth-child(2){animation-delay:.45s}body.anim .page>*:nth-child(3){animation-delay:.7s}body.anim .page>*:nth-child(4){animation-delay:.9s}body.anim .page>*:nth-child(5){animation-delay:1.1s}@keyframes rise{to{opacity:1}}
-body.anim rect.bar{transform-origin:left center;transform:scaleX(0);animation:grow 1.6s cubic-bezier(.2,.7,.2,1) forwards}@keyframes grow{to{transform:scaleX(1)}}
+body.anim rect.bar{transform-box:fill-box;transform-origin:left center;transform:scaleX(0);animation:grow 1.6s cubic-bezier(.2,.7,.2,1) forwards}@keyframes grow{to{transform:scaleX(1)}}
+body.anim path.ser1{stroke-dasharray:6000;stroke-dashoffset:6000;animation:draw 3.6s 1.2s ease-out forwards}body.anim path.ser1b{opacity:0;animation:fadein 1.2s 2.4s forwards}@keyframes draw{to{stroke-dashoffset:0}}
+.ser1{fill:none;stroke:#c8a96e;stroke-width:2.2}.ser1b{fill:none;stroke:#c8a96e;stroke-width:1.2;stroke-dasharray:4 5;opacity:.8}.val.g{fill:#c8a96e}
 body.anim text.val,body.anim text.nm2.late{opacity:0;animation:fadein .6s forwards}@keyframes fadein{to{opacity:1}}
 .legend{display:flex;gap:36px;font-size:13px;letter-spacing:.2em;color:#8d8f95;margin-top:14px}.legend i{display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-right:10px}
 </style></head><body><div class="page">
@@ -17,29 +19,47 @@ const q=new URLSearchParams(location.search), type=q.get('type')||'time', NS='ht
 const svg=document.getElementById('svg'); const W=1700,H=640; function el(n,a,txt){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);if(txt!=null)e.textContent=txt;svg.appendChild(e);return e;}
 function legend(items){document.getElementById('legend').innerHTML=items.map(([c,t])=>`<span><i style="background:${c}"></i>${t}</span>`).join('');}
 const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0; const mp=i=>(i.width*i.height/1e6);
-function hbars(rows,unit,fmt){ const L=420,Rr=120,T=20,B=40; const n=rows.length; const max=Math.max(...rows.map(r=>r.v))*1.3; const bh=Math.min(54,(H-T-B)/n*0.62), gap=(H-T-B)/n;
+function hbars(rows,unit,fmt){ const L=420,Rr=120,T=20,B=64; const n=rows.length; const max=Math.max(...rows.map(r=>r.v))*1.3; const bh=Math.min(54,(H-T-B)/n*0.62), gap=(H-T-B)/n;
   for(let i=0;i<=4;i++){const x=L+(W-L-Rr)*i/4; el('line',{x1:x,y1:T,x2:x,y2:H-B,class:i?'grid':'axis'}); el('text',{x,y:H-B+24,class:'lbl','text-anchor':'middle'},fmt(max*i/4));}
-  el('text',{x:W-Rr,y:H-B+46,class:'lbl','text-anchor':'end'},unit);
+  el('text',{x:W-Rr,y:H-B+44,class:'lbl','text-anchor':'end'},unit);
   rows.forEach((r,i)=>{ const y=T+gap*i+(gap-bh)/2; el('text',{x:L-26,y:y+bh/2-4,class:'nm','text-anchor':'end'},r.name); el('text',{x:L-26,y:y+bh/2+16,class:'nm2','text-anchor':'end'},r.sub||''); const w=(W-L-Rr)*r.v/max; const b=el('rect',{x:L,y,width:Math.max(2,w),height:bh,fill:r.c,opacity:.9,class:'bar'}); b.style.animationDelay=(1.4+i*.12)+'s'; const t=el('text',{x:L+w+16,y:y+bh/2+9,class:'val'+(r.gold?' g':'')},fmt(r.v)+(r.tail?('  '+r.tail):'')); t.style.animationDelay=(2.6+i*.12)+'s'; if(r.note){const t2=el('text',{x:L+w+16+ (fmt(r.v).length+ (r.tail||'').length)*14+40,y:y+bh/2+6,class:'nm2 late'},r.note); t2.style.animationDelay=(2.8+i*.12)+'s';} });
 }
 (async()=>{
  const M=await (await fetch('s2/manifest.json?'+Date.now())).json(); const I=M.items;
  const G='#c8a96e', S='#8fa3b8', D='#5c5f66';
  if(type==='time'){
-   document.getElementById('h1').textContent='一张 2K 图要等多久'; document.getElementById('lead').textContent='文生图全部题目的平均单张耗时（含模型已在内存中的热启动）· 本地按机器分开 · 云端为接口往返时间 · 单位：秒';
+   document.getElementById('h1').textContent='一张 2K 图要等多久'; document.getElementById('lead').textContent='文生图全部题目的平均单张耗时（模型已在内存中）· 本地 = Mac Studio M5 Ultra 96 GB · 云端为接口往返时间 · 单位：秒';
    const loc=(eng,mac)=>I.filter(i=>i.kind==='t2i'&&i.engine===eng&&mac.test(i.machine||'')&&i.width*i.height>=1.5e6); const cl=eng=>I.filter(i=>i.kind==='cloud'&&i.engine===eng);
    const rows=[]; const add=(name,sub,arr,c,gold)=>{ if(!arr.length) return; const m=avg(arr.map(mp)); rows.push({name,sub,v:avg(arr.map(i=>i.wall_s)),c,gold,tail:`· ${arr.length} 张`+(m>0.5?` · 平均 ${m.toFixed(1)} MP`:'')}); };
    add('Z-Image Turbo','主机 · Mac Studio',loc('zimage',/Studio/),G,true); add('Z-Image Turbo','笔记本 · MacBook Pro',loc('zimage',/MacBook/),S);
    add('Krea 2 Turbo','主机',loc('krea2',/Studio/),G,true); add('Krea 2 Turbo','笔记本',loc('krea2',/MacBook/),S);
    add('Qwen-Image 2.1','主机 · 25 步',loc('qwen',/Studio/),G,true);
    add('Seedream 5.0 Pro','云端 · OpenRouter',cl('seedream'),D); add('Grok Imagine 2.0','云端',cl('grok'),D); add('GPT-Image 2.5','云端',cl('gptimage'),D);
-   hbars(rows,'秒 / 张',v=>v.toFixed(0)); legend([[G,'MAC STUDIO · M5 ULTRA 96G'],[S,'MACBOOK PRO · M5 MAX 48G（合盖）'],[D,'云端接口']]);
+   hbars(rows,'秒 / 张',v=>v.toFixed(0)); legend([[G,'本地 · MAC STUDIO M5 ULTRA 96G'],[D,'云端接口 · OPENROUTER']]);
  } else if(type==='cost'){
    document.getElementById('h1').textContent='云端一张多少钱'; document.getElementById('lead').textContent='OpenRouter 返回的 usage.cost · 平均每张（2K 或 high）· 本地出图不计电费';
    const cl=eng=>I.filter(i=>i.kind==='cloud'&&i.engine===eng&&i.cost_usd!=null); const all=I.filter(i=>i.where==='cloud'&&i.cost_usd!=null); const tot=all.reduce((a,i)=>a+(+i.cost_usd),0);
    const rows=[]; for(const [e,n] of [['seedream','Seedream 5.0 Pro'],['grok','Grok Imagine 2.0'],['gptimage','GPT-Image 2.5 Flare']]){const a=cl(e); if(a.length) rows.push({name:n,sub:`${a.length} 张`,v:avg(a.map(i=>+i.cost_usd)),c:D,tail:'美元 / 张'});}
    rows.push({name:'本地三模型',sub:`${I.filter(i=>i.where==='local').length} 张`,v:0.0001,c:G,gold:true,tail:'美元 · 只花电'});
    hbars(rows,'美元 / 张',v=>v<0.001?'0':v.toFixed(3)); legend([[D,`云端本集合计 ${all.length} 张 · $${tot.toFixed(2)}（预算 $10）`],[G,'本地']]);
+ } else if(type==='power'){
+   document.getElementById('h1').textContent='出一张图，机器有多忙'; document.getElementById('lead').textContent='同一张 2048×1152 · 三个模型连续各出一遍 · 实线：GPU 功耗 W · 虚线：GPU 温度 ℃ · 阴影：内存占用（wired + 压缩页，GB）· Mac Studio M5 Ultra 96 GB';
+   const csv=async u=>{const t=await (await fetch(u+'?'+Date.now())).text(); const [h,...rows]=t.trim().split('\n'); const k=h.split(','); return rows.map(r=>Object.fromEntries(r.split(',').map((v,i)=>[k[i],v])));};
+   const S2=await (await fetch('s2data/profile_summary.json?'+Date.now())).json(); const [pw,tp,mm]=await Promise.all([csv('s2data/power_gen_studio.csv'),csv('s2data/temp_gen_studio.csv'),csv('s2data/mem_gen_studio.csv')]);
+   const sec=t=>{const [h,m,s]=t.split(':').map(Number);return h*3600+m*60+s;}; const t0=sec(S2.window.start), t1=sec(S2.window.end); const xmax=t1-t0;
+   const L=70,Rr=80,T=30,B=70; const X=v=>L+(W-L-Rr)*v/xmax, Y=(v,m)=>T+(H-T-B)*(1-v/m); const pmax=320, tmax=120, mmax=96;
+   for(let i=0;i<=4;i++){const y=T+(H-T-B)*(1-i/4); el('line',{x1:L,y1:y,x2:W-Rr,y2:y,class:i?'grid':'axis'}); el('text',{x:L-12,y:y+4,class:'lbl','text-anchor':'end'},(pmax*i/4).toFixed(0)+' W'); el('text',{x:W-Rr+12,y:y+4,class:'lbl'},(tmax*i/4).toFixed(0)+' ℃');}
+   // 内存阴影
+   const mpts=mm.map(r=>({t:sec(r.ts)-t0,g:(+r.wired_mb+ +r.compressed_mb)/1024})).filter(r=>r.t>=0&&r.t<=xmax);
+   if(mpts.length){ const d='M'+X(0)+' '+Y(0,mmax)+' '+mpts.map(p=>'L'+X(p.t)+' '+Y(p.g,mmax)).join(' ')+' L'+X(mpts.at(-1).t)+' '+Y(0,mmax)+' Z'; el('path',{d,fill:'#8fa3b8',opacity:.14}); const mx=mpts.reduce((a,b)=>b.g>a.g?b:a,mpts[0]); el('text',{x:X(mx.t),y:Y(mx.g,mmax)-8,class:'lbl','text-anchor':'middle'},'内存峰值 '+mx.g.toFixed(0)+' GB / 96'); }
+   // 模型区段
+   for(const [k,m] of Object.entries(S2.models)){ const a=sec(m.start)-t0, b=sec(m.end)-t0; el('rect',{x:X(a),y:T,width:Math.max(2,X(b)-X(a)),height:H-T-B,fill:'#c8a96e',opacity:.07}); el('text',{x:(X(a)+X(b))/2,y:T+18,class:'lbl','text-anchor':'middle',fill:'#c8a96e'},({zimage:'Z-IMAGE TURBO',krea2:'KREA 2 TURBO',qwen:'QWEN-IMAGE 2.1'})[k]+' · '+m.wall_s+' S'); }
+   const ppts=pw.map(r=>({t:sec(r.ts)-t0,w:+r.gpu_mW/1000})).filter(r=>r.t>=0&&r.t<=xmax); el('path',{d:ppts.map((p,i)=>(i?'L':'M')+X(p.t)+' '+Y(p.w,pmax)).join(' '),class:'ser1'});
+   const tpts=tp.map(r=>({t:sec(r.ts)-t0,g:+r.gpu_max})).filter(r=>r.t>=0&&r.t<=xmax&&r.g>0); el('path',{d:tpts.map((p,i)=>(i?'L':'M')+X(p.t)+' '+Y(p.g,tmax)).join(' '),class:'ser1b'});
+   const px=ppts.reduce((a,b)=>b.w>a.w?b:a,ppts[0]); el('circle',{cx:X(px.t),cy:Y(px.w,pmax),r:4.5,fill:'#c8a96e'}); el('text',{x:X(px.t)+10,y:Y(px.w,pmax)-10,class:'val g'},px.w.toFixed(0)+' W');
+   const tx=tpts.reduce((a,b)=>b.g>a.g?b:a,tpts[0]); el('text',{x:X(tx.t)+10,y:Y(tx.g,tmax)+24,class:'val'},tx.g.toFixed(0)+' ℃');
+   for(let i=0;i<=6;i++){const x=L+(W-L-Rr)*i/6; el('text',{x,y:H-B+26,class:'lbl','text-anchor':'middle'},Math.round(xmax*i/6));} el('text',{x:W-Rr,y:H-B+46,class:'lbl','text-anchor':'end'},'秒');
+   legend([['#c8a96e','GPU 功耗 W（实线）· GPU 温度 ℃（虚线）'],['#8fa3b8','内存占用 GB（阴影）']]);
  }
  setTimeout(()=>{document.title='DONE';}, ANIM? +(q.get('dur')||8000): 300);
 })();

@@ -1,0 +1,33 @@
+{
+ "name": "hands_seedream",
+ "model": "bytedance-seed/seedream-5-0-pro",
+ "provider": "openrouter",
+ "prompt": "特写：一位年轻女性的双手正在编织灰色毛线，两根毛线针交叉，十根手指清晰可数、关节自然，指甲干净，窗边自然光，皮肤纹理真实，浅景深",
+ "aspect_ratio": "1:1",
+ "resolution": "2K",
+ "size": null,
+ "refs": [],
+ "wall_s": 49.1,
+ "cost_usd": 0.09,
+ "usage": {
+  "prompt_tokens": 64,
+  "completion_tokens": 16384,
+  "total_tokens": 16448,
+  "cost": 0.09,
+  "is_byok": false,
+  "prompt_tokens_details": {
+   "cached_tokens": 0
+  },
+  "cost_details": {
+   "upstream_inference_cost": 0.09,
+   "upstream_inference_prompt_cost": 0,
+   "upstream_inference_completions_cost": 0.09
+  },
+  "completion_tokens_details": {
+   "reasoning_tokens": 0,
+   "image_tokens": 16384
+  }
+ },
+ "file": "s2/cloud/hands_seedream.jpg",
+ "when": "2026-10-14 00:55:02"
+}
